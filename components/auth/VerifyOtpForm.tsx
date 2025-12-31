@@ -1,56 +1,4 @@
 
-// "use client"
-
-// import { useState } from "react"
-// import { useRouter } from "next/navigation"
-
-// export default function VerifyOtpPage() {
-//   const router = useRouter()
-//   const [otp, setOtp] = useState("")
-//   const [error, setError] = useState("")
-
-//   const handleVerify = (e: React.FormEvent) => {
-//     e.preventDefault()
-
-//     // 🔥 dummy OTP
-//     if (otp === "123456") {
-//       router.push("/reset-password")
-//     } else {
-//       setError("Invalid OTP")
-//     }
-//   }
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-//       <form className="w-full max-w-sm bg-white p-6 rounded-xl shadow-md" onSubmit={handleVerify}>
-//         <h1 className="text-2xl font-bold mb-1">Verify OTP</h1>
-//         <p className="text-sm text-gray-500 mb-5">
-//           Enter 6 digit OTP
-//         </p>
-
-//         {error && <p className="text-sm text-red-500 mb-3">{error}</p>}
-
-//         <input
-//           type="text"
-//           maxLength={6}
-//           placeholder="123456"
-//           value={otp}
-//           onChange={(e) => setOtp(e.target.value)}
-//           className="w-full border rounded-md px-3 py-2 mb-4 text-center tracking-widest"
-//         />
-
-//         <button className="w-full bg-black text-white py-2 rounded-md">
-//           Verify OTP
-//         </button>
-//       </form>
-//     </div>
-//   )
-// }
-
-
-
-
-
 "use client"
 
 import { useState } from "react"
@@ -74,10 +22,10 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4">
+    <div className="min-h-screen flex items-center justify-center  px-4">
       <form
         onSubmit={handleVerify}
-        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur border border-gray-500 shadow-xl p-6"
+        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
       >
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
