@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation"
 import { Loader2, Lock } from "lucide-react"
 import Link from "next/link"
 
+const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms/api"
+
 export default function LoginForm() {
   const router = useRouter()
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("subodh.qurilo@gmail.com")
+  const [password, setPassword] = useState("nan123")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
@@ -20,24 +22,46 @@ export default function LoginForm() {
     setLoading(true)
 
     try {
-      if (email === "admin@blog.com" && password === "admin123") {
-        localStorage.setItem("cms_token", "demo-token")
-        router.push("/dashboard")
-      } else {
-        setError("Invalid email or password")
+
+      console.log("Logging in with:", JSON.stringify({
+          email,
+          password,
+        }),)
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      const result = await res.json()
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Login failed")
       }
-    } catch {
-      setError("Something went wrong")
+
+      // ✅ Save token & user
+      localStorage.setItem("cms_token", result.data.token)
+      localStorage.setItem("cms_user", JSON.stringify(result.data.user))
+
+      // ✅ Redirect
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "Something went wrong")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center  px-4">
+    <div className="min-h-screen w-full flex items-center justify-center px-4">
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200  shadow-xl p-6"
+        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
       >
         {/* Header */}
         <div className="flex items-center gap-2 mb-2">

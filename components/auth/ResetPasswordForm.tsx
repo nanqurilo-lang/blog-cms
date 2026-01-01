@@ -3,32 +3,65 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { KeyRound, ArrowRight } from "lucide-react"
+import { KeyRound, ArrowRight, Loader2 } from "lucide-react"
+
+const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms/api"
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleReset = (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
 
     if (password !== confirm) {
       setError("Passwords do not match")
       return
     }
 
-    // 🔥 dummy success
-    localStorage.removeItem("reset_email")
-    router.push("/login")
+    setLoading(true)
+
+    try {
+      const res = await fetch(`${BASE_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newPassword: password,
+          confirmPassword: confirm,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to reset password")
+      }
+
+      // ✅ cleanup
+      localStorage.removeItem("reset_email")
+      localStorage.removeItem("dev_otp")
+
+      // ✅ redirect to login
+      router.push("/")
+    } catch (err: any) {
+      setError(err.message || "Failed to reset password")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center  px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleReset}
-        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur border bg-gradient-to-br from-gray-100 to-blue-200  shadow-xl p-6"
+        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur border bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
       >
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
@@ -85,10 +118,20 @@ export default function ResetPasswordPage() {
         {/* Button */}
         <button
           type="submit"
-          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition"
+          disabled={loading}
+          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition disabled:opacity-70"
         >
-          Reset Password
-          <ArrowRight className="h-4 w-4" />
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Resetting Password
+            </>
+          ) : (
+            <>
+              Reset Password
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </button>
 
         {/* Footer */}

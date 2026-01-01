@@ -3,26 +3,48 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { ShieldCheck, ArrowRight } from "lucide-react"
+import { ShieldCheck, ArrowRight, Loader2 } from "lucide-react"
+
+const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms/api"
 
 export default function VerifyOtpPage() {
   const router = useRouter()
+
   const [otp, setOtp] = useState("")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setLoading(true)
 
-    // 🔥 dummy OTP
-    if (otp === "123456") {
+    try {
+      const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ otp }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Invalid OTP")
+      }
+
+      // ✅ OTP verified → go to reset password
       router.push("/reset-password")
-    } else {
-      setError("Invalid OTP")
+    } catch (err: any) {
+      setError(err.message || "Failed to verify OTP")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center  px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleVerify}
         className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
@@ -68,10 +90,20 @@ export default function VerifyOtpPage() {
         {/* Button */}
         <button
           type="submit"
-          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition"
+          disabled={loading}
+          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition disabled:opacity-70"
         >
-          Verify OTP
-          <ArrowRight className="h-4 w-4" />
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Verifying OTP
+            </>
+          ) : (
+            <>
+              Verify OTP
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </button>
 
         {/* Footer */}
