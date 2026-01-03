@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   description: "Admin Dashboard",
 }
 
-export default function RootLayout({
+export default function DraftsLayout({
   children,
 }: {
   children: React.ReactNode
