@@ -28,17 +28,30 @@ export default function SettingsPanel({
         <ButtonSettings element={element} onChange={onChange} />
       )}
 
-      {element.type === "heading" && (
+      {/* {element.type === "heading" && (
         <HeadingSettings element={element} onChange={onChange} />
-      )}
+      )} */}
+
+{element.type === "heading" && (
+  <HeadingSettings element={element} onChange={onChange} />
+)}
+
+
+
 
       {element.type === "text" && (
         <TextSettings element={element} onChange={onChange} />
       )}
 
-      {element.type === "image" && (
+      {/* {element.type === "image" && (
         <ImageSettings element={element} onChange={onChange} />
-      )}
+      )} */}
+
+
+      {element.type === "image" && (
+  <ImageSettings element={element} onChange={onChange} />
+)}
+
     </aside>
   )
 }

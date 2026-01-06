@@ -1,3 +1,7 @@
+// import { createImageWidget } from "../builder/types"
+
+
+
 export type WidgetType =
   | "button"
   | "heading"
@@ -101,3 +105,40 @@ export type BuilderElement =
 // setElements((prev) => [...prev, createButtonWidget()])
 
 
+export const createHeadingWidget = (): HeadingWidgetType => ({
+  id: crypto.randomUUID(),
+  type: "heading",
+  props: {
+    text: "Heading Text",
+    level: "h2",
+    color: "#000000",
+    align: "left",
+  },
+})
+
+
+// ================= IMAGE WIDGET FACTORY =================
+
+export const createImageWidget = (): ImageWidgetType => ({
+  id: crypto.randomUUID(),
+  type: "image",
+  props: {
+    src: "https://via.placeholder.com/300",
+    width: "300px",
+    borderRadius: "8px",
+  },
+})
+
+
+
+// ================= TEXT WIDGET FACTORY =================
+
+export const createTextWidget = (): TextWidgetType => ({
+  id: crypto.randomUUID(),
+  type: "text",
+  props: {
+    text: "This is a text block",
+    color: "#333333",
+    fontSize: "16px",
+  },
+})

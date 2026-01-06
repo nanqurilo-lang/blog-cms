@@ -16,8 +16,11 @@ export default function ElementRenderer({
       return <HeadingWidget element={element} />
     case "text":
       return <TextWidget element={element} />
+    // case "image":
+    //   return <ImageWidget element={element} />
     case "image":
-      return <ImageWidget element={element} />
+  return <ImageWidget element={element} />
+
     default:
       return null
   }
