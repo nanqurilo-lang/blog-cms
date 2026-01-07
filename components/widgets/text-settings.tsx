@@ -1,5 +1,14 @@
+
 "use client"
+
 import { TextWidgetType } from "../builder/types"
+import dynamic from "next/dynamic"
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic"
+
+const CKEditor = dynamic(
+  () => import("@ckeditor/ckeditor5-react").then(m => m.CKEditor),
+  { ssr: false }
+)
 
 export default function TextSettings({
   element,
@@ -8,36 +17,41 @@ export default function TextSettings({
   element: TextWidgetType
   onChange: (el: TextWidgetType) => void
 }) {
-  const update = (key: string, value: string) => {
-    onChange({
-      ...element,
-      props: { ...element.props, [key]: value },
-    })
-  }
-
   return (
-    <>
-      <label>Text</label>
-      <textarea
-        value={element.props.text}
-        onChange={(e) => update("text", e.target.value)}
-        className="input"
+    <div className="space-y-3">
+      <CKEditor
+        editor={ClassicEditor}
+        data={element.props.content}
+        config={{
+          toolbar: [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "underline",
+            "link",
+            "|",
+            "bulletedList",
+            "numberedList",
+            "|",
+            "fontSize",
+            "fontColor",
+            "alignment",
+            "|",
+            "undo",
+            "redo",
+          ],
+        }}
+        onChange={(_, editor) => {
+          onChange({
+            ...element,
+            props: {
+              content: editor.getData(),
+            },
+          })
+        }}
       />
-
-      <label>Color</label>
-      <input
-        type="color"
-        value={element.props.color}
-        onChange={(e) => update("color", e.target.value)}
-      />
-
-      <label>Font Size</label>
-      <input
-        value={element.props.fontSize}
-        onChange={(e) => update("fontSize", e.target.value)}
-        className="input"
-        placeholder="16px"
-      />
-    </>
+    </div>
   )
 }
+

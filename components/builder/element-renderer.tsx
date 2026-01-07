@@ -6,8 +6,12 @@ import { BuilderElement } from "./types"
 
 export default function ElementRenderer({
   element,
+  isActive,
+  onSelect,
 }: {
   element: BuilderElement
+  isActive: boolean
+  onSelect: () => void
 }) {
   switch (element.type) {
     case "button":
@@ -15,7 +19,13 @@ export default function ElementRenderer({
     case "heading":
       return <HeadingWidget element={element} />
     case "text":
-      return <TextWidget element={element} />
+      return (
+        <TextWidget
+          element={element}
+          isActive={isActive}
+          onSelect={onSelect}
+        />
+      )
     // case "image":
     //   return <ImageWidget element={element} />
     case "image":
@@ -25,3 +35,8 @@ export default function ElementRenderer({
       return null
   }
 }
+
+
+
+
+

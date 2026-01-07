@@ -70,15 +70,27 @@ export type HeadingWidgetType = BaseWidget<HeadingProps> & {
 
 
 /* ---------- TEXT ---------- */
+// export interface TextProps {
+//   text: string
+//   color: string
+//   fontSize: string
+// }
+
+// export type TextWidgetType = BaseWidget<TextProps> & {
+//   type: "text"
+// }
+
+
 export interface TextProps {
-  text: string
-  color: string
-  fontSize: string
+  content: string // HTML
 }
 
 export type TextWidgetType = BaseWidget<TextProps> & {
   type: "text"
 }
+
+
+
 
 
 /* ---------- IMAGE ---------- */
@@ -133,12 +145,23 @@ export const createImageWidget = (): ImageWidgetType => ({
 
 // ================= TEXT WIDGET FACTORY =================
 
+// export const createTextWidget = (): TextWidgetType => ({
+//   id: crypto.randomUUID(),
+//   type: "text",
+//   props: {
+//     text: "This is a text block",
+//     color: "#333333",
+//     fontSize: "16px",
+//   },
+// })
+
+
+
 export const createTextWidget = (): TextWidgetType => ({
   id: crypto.randomUUID(),
   type: "text",
   props: {
-    text: "This is a text block",
-    color: "#333333",
-    fontSize: "16px",
+    content: "<p>Type your text here</p>",
   },
 })
+
