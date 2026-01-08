@@ -301,10 +301,10 @@ export function AppSidebar() {
             active={pathname === "/editor"}
           />
           <MenuItem
-            href="/create"
+            href="/builder"
             icon={PlusSquare}
             label="Create"
-            active={pathname === "/create"}
+            active={pathname === "/builder"}
           />
           <MenuItem
             href="/templates"
