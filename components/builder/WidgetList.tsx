@@ -6,6 +6,9 @@ export default function WidgetList({ addWidget }: any) {
       <button onClick={() => addWidget("button")} className="btn">
         ➕ Button
       </button>
+       <button onClick={() => addWidget("text")} className="btn">
+        📝 Text Editor
+      </button>
     </div>
   );
 }
