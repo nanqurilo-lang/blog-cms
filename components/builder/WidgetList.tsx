@@ -9,6 +9,11 @@ export default function WidgetList({ addWidget }: any) {
        <button onClick={() => addWidget("text")} className="btn">
         📝 Text Editor
       </button>
+
+      <button onClick={() => addWidget("image")} className="btn">
+  🖼 Image
+</button>
+
     </div>
   );
 }
