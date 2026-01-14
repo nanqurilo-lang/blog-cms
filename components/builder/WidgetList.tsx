@@ -14,6 +14,18 @@ export default function WidgetList({ addWidget }: any) {
   🖼 Image
 </button>
 
+<button onClick={() => addWidget("paragraph")} className="btn">
+  📄 Paragraph
+</button>
+<button onClick={() => addWidget("separator")} className="btn">
+  ➖ Separator
+</button>
+
+<button onClick={() => addWidget("hero")} className="btn">
+  🧲 Hero Section
+</button>
+
+
     </div>
   );
 }
