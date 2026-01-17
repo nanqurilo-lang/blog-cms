@@ -26,6 +26,8 @@ import {
   Repeat,
   Pencil,
   EyeIcon,
+  Trash2,
+  Save,
 } from "lucide-react"
 
 const postsData = Array.from({ length: 6 }).map((_, i) => ({
@@ -63,6 +65,21 @@ export default function Page() {
 
   const handleEdit = (id: number) => {
     alert(`Edit post ID: ${id}`)
+    setOpenMenu(null)
+  }
+
+  const handleSaveAsTemplate = (id: number) => {
+    alert(`Post ${id} saved as template`)
+    setOpenMenu(null)
+  }
+
+  const handleDelete = (id: number) => {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this post?"
+    )
+    if (!confirmDelete) return
+
+    setPosts(prev => prev.filter(p => p.id !== id))
     setOpenMenu(null)
   }
 
@@ -114,7 +131,7 @@ export default function Page() {
 
               {/* Dropdown Menu */}
               {openMenu === post.id && (
-                <div className="absolute top-12 right-3 w-40 rounded-md border bg-white shadow-md z-50">
+                <div className="absolute top-12 right-3 w-44 rounded-md border bg-white shadow-md z-50">
                   <button
                     onClick={() => handleView(post.id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
@@ -127,6 +144,13 @@ export default function Page() {
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
                     <Pencil size={14} /> Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleSaveAsTemplate(post.id)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
+                  >
+                    <Save size={14} /> Save as Template
                   </button>
 
                   <button
@@ -143,7 +167,14 @@ export default function Page() {
                     />
                     {post.favourite
                       ? "Remove Favourite"
-                      : "Make Favourite"}
+                      : "Mark as Favourite"}
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(post.id)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={14} /> Delete
                   </button>
                 </div>
               )}
@@ -196,3 +227,4 @@ export default function Page() {
     </div>
   )
 }
+
