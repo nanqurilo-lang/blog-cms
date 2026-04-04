@@ -398,6 +398,25 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                 <Field label="Description"><textarea className={textareaClass} placeholder="Hero description" value={g.description || ""} onChange={(e) => updateWidget("general", "description", e.target.value)} /></Field>
               </Section>
 
+              <Section title="Layout">
+                <Row>
+                  <Field label="Horizontal Align">
+                    <select className={selectClass} value={g.align || "center"} onChange={(e) => updateWidget("general", "align", e.target.value)}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </Field>
+                  <Field label="Vertical Align">
+                    <select className={selectClass} value={g.verticalAlign || "center"} onChange={(e) => updateWidget("general", "verticalAlign", e.target.value)}>
+                      <option value="top">Top</option>
+                      <option value="center">Center</option>
+                      <option value="bottom">Bottom</option>
+                    </select>
+                  </Field>
+                </Row>
+              </Section>
+
               <Section title="Background">
                 <Field label="Background Type">
                   <select className={selectClass} value={g.bgType || "color"} onChange={(e) => updateWidget("general", "bgType", e.target.value)}>
@@ -409,6 +428,25 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                 {g.bgType === "color" && <Field label="Background Color"><input className={inputClass} type="color" value={g.bgColor || "#0f172a"} onChange={(e) => updateWidget("general", "bgColor", e.target.value)} /></Field>}
                 {g.bgType === "image" && <Field label="Background Image URL"><input className={inputClass} placeholder="https://..." value={g.bgImage || ""} onChange={(e) => updateWidget("general", "bgImage", e.target.value)} /></Field>}
                 {g.bgType === "gradient" && <Field label="Gradient CSS"><input className={inputClass} placeholder="linear-gradient(...)" value={g.bgGradient || ""} onChange={(e) => updateWidget("general", "bgGradient", e.target.value)} /></Field>}
+              </Section>
+
+              <Section title="CTA Button">
+                <Field label="Button Text"><input className={inputClass} placeholder="Explore Story" value={g.btnText || ""} onChange={(e) => updateWidget("general", "btnText", e.target.value)} /></Field>
+                <Field label="Button Link"><input className={inputClass} placeholder="https://example.com" value={g.btnLink || ""} onChange={(e) => updateWidget("general", "btnLink", e.target.value)} /></Field>
+                <Row>
+                  <Field label="Open In">
+                    <select className={selectClass} value={g.btnTarget || "_self"} onChange={(e) => updateWidget("general", "btnTarget", e.target.value)}>
+                      <option value="_self">Same tab</option>
+                      <option value="_blank">New tab</option>
+                    </select>
+                  </Field>
+                  <Field label="Button Nofollow">
+                    <select className={selectClass} value={g.btnNoFollow ? "yes" : "no"} onChange={(e) => updateWidget("general", "btnNoFollow", e.target.value === "yes")}>
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </Field>
+                </Row>
               </Section>
             </>
           )}
@@ -846,14 +884,98 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
           )}
 
           {isHero && (
-            <Section title="Hero Style">
-              <Field label="Height"><input className={inputClass} placeholder="70vh" value={s.height || ""} onChange={(e) => updateHeroStyle("height", e.target.value)} /></Field>
-              <Field label="Padding"><input className={inputClass} placeholder="80px 20px" value={s.padding || ""} onChange={(e) => updateHeroStyle("padding", e.target.value)} /></Field>
-              <Row>
-                <Field label="Overlay Color"><input className={inputClass} type="color" value={s.overlayColor || "#000000"} onChange={(e) => updateHeroStyle("overlayColor", e.target.value)} /></Field>
-                <Field label="Overlay Opacity"><input className={inputClass} type="number" step="0.1" min="0" max="1" value={s.overlayOpacity ?? ""} onChange={(e) => updateHeroStyle("overlayOpacity", Number(e.target.value))} /></Field>
-              </Row>
-            </Section>
+            <>
+              <Section title="Container">
+                <Row>
+                  <Field label="Height"><input className={inputClass} placeholder="72vh" value={s.height || ""} onChange={(e) => updateHeroStyle("height", e.target.value)} /></Field>
+                  <Field label="Min Height"><input className={inputClass} placeholder="560px" value={s.minHeight || ""} onChange={(e) => updateHeroStyle("minHeight", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Max Width"><input className={inputClass} placeholder="1200px" value={s.maxWidth || ""} onChange={(e) => updateHeroStyle("maxWidth", e.target.value)} /></Field>
+                  <Field label="Content Width"><input className={inputClass} placeholder="720px" value={s.contentWidth || ""} onChange={(e) => updateHeroStyle("contentWidth", e.target.value)} /></Field>
+                </Row>
+                <Field label="Padding"><input className={inputClass} placeholder="96px 32px" value={s.padding || ""} onChange={(e) => updateHeroStyle("padding", e.target.value)} /></Field>
+                <Row>
+                  <Field label="Text Color"><input className={inputClass} type="color" value={s.textColor || "#ffffff"} onChange={(e) => updateHeroStyle("textColor", e.target.value)} /></Field>
+                  <Field label="Border Radius"><input className={inputClass} placeholder="32px" value={s.borderRadius || ""} onChange={(e) => updateHeroStyle("borderRadius", e.target.value)} /></Field>
+                </Row>
+                <Field label="Box Shadow"><input className={inputClass} placeholder="0 28px 70px rgba(...)" value={s.boxShadow || ""} onChange={(e) => updateHeroStyle("boxShadow", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Background Media">
+                <Row>
+                  <Field label="Background Size"><input className={inputClass} placeholder="cover" value={s.bgSize || ""} onChange={(e) => updateHeroStyle("bgSize", e.target.value)} /></Field>
+                  <Field label="Background Position"><input className={inputClass} placeholder="center center" value={s.bgPosition || ""} onChange={(e) => updateHeroStyle("bgPosition", e.target.value)} /></Field>
+                </Row>
+                <Field label="Background Repeat"><input className={inputClass} placeholder="no-repeat" value={s.bgRepeat || ""} onChange={(e) => updateHeroStyle("bgRepeat", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Overlay">
+                <Row>
+                  <Field label="Overlay Color"><input className={inputClass} type="color" value={s.overlayColor || "#020617"} onChange={(e) => updateHeroStyle("overlayColor", e.target.value)} /></Field>
+                  <Field label="Overlay Opacity"><input className={inputClass} type="number" step="0.05" min="0" max="1" value={s.overlayOpacity ?? 0.42} onChange={(e) => updateHeroStyle("overlayOpacity", Number(e.target.value))} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Title Style">
+                <Row>
+                  <Field label="Font Size"><input className={inputClass} placeholder="clamp(42px, 7vw, 72px)" value={s.title?.fontSize || ""} onChange={(e) => updateHeroStyle("title", { ...(s.title || {}), fontSize: e.target.value })} /></Field>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="800" value={s.title?.fontWeight || ""} onChange={(e) => updateHeroStyle("title", { ...(s.title || {}), fontWeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.02" value={s.title?.lineHeight || ""} onChange={(e) => updateHeroStyle("title", { ...(s.title || {}), lineHeight: e.target.value })} /></Field>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="-0.04em" value={s.title?.letterSpacing || ""} onChange={(e) => updateHeroStyle("title", { ...(s.title || {}), letterSpacing: e.target.value })} /></Field>
+                </Row>
+                <Field label="Bottom Spacing"><input className={inputClass} placeholder="18px" value={s.title?.marginBottom || ""} onChange={(e) => updateHeroStyle("title", { ...(s.title || {}), marginBottom: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Subtitle Style">
+                <Row>
+                  <Field label="Font Size"><input className={inputClass} placeholder="14px" value={s.subtitle?.fontSize || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), fontSize: e.target.value })} /></Field>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="700" value={s.subtitle?.fontWeight || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), fontWeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.2" value={s.subtitle?.lineHeight || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), lineHeight: e.target.value })} /></Field>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="0.28em" value={s.subtitle?.letterSpacing || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), letterSpacing: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Transform"><input className={inputClass} placeholder="uppercase" value={s.subtitle?.textTransform || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), textTransform: e.target.value })} /></Field>
+                  <Field label="Color"><input className={inputClass} placeholder="rgba(255,255,255,0.75)" value={s.subtitle?.color || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), color: e.target.value })} /></Field>
+                </Row>
+                <Field label="Bottom Spacing"><input className={inputClass} placeholder="20px" value={s.subtitle?.marginBottom || ""} onChange={(e) => updateHeroStyle("subtitle", { ...(s.subtitle || {}), marginBottom: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Description Style">
+                <Row>
+                  <Field label="Font Size"><input className={inputClass} placeholder="18px" value={s.text?.fontSize || ""} onChange={(e) => updateHeroStyle("text", { ...(s.text || {}), fontSize: e.target.value })} /></Field>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="400" value={s.text?.fontWeight || ""} onChange={(e) => updateHeroStyle("text", { ...(s.text || {}), fontWeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.8" value={s.text?.lineHeight || ""} onChange={(e) => updateHeroStyle("text", { ...(s.text || {}), lineHeight: e.target.value })} /></Field>
+                  <Field label="Color"><input className={inputClass} placeholder="rgba(255,255,255,0.9)" value={s.text?.color || ""} onChange={(e) => updateHeroStyle("text", { ...(s.text || {}), color: e.target.value })} /></Field>
+                </Row>
+                <Field label="Bottom Spacing"><input className={inputClass} placeholder="30px" value={s.text?.marginBottom || ""} onChange={(e) => updateHeroStyle("text", { ...(s.text || {}), marginBottom: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Button Style">
+                <Row>
+                  <Field label="Padding"><input className={inputClass} placeholder="14px 30px" value={s.button?.padding || ""} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), padding: e.target.value })} /></Field>
+                  <Field label="Radius"><input className={inputClass} placeholder="999px" value={s.button?.radius || ""} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), radius: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Background"><input className={inputClass} type="color" value={s.button?.bg || "#ffffff"} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), bg: e.target.value })} /></Field>
+                  <Field label="Text Color"><input className={inputClass} type="color" value={s.button?.color || "#0f172a"} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), color: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Border Width"><input className={inputClass} placeholder="0px" value={s.button?.borderWidth || ""} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), borderWidth: e.target.value })} /></Field>
+                  <Field label="Border Style"><input className={inputClass} placeholder="solid" value={s.button?.borderStyle || ""} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), borderStyle: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Border Color"><input className={inputClass} type="color" value={s.button?.borderColor || "#ffffff"} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), borderColor: e.target.value })} /></Field>
+                  <Field label="Box Shadow"><input className={inputClass} placeholder="0 18px 35px rgba(...)" value={s.button?.boxShadow || ""} onChange={(e) => updateHeroStyle("button", { ...(s.button || {}), boxShadow: e.target.value })} /></Field>
+                </Row>
+              </Section>
+            </>
           )}
         </div>
       )}

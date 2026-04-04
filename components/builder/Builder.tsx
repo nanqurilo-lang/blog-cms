@@ -254,6 +254,76 @@ function createWidget(type: string) {
     };
   }
 
+  if (type === "hero") {
+    return {
+      id,
+      type,
+      general: {
+        title: "Build standout stories with a hero section that feels intentional.",
+        subtitle: "Elementor-style hero block",
+        description: "Mix striking backgrounds, clear hierarchy, and focused calls to action to open every post with confidence.",
+        bgType: "gradient",
+        bgColor: "#0f172a",
+        bgImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1600&q=80",
+        bgGradient: "linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #38bdf8 100%)",
+        btnText: "Explore Story",
+        btnLink: "#",
+        btnTarget: "_self",
+        btnNoFollow: false,
+        align: "center",
+        verticalAlign: "center",
+      },
+      style: {
+        height: "72vh",
+        minHeight: "560px",
+        maxWidth: "1200px",
+        contentWidth: "720px",
+        padding: "96px 32px",
+        borderRadius: "32px",
+        textColor: "#ffffff",
+        bgSize: "cover",
+        bgPosition: "center center",
+        bgRepeat: "no-repeat",
+        boxShadow: "0 28px 70px rgba(15, 23, 42, 0.28)",
+        overlayColor: "#020617",
+        overlayOpacity: 0.42,
+        title: {
+          fontSize: "clamp(42px, 7vw, 72px)",
+          fontWeight: "800",
+          lineHeight: "1.02",
+          letterSpacing: "-0.04em",
+          marginBottom: "18px",
+        },
+        subtitle: {
+          fontSize: "14px",
+          fontWeight: "700",
+          lineHeight: "1.2",
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          marginBottom: "20px",
+          color: "rgba(255,255,255,0.75)",
+        },
+        text: {
+          fontSize: "18px",
+          fontWeight: "400",
+          lineHeight: "1.8",
+          marginBottom: "30px",
+          color: "rgba(255,255,255,0.9)",
+        },
+        button: {
+          padding: "14px 30px",
+          bg: "#ffffff",
+          color: "#0f172a",
+          radius: "999px",
+          borderWidth: "0px",
+          borderStyle: "solid",
+          borderColor: "transparent",
+          boxShadow: "0 18px 35px rgba(15, 23, 42, 0.2)",
+        },
+      },
+    };
+  }
+
   return {
     id,
     type,
