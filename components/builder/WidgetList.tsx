@@ -17,11 +17,11 @@ export default function WidgetList({ addWidget }: any) {
       <h3 className="mb-2 font-bold">Widgets</h3>
 
       <button onClick={() => addWidget("button")} className={buttonClass}>
-        Button
+        ➕ Button
       </button>
 
       <button onClick={() => addWidget("text")} className={buttonClass}>
-        Text
+       📝 Text Editor
       </button>
 
       <button onClick={() => addWidget("heading")} className={buttonClass}>
@@ -29,23 +29,23 @@ export default function WidgetList({ addWidget }: any) {
       </button>
 
       <button onClick={() => addWidget("image")} className={buttonClass}>
-        Image
+        🖼 Image
       </button>
 
       <button onClick={() => addWidget("paragraph")} className={buttonClass}>
-        Paragraph
+        📄 Paragraph
       </button>
 
       <button onClick={() => addWidget("separator")} className={buttonClass}>
-        Separator
+        ➖ Separator
       </button>
 
       <button onClick={() => addWidget("hero")} className={buttonClass}>
-        Hero Section
+        🧲 Hero Section
       </button>
 
       <button onClick={() => addWidget("testimonial")} className={buttonClass}>
-        Testimonial
+      💬  Testimonial
       </button>
 
       <button onClick={() => addWidget("video")} className={buttonClass}>
