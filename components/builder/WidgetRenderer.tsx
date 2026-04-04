@@ -9,6 +9,7 @@ import HeroWidget from "./widgets/HeroWidget";
 import TestimonialWidget from "./widgets/TestimonialWidget";
 import VideoWidget from "./widgets/VideoWidget";
 import HeadingWidget from "./widgets/HeadingWidget";
+import ImageCarouselWidget from "./widgets/ImageCarouselWidget";
 
 export default function WidgetRenderer({ widget }: any) {
   if (!widget || !widget.type) return null;
@@ -40,6 +41,9 @@ export default function WidgetRenderer({ widget }: any) {
 
     case "heading":
       return <HeadingWidget widget={widget} />;
+
+    case "image-carousel":
+      return <ImageCarouselWidget widget={widget} />;
 
     default:
       return null;

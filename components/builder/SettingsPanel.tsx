@@ -50,6 +50,7 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
   const isText = widget.type === "text";
   const isHeading = widget.type === "heading";
   const isImage = widget.type === "image";
+  const isImageCarousel = widget.type === "image-carousel";
   const isParagraph = widget.type === "paragraph";
   const isSeparator = widget.type === "separator";
   const isHero = widget.type === "hero";
@@ -409,6 +410,220 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                   <input className={checkboxClass} type="checkbox" checked={Boolean(g.noFollow)} onChange={(e) => updateWidget("general", "noFollow", e.target.checked)} />
                   Add nofollow rel
                 </label>
+              </Section>
+            </>
+          )}
+
+          {isImageCarousel && (
+            <>
+              <Section title="Slides">
+                <Field label="Image URLs">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="One image URL per line"
+                    value={Array.isArray(g.images) ? g.images.join("\n") : g.images || ""}
+                    onChange={(e) => updateWidget("general", "images", e.target.value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean))}
+                  />
+                </Field>
+                <Field label="Captions">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="One caption per line"
+                    value={Array.isArray(g.captions) ? g.captions.join("\n") : g.captions || ""}
+                    onChange={(e) => updateWidget("general", "captions", e.target.value.split(/\r?\n/).map((item) => item.trim()))}
+                  />
+                </Field>
+                <Field label="Alt Prefix"><input className={inputClass} placeholder="Carousel image" value={g.altPrefix || ""} onChange={(e) => updateWidget("general", "altPrefix", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Navigation">
+                <Row>
+                  <Field label="Show Arrows">
+                    <select className={selectClass} value={g.showArrows === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "showArrows", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                  <Field label="Show Dots">
+                    <select className={selectClass} value={g.showDots === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "showDots", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Show Counter">
+                    <select className={selectClass} value={g.showCounter === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "showCounter", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                  <Field label="Show Caption">
+                    <select className={selectClass} value={g.showCaption === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "showCaption", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                </Row>
+              </Section>
+
+              <Section title="Autoplay">
+                <Row>
+                  <Field label="Autoplay">
+                    <select className={selectClass} value={g.autoplay ? "yes" : "no"} onChange={(e) => updateWidget("general", "autoplay", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                  <Field label="Loop">
+                    <select className={selectClass} value={g.loop === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "loop", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Pause On Hover">
+                    <select className={selectClass} value={g.pauseOnHover === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "pauseOnHover", e.target.value === "yes")}>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </Field>
+                  <Field label="Autoplay Speed (ms)"><input className={inputClass} type="number" min="500" step="100" value={g.autoplaySpeed ?? 3500} onChange={(e) => updateWidget("general", "autoplaySpeed", Number(e.target.value))} /></Field>
+                </Row>
+              </Section>
+            </>
+          )}
+
+          {isImageCarousel && (
+            <>
+              <Section title="Frame">
+                <Row>
+                  <Field label="Alignment">
+                    <select className={selectClass} value={s.alignment || "left"} onChange={(e) => updateWidget("style", "alignment", e.target.value)}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </Field>
+                  <Field label="Aspect Ratio"><input className={inputClass} placeholder="16 / 9" value={s.aspectRatio || ""} onChange={(e) => updateWidget("style", "aspectRatio", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Width"><input className={inputClass} placeholder="100%" value={s.width || ""} onChange={(e) => updateWidget("style", "width", e.target.value)} /></Field>
+                  <Field label="Max Width"><input className={inputClass} placeholder="960px" value={s.maxWidth || ""} onChange={(e) => updateWidget("style", "maxWidth", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Min Height"><input className={inputClass} placeholder="320px" value={s.minHeight || ""} onChange={(e) => updateWidget("style", "minHeight", e.target.value)} /></Field>
+                  <Field label="Frame BG"><input className={inputClass} placeholder="#0f172a" value={s.frameBackground || ""} onChange={(e) => updateWidget("style", "frameBackground", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Padding"><input className={inputClass} placeholder="0px" value={s.padding || ""} onChange={(e) => updateWidget("style", "padding", e.target.value)} /></Field>
+                  <Field label="Margin"><input className={inputClass} placeholder="0px" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
+                </Row>
+                <Field label="Background"><input className={inputClass} placeholder="transparent or linear-gradient(...)" value={s.background || ""} onChange={(e) => updateWidget("style", "background", e.target.value)} /></Field>
+                <Field label="Box Shadow"><input className={inputClass} placeholder="0 24px 70px rgba(...)" value={s.boxShadow || ""} onChange={(e) => updateWidget("style", "boxShadow", e.target.value)} /></Field>
+                <Field label="Transition Duration"><input className={inputClass} placeholder="0.45s" value={s.transitionDuration || ""} onChange={(e) => updateWidget("style", "transitionDuration", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Media">
+                <Row>
+                  <Field label="Object Fit">
+                    <select className={selectClass} value={s.objectFit || "cover"} onChange={(e) => updateWidget("style", "objectFit", e.target.value)}>
+                      <option value="cover">Cover</option>
+                      <option value="contain">Contain</option>
+                      <option value="fill">Fill</option>
+                      <option value="none">None</option>
+                    </select>
+                  </Field>
+                  <Field label="Object Position"><input className={inputClass} placeholder="center center" value={s.objectPosition || ""} onChange={(e) => updateWidget("style", "objectPosition", e.target.value)} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Border & Overlay">
+                <Row>
+                  <Field label="Border Width"><input className={inputClass} placeholder="0px" value={s.border?.width || ""} onChange={(e) => updateBorder("width", e.target.value)} /></Field>
+                  <Field label="Border Style">
+                    <select className={selectClass} value={s.border?.style || "solid"} onChange={(e) => updateBorder("style", e.target.value)}>
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                      <option value="double">Double</option>
+                      <option value="none">None</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Border Color"><input className={inputClass} type="color" value={s.border?.color || "#e5e7eb"} onChange={(e) => updateBorder("color", e.target.value)} /></Field>
+                  <Field label="Radius"><input className={inputClass} placeholder="28px" value={s.border?.radius || ""} onChange={(e) => updateBorder("radius", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Overlay Color"><input className={inputClass} placeholder="rgba(15, 23, 42, 0.12)" value={s.overlay?.color || ""} onChange={(e) => updateWidget("style", "overlay", { ...(s.overlay || {}), color: e.target.value })} /></Field>
+                  <Field label="Overlay Opacity"><input className={inputClass} type="number" step="0.05" min="0" max="1" value={s.overlay?.opacity ?? 0} onChange={(e) => updateWidget("style", "overlay", { ...(s.overlay || {}), opacity: Number(e.target.value) })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Arrows">
+                <Row>
+                  <Field label="Arrow Size"><input className={inputClass} placeholder="46px" value={s.arrows?.size || ""} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), size: e.target.value })} /></Field>
+                  <Field label="Icon Size"><input className={inputClass} placeholder="20" value={s.arrows?.iconSize || ""} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), iconSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Offset"><input className={inputClass} placeholder="18px" value={s.arrows?.offset || ""} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), offset: e.target.value })} /></Field>
+                  <Field label="Arrow Color"><input className={inputClass} type="color" value={s.arrows?.color || "#ffffff"} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), color: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Arrow BG"><input className={inputClass} placeholder="rgba(255,255,255,0.16)" value={s.arrows?.background || ""} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), background: e.target.value })} /></Field>
+                  <Field label="Arrow Shadow"><input className={inputClass} placeholder="0 12px 28px rgba(...)" value={s.arrows?.boxShadow || ""} onChange={(e) => updateWidget("style", "arrows", { ...(s.arrows || {}), boxShadow: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Dots & Counter">
+                <Row>
+                  <Field label="Dot Size"><input className={inputClass} placeholder="10px" value={s.dots?.size || ""} onChange={(e) => updateWidget("style", "dots", { ...(s.dots || {}), size: e.target.value })} /></Field>
+                  <Field label="Dot Gap"><input className={inputClass} placeholder="8px" value={s.dots?.gap || ""} onChange={(e) => updateWidget("style", "dots", { ...(s.dots || {}), gap: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Dot Color"><input className={inputClass} placeholder="rgba(255,255,255,0.45)" value={s.dots?.color || ""} onChange={(e) => updateWidget("style", "dots", { ...(s.dots || {}), color: e.target.value })} /></Field>
+                  <Field label="Active Dot"><input className={inputClass} type="color" value={s.dots?.activeColor || "#ffffff"} onChange={(e) => updateWidget("style", "dots", { ...(s.dots || {}), activeColor: e.target.value })} /></Field>
+                </Row>
+                <Field label="Dots Bottom"><input className={inputClass} placeholder="18px" value={s.dots?.bottom || ""} onChange={(e) => updateWidget("style", "dots", { ...(s.dots || {}), bottom: e.target.value })} /></Field>
+                <Row>
+                  <Field label="Counter Top"><input className={inputClass} placeholder="18px" value={s.counter?.top || ""} onChange={(e) => updateWidget("style", "counter", { ...(s.counter || {}), top: e.target.value })} /></Field>
+                  <Field label="Counter Right"><input className={inputClass} placeholder="18px" value={s.counter?.right || ""} onChange={(e) => updateWidget("style", "counter", { ...(s.counter || {}), right: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Counter BG"><input className={inputClass} placeholder="rgba(15,23,42,0.58)" value={s.counter?.background || ""} onChange={(e) => updateWidget("style", "counter", { ...(s.counter || {}), background: e.target.value })} /></Field>
+                  <Field label="Counter Color"><input className={inputClass} type="color" value={s.counter?.color || "#ffffff"} onChange={(e) => updateWidget("style", "counter", { ...(s.counter || {}), color: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Caption & Placeholder">
+                <Row>
+                  <Field label="Caption Color"><input className={inputClass} type="color" value={s.caption?.color || "#475569"} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), color: e.target.value })} /></Field>
+                  <Field label="Caption Align">
+                    <select className={selectClass} value={s.caption?.align || "left"} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), align: e.target.value })}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Caption Size"><input className={inputClass} placeholder="14px" value={s.caption?.fontSize || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), fontSize: e.target.value })} /></Field>
+                  <Field label="Caption Weight"><input className={inputClass} placeholder="400" value={s.caption?.fontWeight || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), fontWeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Caption Line Height"><input className={inputClass} placeholder="1.7" value={s.caption?.lineHeight || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), lineHeight: e.target.value })} /></Field>
+                  <Field label="Caption Spacing"><input className={inputClass} placeholder="0px" value={s.caption?.letterSpacing || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), letterSpacing: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Caption BG"><input className={inputClass} placeholder="#ffffff or transparent" value={s.caption?.background || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), background: e.target.value })} /></Field>
+                  <Field label="Caption Padding"><input className={inputClass} placeholder="16px 18px" value={s.caption?.padding || ""} onChange={(e) => updateWidget("style", "caption", { ...(s.caption || {}), padding: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Placeholder Color"><input className={inputClass} type="color" value={s.placeholder?.color || "#cbd5e1"} onChange={(e) => updateWidget("style", "placeholder", { ...(s.placeholder || {}), color: e.target.value })} /></Field>
+                  <Field label="Placeholder BG"><input className={inputClass} placeholder="linear-gradient(...)" value={s.placeholder?.background || ""} onChange={(e) => updateWidget("style", "placeholder", { ...(s.placeholder || {}), background: e.target.value })} /></Field>
+                </Row>
               </Section>
             </>
           )}

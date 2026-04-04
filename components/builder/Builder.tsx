@@ -392,6 +392,99 @@ function createWidget(type: string) {
     };
   }
 
+  if (type === "image-carousel") {
+    return {
+      id,
+      type,
+      general: {
+        images: [
+          "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1400&q=80",
+          "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80",
+          "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80",
+        ],
+        captions: [
+          "Use carousel slides to create editorial product stories and visual sequences.",
+          "Blend landscape visuals, campaign frames, or article media inside one polished block.",
+          "Give readers a smoother visual experience without breaking the flow of the post.",
+        ],
+        altPrefix: "Carousel image",
+        autoplay: true,
+        autoplaySpeed: 3500,
+        loop: true,
+        pauseOnHover: true,
+        showArrows: true,
+        showDots: true,
+        showCounter: true,
+        showCaption: true,
+      },
+      style: {
+        alignment: "left",
+        width: "100%",
+        maxWidth: "960px",
+        minHeight: "",
+        padding: "0px",
+        margin: "0px",
+        background: "transparent",
+        frameBackground: "#0f172a",
+        objectFit: "cover",
+        objectPosition: "center center",
+        aspectRatio: "16 / 9",
+        transitionDuration: "0.45s",
+        boxShadow: "0 24px 70px rgba(15, 23, 42, 0.16)",
+        border: {
+          width: "0px",
+          style: "solid",
+          color: "#e5e7eb",
+          radius: "28px",
+        },
+        overlay: {
+          color: "rgba(15, 23, 42, 0.12)",
+          opacity: 0,
+        },
+        caption: {
+          color: "#475569",
+          fontSize: "14px",
+          fontWeight: "400",
+          lineHeight: "1.7",
+          letterSpacing: "0px",
+          align: "left",
+          background: "#ffffff",
+          padding: "16px 18px",
+        },
+        arrows: {
+          size: "46px",
+          iconSize: "20",
+          offset: "18px",
+          background: "rgba(255, 255, 255, 0.16)",
+          color: "#ffffff",
+          boxShadow: "0 12px 28px rgba(15, 23, 42, 0.24)",
+        },
+        dots: {
+          size: "10px",
+          gap: "8px",
+          color: "rgba(255, 255, 255, 0.45)",
+          activeColor: "#ffffff",
+          bottom: "18px",
+        },
+        counter: {
+          top: "18px",
+          right: "18px",
+          padding: "8px 12px",
+          radius: "999px",
+          background: "rgba(15, 23, 42, 0.58)",
+          color: "#ffffff",
+          fontSize: "12px",
+          fontWeight: "600",
+          letterSpacing: "0.04em",
+        },
+        placeholder: {
+          color: "#cbd5e1",
+          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        },
+      },
+    };
+  }
+
   if (type === "video") {
     return {
       id,
