@@ -1,32 +1,3 @@
-// import TextWidget from "./widgets/TextWidget";
-// import ButtonWidget from "./widgets/ButtonWidget";
-// import ImageWidget from "./widgets/ImageWidget";
-// import ParagraphWidget from "./widgets/ParagraphWidget";
-// import SeparatorWidget from "./widgets/SeparatorWidget";
-// import HeroWidget from "./widgets/HeroWidget";
-
-// export default function WidgetRenderer({ widget }: any) {
-//   switch (widget.type) {
-//     case "button":
-//       return <ButtonWidget widget={widget} />;
-//     case "text":
-//       return <TextWidget widget={widget} />;
-//     case "image":
-//       return <ImageWidget widget={widget} />;
-
-//      case "paragraph":
-//       return <ParagraphWidget widget={widget} />;
-//     case "separator":
-//       return <SeparatorWidget widget={widget} />;
-//     case "hero":
-//       return <HeroWidget widget={widget} />;
-//     default:
-//       return null;
-//   }
-// }
-
-
-
 "use client";
 
 import TextWidget from "./widgets/TextWidget";
@@ -35,6 +6,9 @@ import ImageWidget from "./widgets/ImageWidget";
 import ParagraphWidget from "./widgets/ParagraphWidget";
 import SeparatorWidget from "./widgets/SeparatorWidget";
 import HeroWidget from "./widgets/HeroWidget";
+import TestimonialWidget from "./widgets/TestimonialWidget";
+import VideoWidget from "./widgets/VideoWidget";
+import HeadingWidget from "./widgets/HeadingWidget";
 
 export default function WidgetRenderer({ widget }: any) {
   if (!widget || !widget.type) return null;
@@ -57,6 +31,15 @@ export default function WidgetRenderer({ widget }: any) {
 
     case "hero":
       return <HeroWidget widget={widget} />;
+
+    case "testimonial":
+      return <TestimonialWidget widget={widget} />;
+
+    case "video":
+      return <VideoWidget widget={widget} />;
+
+    case "heading":
+      return <HeadingWidget widget={widget} />;
 
     default:
       return null;
