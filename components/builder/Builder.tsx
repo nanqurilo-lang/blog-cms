@@ -176,6 +176,84 @@ function createWidget(type: string) {
     };
   }
 
+  if (type === "paragraph") {
+    return {
+      id,
+      type,
+      general: {
+        text: "Craft polished long-form content with comfortable reading rhythm and clear visual hierarchy.",
+        htmlTag: "p",
+        variant: "body",
+        link: "",
+        linkTarget: "_self",
+        ariaLabel: "",
+        noFollow: false,
+      },
+      style: {
+        alignment: "left",
+        width: "100%",
+        maxWidth: "760px",
+        minHeight: "",
+        padding: "0px",
+        margin: "0px 0px 18px 0px",
+        background: "transparent",
+        textColor: "#374151",
+        opacity: 1,
+        textShadow: "none",
+        boxShadow: "none",
+        transitionDuration: "0.25s",
+        typography: {
+          fontSize: "17px",
+          fontWeight: "400",
+          lineHeight: "1.85",
+          letterSpacing: "0px",
+          textTransform: "none",
+          textDecoration: "none",
+          fontStyle: "normal",
+          fontFamily: "inherit",
+        },
+        border: {
+          width: "0px",
+          style: "solid",
+          color: "#e5e7eb",
+          radius: "0px",
+        },
+      },
+    };
+  }
+
+  if (type === "separator") {
+    return {
+      id,
+      type,
+      general: {
+        type: "solid",
+        thickness: "2px",
+        width: "100%",
+        label: "",
+        labelPosition: "center",
+      },
+      style: {
+        alignment: "center",
+        color: "#d1d5db",
+        opacity: 1,
+        radius: "999px",
+        padding: "14px 0px",
+        margin: "0px",
+        boxShadow: "none",
+        label: {
+          color: "#6b7280",
+          background: "#ffffff",
+          fontSize: "12px",
+          fontWeight: "600",
+          letterSpacing: "0.24em",
+          textTransform: "uppercase",
+          padding: "0px 12px",
+        },
+      },
+    };
+  }
+
   return {
     id,
     type,

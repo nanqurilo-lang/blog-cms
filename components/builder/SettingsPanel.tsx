@@ -161,16 +161,59 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
           )}
 
           {isParagraph && (
-            <Section title="Content">
-              <Field label="Paragraph">
-                <textarea
-                  className={textareaClass}
-                  placeholder="Write paragraph content..."
-                  value={g.text || ""}
-                  onChange={(e) => updateWidget("general", "text", e.target.value)}
-                />
-              </Field>
-            </Section>
+            <>
+              <Section title="Content">
+                <Field label="Paragraph">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="Write paragraph content..."
+                    value={g.text || ""}
+                    onChange={(e) => updateWidget("general", "text", e.target.value)}
+                  />
+                </Field>
+              </Section>
+
+              <Section title="Structure">
+                <Row>
+                  <Field label="HTML Tag">
+                    <select className={selectClass} value={g.htmlTag || "p"} onChange={(e) => updateWidget("general", "htmlTag", e.target.value)}>
+                      <option value="p">Paragraph</option>
+                      <option value="div">Div</option>
+                      <option value="blockquote">Blockquote</option>
+                    </select>
+                  </Field>
+                  <Field label="Preset Style">
+                    <select className={selectClass} value={g.variant || "body"} onChange={(e) => updateWidget("general", "variant", e.target.value)}>
+                      <option value="body">Body</option>
+                      <option value="intro">Intro</option>
+                      <option value="compact">Compact</option>
+                      <option value="emphasis">Emphasis</option>
+                    </select>
+                  </Field>
+                </Row>
+              </Section>
+
+              <Section title="Link">
+                <Field label="Optional Link URL">
+                  <input className={inputClass} placeholder="https://example.com" value={g.link || ""} onChange={(e) => updateWidget("general", "link", e.target.value)} />
+                </Field>
+                <Row>
+                  <Field label="Open In">
+                    <select className={selectClass} value={g.linkTarget || "_self"} onChange={(e) => updateWidget("general", "linkTarget", e.target.value)}>
+                      <option value="_self">Same tab</option>
+                      <option value="_blank">New tab</option>
+                    </select>
+                  </Field>
+                  <Field label="Aria Label">
+                    <input className={inputClass} placeholder="Accessible label" value={g.ariaLabel || ""} onChange={(e) => updateWidget("general", "ariaLabel", e.target.value)} />
+                  </Field>
+                </Row>
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input className={checkboxClass} type="checkbox" checked={Boolean(g.noFollow)} onChange={(e) => updateWidget("general", "noFollow", e.target.checked)} />
+                  Add nofollow rel
+                </label>
+              </Section>
+            </>
           )}
 
           {isButton && (
@@ -318,19 +361,33 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
           )}
 
           {isSeparator && (
-            <Section title="Separator">
-              <Row>
-                <Field label="Line Style">
-                  <select className={selectClass} value={g.type || "solid"} onChange={(e) => updateWidget("general", "type", e.target.value)}>
-                    <option value="solid">Solid</option>
-                    <option value="dashed">Dashed</option>
-                    <option value="dotted">Dotted</option>
+            <>
+              <Section title="Divider">
+                <Row>
+                  <Field label="Line Style">
+                    <select className={selectClass} value={g.type || "solid"} onChange={(e) => updateWidget("general", "type", e.target.value)}>
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                      <option value="double">Double</option>
+                    </select>
+                  </Field>
+                  <Field label="Thickness"><input className={inputClass} placeholder="2px" value={g.thickness || ""} onChange={(e) => updateWidget("general", "thickness", e.target.value)} /></Field>
+                </Row>
+                <Field label="Width"><input className={inputClass} placeholder="100% or 320px" value={g.width || ""} onChange={(e) => updateWidget("general", "width", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Label">
+                <Field label="Separator Label"><input className={inputClass} placeholder="Optional label" value={g.label || ""} onChange={(e) => updateWidget("general", "label", e.target.value)} /></Field>
+                <Field label="Label Position">
+                  <select className={selectClass} value={g.labelPosition || "center"} onChange={(e) => updateWidget("general", "labelPosition", e.target.value)}>
+                    <option value="center">Center</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
                   </select>
                 </Field>
-                <Field label="Thickness"><input className={inputClass} placeholder="2px" value={g.thickness || ""} onChange={(e) => updateWidget("general", "thickness", e.target.value)} /></Field>
-              </Row>
-              <Field label="Width"><input className={inputClass} placeholder="100%" value={g.width || ""} onChange={(e) => updateWidget("general", "width", e.target.value)} /></Field>
-            </Section>
+              </Section>
+            </>
           )}
 
           {isHero && (
@@ -457,22 +514,91 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
             <>
               <Section title="Typography">
                 <Row>
-                  <Field label="Font Size"><input className={inputClass} placeholder="16px" value={s.typography?.fontSize || ""} onChange={(e) => updateTypography("fontSize", e.target.value)} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="17px" value={s.typography?.fontSize || ""} onChange={(e) => updateTypography("fontSize", e.target.value)} /></Field>
                   <Field label="Font Weight"><input className={inputClass} placeholder="400" value={s.typography?.fontWeight || ""} onChange={(e) => updateTypography("fontWeight", e.target.value)} /></Field>
                 </Row>
                 <Row>
-                  <Field label="Line Height"><input className={inputClass} placeholder="1.6" value={s.typography?.lineHeight || ""} onChange={(e) => updateTypography("lineHeight", e.target.value)} /></Field>
+                  <Field label="Font Family"><input className={inputClass} placeholder="inherit" value={s.typography?.fontFamily || ""} onChange={(e) => updateTypography("fontFamily", e.target.value)} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.85" value={s.typography?.lineHeight || ""} onChange={(e) => updateTypography("lineHeight", e.target.value)} /></Field>
+                </Row>
+                <Row>
                   <Field label="Letter Spacing"><input className={inputClass} placeholder="0px" value={s.typography?.letterSpacing || ""} onChange={(e) => updateTypography("letterSpacing", e.target.value)} /></Field>
+                  <Field label="Text Transform">
+                    <select className={selectClass} value={s.typography?.textTransform || "none"} onChange={(e) => updateTypography("textTransform", e.target.value)}>
+                      <option value="none">None</option>
+                      <option value="uppercase">Uppercase</option>
+                      <option value="lowercase">Lowercase</option>
+                      <option value="capitalize">Capitalize</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Text Decoration">
+                    <select className={selectClass} value={s.typography?.textDecoration || "none"} onChange={(e) => updateTypography("textDecoration", e.target.value)}>
+                      <option value="none">None</option>
+                      <option value="underline">Underline</option>
+                      <option value="line-through">Line Through</option>
+                    </select>
+                  </Field>
+                  <Field label="Font Style">
+                    <select className={selectClass} value={s.typography?.fontStyle || "normal"} onChange={(e) => updateTypography("fontStyle", e.target.value)}>
+                      <option value="normal">Normal</option>
+                      <option value="italic">Italic</option>
+                    </select>
+                  </Field>
                 </Row>
               </Section>
 
-              <Section title="Colors & Spacing">
+              <Section title="Colors & Effects">
                 <Row>
-                  <Field label="Text Color"><input className={inputClass} type="color" value={s.textColor || "#000000"} onChange={(e) => updateWidget("style", "textColor", e.target.value)} /></Field>
-                  <Field label="Background"><input className={inputClass} type="color" value={s.background || "#ffffff"} onChange={(e) => updateWidget("style", "background", e.target.value)} /></Field>
+                  <Field label="Text Color"><input className={inputClass} type="color" value={s.textColor || "#374151"} onChange={(e) => updateWidget("style", "textColor", e.target.value)} /></Field>
+                  <Field label="Opacity"><input className={inputClass} type="number" step="0.1" min="0" max="1" value={s.opacity ?? 1} onChange={(e) => updateWidget("style", "opacity", Number(e.target.value))} /></Field>
                 </Row>
-                <Field label="Padding"><input className={inputClass} placeholder="0px" value={s.padding || ""} onChange={(e) => updateWidget("style", "padding", e.target.value)} /></Field>
-                <Field label="Margin"><input className={inputClass} placeholder="0px" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
+                <Field label="Background CSS"><input className={inputClass} placeholder="transparent or linear-gradient(...)" value={s.background || ""} onChange={(e) => updateWidget("style", "background", e.target.value)} /></Field>
+                <Field label="Text Shadow"><input className={inputClass} placeholder="none" value={s.textShadow || ""} onChange={(e) => updateWidget("style", "textShadow", e.target.value)} /></Field>
+                <Field label="Box Shadow"><input className={inputClass} placeholder="none" value={s.boxShadow || ""} onChange={(e) => updateWidget("style", "boxShadow", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Layout">
+                <Row>
+                  <Field label="Alignment">
+                    <select className={selectClass} value={s.alignment || "left"} onChange={(e) => updateWidget("style", "alignment", e.target.value)}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                      <option value="justify">Justify</option>
+                    </select>
+                  </Field>
+                  <Field label="Min Height"><input className={inputClass} placeholder="auto or 48px" value={s.minHeight || ""} onChange={(e) => updateWidget("style", "minHeight", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Width"><input className={inputClass} placeholder="100%" value={s.width || ""} onChange={(e) => updateWidget("style", "width", e.target.value)} /></Field>
+                  <Field label="Max Width"><input className={inputClass} placeholder="760px" value={s.maxWidth || ""} onChange={(e) => updateWidget("style", "maxWidth", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Padding"><input className={inputClass} placeholder="0px" value={s.padding || ""} onChange={(e) => updateWidget("style", "padding", e.target.value)} /></Field>
+                  <Field label="Margin"><input className={inputClass} placeholder="0px 0px 18px 0px" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
+                </Row>
+                <Field label="Transition Duration"><input className={inputClass} placeholder="0.25s" value={s.transitionDuration || ""} onChange={(e) => updateWidget("style", "transitionDuration", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Border & Container">
+                <Row>
+                  <Field label="Border Width"><input className={inputClass} placeholder="0px" value={s.border?.width || ""} onChange={(e) => updateBorder("width", e.target.value)} /></Field>
+                  <Field label="Border Style">
+                    <select className={selectClass} value={s.border?.style || "solid"} onChange={(e) => updateBorder("style", e.target.value)}>
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                      <option value="double">Double</option>
+                      <option value="none">None</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Border Color"><input className={inputClass} type="color" value={s.border?.color || "#e5e7eb"} onChange={(e) => updateBorder("color", e.target.value)} /></Field>
+                  <Field label="Border Radius"><input className={inputClass} placeholder="0px" value={s.border?.radius || ""} onChange={(e) => updateBorder("radius", e.target.value)} /></Field>
+                </Row>
               </Section>
             </>
           )}
@@ -668,13 +794,55 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
           )}
 
           {isSeparator && (
-            <Section title="Separator Style">
-              <Row>
-                <Field label="Color"><input className={inputClass} type="color" value={s.color || "#e5e7eb"} onChange={(e) => updateWidget("style", "color", e.target.value)} /></Field>
-                <Field label="Opacity"><input className={inputClass} type="number" step="0.1" min="0" max="1" value={s.opacity ?? ""} onChange={(e) => updateWidget("style", "opacity", Number(e.target.value))} /></Field>
-              </Row>
-              <Field label="Margin"><input className={inputClass} placeholder="10px 0" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
-            </Section>
+            <>
+              <Section title="Line Style">
+                <Row>
+                  <Field label="Alignment">
+                    <select className={selectClass} value={s.alignment || "center"} onChange={(e) => updateWidget("style", "alignment", e.target.value)}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </Field>
+                  <Field label="Opacity"><input className={inputClass} type="number" step="0.1" min="0" max="1" value={s.opacity ?? 1} onChange={(e) => updateWidget("style", "opacity", Number(e.target.value))} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Line Color"><input className={inputClass} type="color" value={s.color || "#d1d5db"} onChange={(e) => updateWidget("style", "color", e.target.value)} /></Field>
+                  <Field label="Radius"><input className={inputClass} placeholder="999px" value={s.radius || ""} onChange={(e) => updateWidget("style", "radius", e.target.value)} /></Field>
+                </Row>
+                <Field label="Box Shadow"><input className={inputClass} placeholder="none" value={s.boxShadow || ""} onChange={(e) => updateWidget("style", "boxShadow", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Spacing">
+                <Row>
+                  <Field label="Padding"><input className={inputClass} placeholder="14px 0px" value={s.padding || ""} onChange={(e) => updateWidget("style", "padding", e.target.value)} /></Field>
+                  <Field label="Margin"><input className={inputClass} placeholder="0px" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Label Style">
+                <Row>
+                  <Field label="Label Color"><input className={inputClass} type="color" value={s.label?.color || "#6b7280"} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), color: e.target.value })} /></Field>
+                  <Field label="Label Background"><input className={inputClass} placeholder="#ffffff or transparent" value={s.label?.background || ""} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), background: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Size"><input className={inputClass} placeholder="12px" value={s.label?.fontSize || ""} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), fontSize: e.target.value })} /></Field>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="600" value={s.label?.fontWeight || ""} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), fontWeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="0.24em" value={s.label?.letterSpacing || ""} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), letterSpacing: e.target.value })} /></Field>
+                  <Field label="Text Transform">
+                    <select className={selectClass} value={s.label?.textTransform || "uppercase"} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), textTransform: e.target.value })}>
+                      <option value="uppercase">Uppercase</option>
+                      <option value="none">None</option>
+                      <option value="lowercase">Lowercase</option>
+                      <option value="capitalize">Capitalize</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Field label="Label Padding"><input className={inputClass} placeholder="0px 12px" value={s.label?.padding || ""} onChange={(e) => updateWidget("style", "label", { ...(s.label || {}), padding: e.target.value })} /></Field>
+              </Section>
+            </>
           )}
 
           {isHero && (
