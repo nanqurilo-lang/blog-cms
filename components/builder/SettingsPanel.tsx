@@ -53,6 +53,7 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
   const isImageCarousel = widget.type === "image-carousel";
   const isIconBox = widget.type === "icon-box";
   const isAccordion = widget.type === "accordion";
+  const isInnerSection = widget.type === "inner-section";
   const isParagraph = widget.type === "paragraph";
   const isSeparator = widget.type === "separator";
   const isHero = widget.type === "hero";
@@ -601,6 +602,75 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                     <option value="right">Right</option>
                     <option value="left">Left</option>
                   </select>
+                </Field>
+              </Section>
+            </>
+          )}
+
+          {isInnerSection && (
+            <>
+              <Section title="Section Content">
+                <Field label="Eyebrow">
+                  <input className={inputClass} placeholder="Inner Section" value={g.eyebrow || ""} onChange={(e) => updateWidget("general", "eyebrow", e.target.value)} />
+                </Field>
+                <Field label="Title">
+                  <input className={inputClass} placeholder="Section title" value={g.title || ""} onChange={(e) => updateWidget("general", "title", e.target.value)} />
+                </Field>
+                <Field label="Description">
+                  <textarea className={textareaClass} placeholder="Describe this inner section..." value={g.description || ""} onChange={(e) => updateWidget("general", "description", e.target.value)} />
+                </Field>
+              </Section>
+
+              <Section title="Layout">
+                <Row>
+                  <Field label="Layout Preset">
+                    <select className={selectClass} value={g.layoutPreset || "2-col"} onChange={(e) => updateWidget("general", "layoutPreset", e.target.value)}>
+                      <option value="2-col">2 Columns</option>
+                      <option value="3-col">3 Columns</option>
+                      <option value="feature-left">Feature Left</option>
+                      <option value="feature-right">Feature Right</option>
+                    </select>
+                  </Field>
+                  <Field label="Vertical Align">
+                    <select className={selectClass} value={g.verticalAlign || "top"} onChange={(e) => updateWidget("general", "verticalAlign", e.target.value)}>
+                      <option value="top">Top</option>
+                      <option value="center">Center</option>
+                      <option value="bottom">Bottom</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Field label="Show Intro Block">
+                  <select className={selectClass} value={g.showIntro === false ? "no" : "yes"} onChange={(e) => updateWidget("general", "showIntro", e.target.value === "yes")}>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </Field>
+              </Section>
+
+              <Section title="Columns">
+                <Field label="Item Eyebrows">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="One eyebrow per line"
+                    value={Array.isArray(g.itemEyebrows) ? g.itemEyebrows.join("\n") : g.itemEyebrows || ""}
+                    onChange={(e) => updateWidget("general", "itemEyebrows", e.target.value.split(/\r?\n/).map((item) => item.trim()))}
+                  />
+                </Field>
+                <Field label="Item Titles">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="One title per line"
+                    value={Array.isArray(g.itemTitles) ? g.itemTitles.join("\n") : g.itemTitles || ""}
+                    onChange={(e) => updateWidget("general", "itemTitles", e.target.value.split(/\r?\n/).map((item) => item.trim()))}
+                  />
+                </Field>
+                <Field label="Item Content">
+                  <textarea
+                    className={textareaClass}
+                    placeholder="One content item per line"
+                    value={Array.isArray(g.itemContents) ? g.itemContents.join("\n") : g.itemContents || ""}
+                    onChange={(e) => updateWidget("general", "itemContents", e.target.value.split(/\r?\n/).map((item) => item.trim()))}
+                  />
                 </Field>
               </Section>
             </>
@@ -1681,6 +1751,194 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                   <Field label="Radius"><input className={inputClass} placeholder="999px" value={s.icon?.radius || ""} onChange={(e) => updateWidget("style", "icon", { ...(s.icon || {}), radius: e.target.value })} /></Field>
                 </Row>
                 <Field label="Icon Background"><input className={inputClass} placeholder="rgba(37, 99, 235, 0.08)" value={s.icon?.background || ""} onChange={(e) => updateWidget("style", "icon", { ...(s.icon || {}), background: e.target.value })} /></Field>
+              </Section>
+            </>
+          )}
+
+          {isInnerSection && (
+            <>
+              <Section title="Container">
+                <Row>
+                  <Field label="Alignment">
+                    <select className={selectClass} value={s.alignment || "left"} onChange={(e) => updateWidget("style", "alignment", e.target.value)}>
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </select>
+                  </Field>
+                  <Field label="Max Width"><input className={inputClass} placeholder="1100px" value={s.maxWidth || ""} onChange={(e) => updateWidget("style", "maxWidth", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Width"><input className={inputClass} placeholder="100%" value={s.width || ""} onChange={(e) => updateWidget("style", "width", e.target.value)} /></Field>
+                  <Field label="Min Height"><input className={inputClass} placeholder="420px" value={s.minHeight || ""} onChange={(e) => updateWidget("style", "minHeight", e.target.value)} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Padding"><input className={inputClass} placeholder="36px" value={s.padding || ""} onChange={(e) => updateWidget("style", "padding", e.target.value)} /></Field>
+                  <Field label="Margin"><input className={inputClass} placeholder="0px" value={s.margin || ""} onChange={(e) => updateWidget("style", "margin", e.target.value)} /></Field>
+                </Row>
+                <Field label="Background"><input className={inputClass} placeholder="linear-gradient(...) or #ffffff" value={s.background || ""} onChange={(e) => updateWidget("style", "background", e.target.value)} /></Field>
+                <Field label="Box Shadow"><input className={inputClass} placeholder="0 24px 60px rgba(...)" value={s.boxShadow || ""} onChange={(e) => updateWidget("style", "boxShadow", e.target.value)} /></Field>
+              </Section>
+
+              <Section title="Border">
+                <Row>
+                  <Field label="Border Width"><input className={inputClass} placeholder="1px" value={s.border?.width || ""} onChange={(e) => updateBorder("width", e.target.value)} /></Field>
+                  <Field label="Border Style">
+                    <select className={selectClass} value={s.border?.style || "solid"} onChange={(e) => updateBorder("style", e.target.value)}>
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                      <option value="double">Double</option>
+                      <option value="none">None</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Border Color"><input className={inputClass} type="color" value={s.border?.color || "#e5e7eb"} onChange={(e) => updateBorder("color", e.target.value)} /></Field>
+                  <Field label="Radius"><input className={inputClass} placeholder="28px" value={s.border?.radius || ""} onChange={(e) => updateBorder("radius", e.target.value)} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Intro Block">
+                <Row>
+                  <Field label="Intro Max Width"><input className={inputClass} placeholder="720px" value={s.intro?.maxWidth || ""} onChange={(e) => updateWidget("style", "intro", { ...(s.intro || {}), maxWidth: e.target.value })} /></Field>
+                  <Field label="Bottom Spacing"><input className={inputClass} placeholder="28px" value={s.intro?.marginBottom || ""} onChange={(e) => updateWidget("style", "intro", { ...(s.intro || {}), marginBottom: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Section Eyebrow">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.eyebrow?.color || "#2563eb"} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="12px" value={s.eyebrow?.fontSize || ""} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="700" value={s.eyebrow?.fontWeight || ""} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.2" value={s.eyebrow?.lineHeight || ""} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="0.18em" value={s.eyebrow?.letterSpacing || ""} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), letterSpacing: e.target.value })} /></Field>
+                  <Field label="Text Transform">
+                    <select className={selectClass} value={s.eyebrow?.textTransform || "uppercase"} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), textTransform: e.target.value })}>
+                      <option value="uppercase">Uppercase</option>
+                      <option value="none">None</option>
+                      <option value="lowercase">Lowercase</option>
+                      <option value="capitalize">Capitalize</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Field label="Bottom Spacing"><input className={inputClass} placeholder="12px" value={s.eyebrow?.marginBottom || ""} onChange={(e) => updateWidget("style", "eyebrow", { ...(s.eyebrow || {}), marginBottom: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Section Title">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.title?.color || "#111827"} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="clamp(28px, 4vw, 44px)" value={s.title?.fontSize || ""} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="800" value={s.title?.fontWeight || ""} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.08" value={s.title?.lineHeight || ""} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="-0.03em" value={s.title?.letterSpacing || ""} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), letterSpacing: e.target.value })} /></Field>
+                  <Field label="Bottom Spacing"><input className={inputClass} placeholder="14px" value={s.title?.marginBottom || ""} onChange={(e) => updateWidget("style", "title", { ...(s.title || {}), marginBottom: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Section Description">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.description?.color || "#6b7280"} onChange={(e) => updateWidget("style", "description", { ...(s.description || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="17px" value={s.description?.fontSize || ""} onChange={(e) => updateWidget("style", "description", { ...(s.description || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="400" value={s.description?.fontWeight || ""} onChange={(e) => updateWidget("style", "description", { ...(s.description || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.8" value={s.description?.lineHeight || ""} onChange={(e) => updateWidget("style", "description", { ...(s.description || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Field label="Letter Spacing"><input className={inputClass} placeholder="0px" value={s.description?.letterSpacing || ""} onChange={(e) => updateWidget("style", "description", { ...(s.description || {}), letterSpacing: e.target.value })} /></Field>
+              </Section>
+            </>
+          )}
+
+          {isInnerSection && (
+            <>
+              <Section title="Grid">
+                <Field label="Column Gap"><input className={inputClass} placeholder="20px" value={s.grid?.gap || ""} onChange={(e) => updateWidget("style", "grid", { ...(s.grid || {}), gap: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Item Card">
+                <Row>
+                  <Field label="Item Min Height"><input className={inputClass} placeholder="220px" value={s.item?.minHeight || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), minHeight: e.target.value })} /></Field>
+                  <Field label="Padding"><input className={inputClass} placeholder="24px" value={s.item?.padding || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), padding: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Background"><input className={inputClass} placeholder="#ffffff" value={s.item?.background || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), background: e.target.value })} /></Field>
+                  <Field label="Radius"><input className={inputClass} placeholder="22px" value={s.item?.radius || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), radius: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Border Width"><input className={inputClass} placeholder="1px" value={s.item?.borderWidth || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), borderWidth: e.target.value })} /></Field>
+                  <Field label="Border Style">
+                    <select className={selectClass} value={s.item?.borderStyle || "solid"} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), borderStyle: e.target.value })}>
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                      <option value="double">Double</option>
+                      <option value="none">None</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Row>
+                  <Field label="Border Color"><input className={inputClass} type="color" value={s.item?.borderColor || "#e5e7eb"} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), borderColor: e.target.value })} /></Field>
+                  <Field label="Box Shadow"><input className={inputClass} placeholder="0 14px 30px rgba(...)" value={s.item?.boxShadow || ""} onChange={(e) => updateWidget("style", "item", { ...(s.item || {}), boxShadow: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Item Eyebrow">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.itemEyebrow?.color || "#2563eb"} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="11px" value={s.itemEyebrow?.fontSize || ""} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="700" value={s.itemEyebrow?.fontWeight || ""} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.2" value={s.itemEyebrow?.lineHeight || ""} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="0.18em" value={s.itemEyebrow?.letterSpacing || ""} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), letterSpacing: e.target.value })} /></Field>
+                  <Field label="Text Transform">
+                    <select className={selectClass} value={s.itemEyebrow?.textTransform || "uppercase"} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), textTransform: e.target.value })}>
+                      <option value="uppercase">Uppercase</option>
+                      <option value="none">None</option>
+                      <option value="lowercase">Lowercase</option>
+                      <option value="capitalize">Capitalize</option>
+                    </select>
+                  </Field>
+                </Row>
+                <Field label="Bottom Spacing"><input className={inputClass} placeholder="10px" value={s.itemEyebrow?.marginBottom || ""} onChange={(e) => updateWidget("style", "itemEyebrow", { ...(s.itemEyebrow || {}), marginBottom: e.target.value })} /></Field>
+              </Section>
+
+              <Section title="Item Title">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.itemTitle?.color || "#111827"} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="22px" value={s.itemTitle?.fontSize || ""} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="700" value={s.itemTitle?.fontWeight || ""} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.25" value={s.itemTitle?.lineHeight || ""} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Letter Spacing"><input className={inputClass} placeholder="-0.02em" value={s.itemTitle?.letterSpacing || ""} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), letterSpacing: e.target.value })} /></Field>
+                  <Field label="Bottom Spacing"><input className={inputClass} placeholder="10px" value={s.itemTitle?.marginBottom || ""} onChange={(e) => updateWidget("style", "itemTitle", { ...(s.itemTitle || {}), marginBottom: e.target.value })} /></Field>
+                </Row>
+              </Section>
+
+              <Section title="Item Content">
+                <Row>
+                  <Field label="Color"><input className={inputClass} type="color" value={s.itemContent?.color || "#6b7280"} onChange={(e) => updateWidget("style", "itemContent", { ...(s.itemContent || {}), color: e.target.value })} /></Field>
+                  <Field label="Font Size"><input className={inputClass} placeholder="15px" value={s.itemContent?.fontSize || ""} onChange={(e) => updateWidget("style", "itemContent", { ...(s.itemContent || {}), fontSize: e.target.value })} /></Field>
+                </Row>
+                <Row>
+                  <Field label="Font Weight"><input className={inputClass} placeholder="400" value={s.itemContent?.fontWeight || ""} onChange={(e) => updateWidget("style", "itemContent", { ...(s.itemContent || {}), fontWeight: e.target.value })} /></Field>
+                  <Field label="Line Height"><input className={inputClass} placeholder="1.75" value={s.itemContent?.lineHeight || ""} onChange={(e) => updateWidget("style", "itemContent", { ...(s.itemContent || {}), lineHeight: e.target.value })} /></Field>
+                </Row>
+                <Field label="Letter Spacing"><input className={inputClass} placeholder="0px" value={s.itemContent?.letterSpacing || ""} onChange={(e) => updateWidget("style", "itemContent", { ...(s.itemContent || {}), letterSpacing: e.target.value })} /></Field>
               </Section>
             </>
           )}

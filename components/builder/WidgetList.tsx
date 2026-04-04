@@ -44,6 +44,10 @@ export default function WidgetList({ addWidget }: any) {
         Accordion
       </button>
 
+      <button onClick={() => addWidget("inner-section")} className={buttonClass}>
+        Inner Section
+      </button>
+
       <button onClick={() => addWidget("paragraph")} className={buttonClass}>
         Paragraph
       </button>

@@ -626,6 +626,112 @@ function createWidget(type: string) {
     };
   }
 
+  if (type === "inner-section") {
+    return {
+      id,
+      type,
+      general: {
+        eyebrow: "Inner Section",
+        title: "Create structured multi-column sections inside long-form posts.",
+        description:
+          "Use inner sections to break content into polished feature rows, comparison blocks, or supporting content clusters with clearer layout control.",
+        showIntro: true,
+        layoutPreset: "2-col",
+        verticalAlign: "top",
+        itemEyebrows: ["Column One", "Column Two"],
+        itemTitles: [
+          "Highlight related ideas side by side.",
+          "Keep visual structure clean and readable.",
+        ],
+        itemContents: [
+          "Inner sections help you present supporting information, content pillars, or feature summaries in a more modular way.",
+          "With independent card styling, spacing, and layout presets, this block can carry a professional editorial feel across the page.",
+        ],
+      },
+      style: {
+        alignment: "left",
+        width: "100%",
+        maxWidth: "1100px",
+        minHeight: "",
+        margin: "0px",
+        padding: "36px",
+        background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+        boxShadow: "0 24px 60px rgba(15, 23, 42, 0.08)",
+        border: {
+          width: "1px",
+          style: "solid",
+          color: "#e5e7eb",
+          radius: "28px",
+        },
+        intro: {
+          maxWidth: "720px",
+          marginBottom: "28px",
+        },
+        eyebrow: {
+          color: "#2563eb",
+          fontSize: "12px",
+          fontWeight: "700",
+          lineHeight: "1.2",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          marginBottom: "12px",
+        },
+        title: {
+          color: "#111827",
+          fontSize: "clamp(28px, 4vw, 44px)",
+          fontWeight: "800",
+          lineHeight: "1.08",
+          letterSpacing: "-0.03em",
+          marginBottom: "14px",
+        },
+        description: {
+          color: "#6b7280",
+          fontSize: "17px",
+          fontWeight: "400",
+          lineHeight: "1.8",
+          letterSpacing: "0px",
+        },
+        grid: {
+          gap: "20px",
+        },
+        item: {
+          minHeight: "",
+          padding: "24px",
+          background: "#ffffff",
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "#e5e7eb",
+          radius: "22px",
+          boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
+        },
+        itemEyebrow: {
+          color: "#2563eb",
+          fontSize: "11px",
+          fontWeight: "700",
+          lineHeight: "1.2",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          marginBottom: "10px",
+        },
+        itemTitle: {
+          color: "#111827",
+          fontSize: "22px",
+          fontWeight: "700",
+          lineHeight: "1.25",
+          letterSpacing: "-0.02em",
+          marginBottom: "10px",
+        },
+        itemContent: {
+          color: "#6b7280",
+          fontSize: "15px",
+          fontWeight: "400",
+          lineHeight: "1.75",
+          letterSpacing: "0px",
+        },
+      },
+    };
+  }
+
   if (type === "video") {
     return {
       id,

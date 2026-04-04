@@ -12,6 +12,7 @@ import HeadingWidget from "./widgets/HeadingWidget";
 import ImageCarouselWidget from "./widgets/ImageCarouselWidget";
 import IconBoxWidget from "./widgets/IconBoxWidget";
 import AccordionWidget from "./widgets/AccordionWidget";
+import InnerSectionWidget from "./widgets/InnerSectionWidget";
 
 export default function WidgetRenderer({ widget }: any) {
   if (!widget || !widget.type) return null;
@@ -52,6 +53,9 @@ export default function WidgetRenderer({ widget }: any) {
 
     case "accordion":
       return <AccordionWidget widget={widget} />;
+
+    case "inner-section":
+      return <InnerSectionWidget widget={widget} />;
 
     default:
       return null;
