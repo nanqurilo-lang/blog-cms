@@ -485,6 +485,147 @@ function createWidget(type: string) {
     };
   }
 
+  if (type === "icon-box") {
+    return {
+      id,
+      type,
+      general: {
+        eyebrow: "Feature Block",
+        title: "Turn key ideas into polished visual sections.",
+        description: "Use icon boxes to highlight benefits, content pillars, service points, or product advantages with stronger structure and hierarchy.",
+        icon: "badge",
+        showIcon: true,
+        layout: "vertical",
+        link: "",
+        linkText: "Learn more",
+        linkTarget: "_self",
+        ariaLabel: "",
+        noFollow: false,
+      },
+      style: {
+        alignment: "left",
+        width: "100%",
+        maxWidth: "420px",
+        gap: "18px",
+        margin: "0px",
+        padding: "28px",
+        background: "#ffffff",
+        boxShadow: "0 24px 60px rgba(15, 23, 42, 0.12)",
+        border: {
+          width: "1px",
+          style: "solid",
+          color: "#e5e7eb",
+          radius: "28px",
+        },
+        icon: {
+          size: 26,
+          boxSize: "64px",
+          radius: "20px",
+          color: "#1d4ed8",
+          background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.3)",
+        },
+        eyebrow: {
+          color: "#2563eb",
+          fontSize: "12px",
+          fontWeight: "700",
+          lineHeight: "1.2",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          marginBottom: "10px",
+        },
+        title: {
+          color: "#111827",
+          fontSize: "24px",
+          fontWeight: "700",
+          lineHeight: "1.2",
+          letterSpacing: "-0.02em",
+          marginBottom: "12px",
+        },
+        description: {
+          color: "#6b7280",
+          fontSize: "16px",
+          fontWeight: "400",
+          lineHeight: "1.7",
+          letterSpacing: "0px",
+        },
+        link: {
+          color: "#1d4ed8",
+          fontSize: "15px",
+          fontWeight: "600",
+          lineHeight: "1.4",
+          marginTop: "18px",
+          gap: "8px",
+          iconSize: 16,
+        },
+      },
+    };
+  }
+
+  if (type === "accordion") {
+    return {
+      id,
+      type,
+      general: {
+        itemsTitle: [
+          "What makes this builder feel more Elementor-like?",
+          "Can I use accordion sections inside blog posts?",
+          "Does it support richer styling controls?",
+        ],
+        itemsContent: [
+          "Each widget now starts with stronger defaults, richer style controls, and more flexible content editing directly from the sidebar.",
+          "Yes. Accordion blocks work well for FAQs, content breakdowns, product details, and expandable reading sections inside long-form posts.",
+          "You can control spacing, border radius, colors, shadows, icon styling, title styling, and body typography so the section fits your layout.",
+        ],
+        firstOpen: true,
+        allowMultiple: false,
+        iconPosition: "right",
+      },
+      style: {
+        alignment: "left",
+        width: "100%",
+        maxWidth: "860px",
+        margin: "0px",
+        padding: "0px",
+        background: "transparent",
+        transitionDuration: "0.25s",
+        item: {
+          background: "#ffffff",
+          borderWidth: "1px",
+          borderStyle: "solid",
+          borderColor: "#e5e7eb",
+          radius: "22px",
+          spacing: "14px",
+          boxShadow: "0 18px 45px rgba(15, 23, 42, 0.08)",
+        },
+        header: {
+          color: "#111827",
+          fontSize: "18px",
+          fontWeight: "700",
+          lineHeight: "1.4",
+          letterSpacing: "-0.01em",
+          padding: "22px 24px",
+          gap: "16px",
+        },
+        content: {
+          color: "#6b7280",
+          fontSize: "16px",
+          fontWeight: "400",
+          lineHeight: "1.75",
+          letterSpacing: "0px",
+          padding: "0px 24px 22px",
+        },
+        icon: {
+          size: 18,
+          boxSize: "36px",
+          radius: "999px",
+          color: "#2563eb",
+          background: "rgba(37, 99, 235, 0.08)",
+        },
+      },
+    };
+  }
+
   if (type === "video") {
     return {
       id,

@@ -36,6 +36,14 @@ export default function WidgetList({ addWidget }: any) {
         Image Carousel
       </button>
 
+      <button onClick={() => addWidget("icon-box")} className={buttonClass}>
+        Icon Box
+      </button>
+
+      <button onClick={() => addWidget("accordion")} className={buttonClass}>
+        Accordion
+      </button>
+
       <button onClick={() => addWidget("paragraph")} className={buttonClass}>
         Paragraph
       </button>

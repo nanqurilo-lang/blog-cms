@@ -10,6 +10,8 @@ import TestimonialWidget from "./widgets/TestimonialWidget";
 import VideoWidget from "./widgets/VideoWidget";
 import HeadingWidget from "./widgets/HeadingWidget";
 import ImageCarouselWidget from "./widgets/ImageCarouselWidget";
+import IconBoxWidget from "./widgets/IconBoxWidget";
+import AccordionWidget from "./widgets/AccordionWidget";
 
 export default function WidgetRenderer({ widget }: any) {
   if (!widget || !widget.type) return null;
@@ -44,6 +46,12 @@ export default function WidgetRenderer({ widget }: any) {
 
     case "image-carousel":
       return <ImageCarouselWidget widget={widget} />;
+
+    case "icon-box":
+      return <IconBoxWidget widget={widget} />;
+
+    case "accordion":
+      return <AccordionWidget widget={widget} />;
 
     default:
       return null;
