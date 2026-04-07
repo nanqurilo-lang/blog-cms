@@ -1,21 +1,21 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2, Mail } from "lucide-react"
 
 const ADMIN_LOGIN_BASE_URL =
   "https://6jnqmj85-3000.inc1.devtunnels.ms/app/auth/admin/login"
 
 export default function LoginForm() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
-    setSuccess("")
     setLoading(true)
 
     try {
@@ -37,7 +37,7 @@ export default function LoginForm() {
       }
 
       localStorage.setItem("admin_login_email", normalizedEmail)
-      setSuccess(result?.message || "OTP sent to your email successfully.")
+      router.push("/verify-otp")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
@@ -68,12 +68,6 @@ export default function LoginForm() {
         {error && (
           <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-            {success}
           </div>
         )}
 
@@ -110,7 +104,7 @@ export default function LoginForm() {
         </button>
 
         <p className="mt-5 text-center text-xs text-gray-400">
-          Admin access via email OTP only
+          We&apos;ll open the OTP verification step next
         </p>
       </form>
     </div>
