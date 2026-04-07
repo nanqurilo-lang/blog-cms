@@ -1,57 +1,45 @@
-
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2, Lock } from "lucide-react"
-import Link from "next/link"
+import { ArrowRight, Loader2, Mail } from "lucide-react"
 
-const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms/api"
+const ADMIN_LOGIN_BASE_URL =
+  "https://6jnqmj85-3000.inc1.devtunnels.ms/app/auth/admin/login"
 
 export default function LoginForm() {
-  const router = useRouter()
-
-  const [email, setEmail] = useState("subodh.qurilo@gmail.com")
-  const [password, setPassword] = useState("nan123")
+  const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
+    setSuccess("")
     setLoading(true)
 
     try {
+      const normalizedEmail = email.trim().toLowerCase()
+      const response = await fetch(
+        `${ADMIN_LOGIN_BASE_URL}/${encodeURIComponent(normalizedEmail)}`,
+        { method: "GET" },
+      )
 
-      console.log("Logging in with:", JSON.stringify({
-          email,
-          password,
-        }),)
-      const res = await fetch(`${BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      })
-
-      const result = await res.json()
-
-      if (!res.ok || !result.success) {
-        throw new Error(result.message || "Login failed")
+      let result: { message?: string } | null = null
+      try {
+        result = await response.json()
+      } catch {
+        result = null
       }
 
-      // ✅ Save token & user
-      localStorage.setItem("cms_token", result.data.token)
-      localStorage.setItem("cms_user", JSON.stringify(result.data.user))
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to send OTP")
+      }
 
-      // ✅ Redirect
-      router.push("/dashboard")
-    } catch (err: any) {
-      setError(err.message || "Something went wrong")
+      localStorage.setItem("admin_login_email", normalizedEmail)
+      setSuccess(result?.message || "OTP sent to your email successfully.")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setLoading(false)
     }
@@ -61,12 +49,11 @@ export default function LoginForm() {
     <div className="min-h-screen w-full flex items-center justify-center px-4">
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
+        className="w-full max-w-sm rounded-2xl bg-white/90 bg-gradient-to-br from-gray-100 to-blue-200 p-6 shadow-xl backdrop-blur"
       >
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center">
-            <Lock className="h-5 w-5 text-white" />
+        <div className="mb-2 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black">
+            <Mail className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-bold">Blog CMS</h1>
@@ -74,20 +61,24 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <p className="text-sm text-gray-600 mb-6">
-          Sign in to manage your blog content
+        <p className="mb-6 text-sm text-gray-600">
+          Enter the admin email address to receive a login OTP.
         </p>
 
-        {/* Error */}
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 text-red-600 text-sm px-3 py-2 border border-red-200">
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1 text-gray-700">
+        {success && (
+          <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            {success}
+          </div>
+        )}
+
+        <div className="mb-5">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Email Address
           </label>
           <input
@@ -96,48 +87,30 @@ export default function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="admin@blog.com"
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
-        {/* Password */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium mb-1 text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-          />
-        </div>
-
-        {/* Forgot */}
-        <div className="text-right mb-5">
-          <Link
-            href="/forgot-password"
-            className="text-xs text-gray-600 hover:text-black hover:underline"
-          >
-            Forgot password?
-          </Link>
-        </div>
-
-        {/* Button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-900 disabled:opacity-70"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          Login to Dashboard
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending OTP
+            </>
+          ) : (
+            <>
+              Send OTP
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
         </button>
 
-        {/* Footer */}
-        <p className="text-xs text-gray-400 text-center mt-5">
-          © {new Date().getFullYear()} Blog CMS
+        <p className="mt-5 text-center text-xs text-gray-400">
+          Admin access via email OTP only
         </p>
       </form>
     </div>
