@@ -294,12 +294,12 @@ export function AppSidebar() {
           open={editorOpen}
           onToggle={() => setEditorOpen(!editorOpen)}
         >
-          <MenuItem
+          {/* <MenuItem
             href="/editor"
             icon={Edit3}
             label="Editor"
             active={pathname === "/editor"}
-          />
+          /> */}
           <MenuItem
             href="/builder"
             icon={PlusSquare}
