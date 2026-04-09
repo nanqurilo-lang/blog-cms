@@ -5,6 +5,9 @@ import { useEditor } from "./EditorProvider";
 
 const BUILDER_TEMPLATE_API =
   "https://6jnqmj85-3000.inc1.devtunnels.ms/api/builder/template";
+const DRAFT_STORAGE_KEY = "builder_template_drafts";
+const FALLBACK_DRAFT_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Crect width='1200' height='700' fill='%23eff6ff'/%3E%3Crect x='72' y='88' width='1056' height='524' rx='36' fill='%23dbeafe'/%3E%3Ctext x='50%25' y='47%25' text-anchor='middle' fill='%231d4ed8' font-family='Arial, sans-serif' font-size='54' font-weight='700'%3EDraft Template%3C/text%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' fill='%23475569' font-family='Arial, sans-serif' font-size='28'%3EBuilder preview image not available%3C/text%3E%3C/svg%3E";
 
 type CreateTemplateResponse = {
   message?: string;
@@ -41,6 +44,56 @@ export default function EditorToolbar() {
     if (!templateUrls?.livePath) return "";
     return `https://6jnqmj85-3000.inc1.devtunnels.ms${templateUrls.livePath}`;
   }, [templateUrls?.livePath]);
+
+  function getTemplateThumbnail() {
+    const widgets = state.present.widgets;
+
+    for (const widget of widgets) {
+      if (
+        widget.type === "image" &&
+        typeof widget.general?.src === "string" &&
+        widget.general.src
+      ) {
+        return widget.general.src;
+      }
+
+      if (
+        widget.type === "hero" &&
+        typeof widget.general?.bgImage === "string" &&
+        widget.general.bgImage
+      ) {
+        return widget.general.bgImage;
+      }
+    }
+
+    return FALLBACK_DRAFT_IMAGE;
+  }
+
+  function cacheDraftTemplate(templateId: string, savedMessage: string) {
+    if (typeof window === "undefined") return;
+
+    const draftEntry = {
+      id: templateId,
+      title: templateForm.title.trim(),
+      desc: templateForm.description.trim(),
+      image: getTemplateThumbnail(),
+      updated: new Date().toISOString(),
+      slug: templateForm.slug.trim(),
+      message: savedMessage,
+    };
+
+    const existingRaw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    const existingDrafts: typeof draftEntry[] = existingRaw
+      ? JSON.parse(existingRaw)
+      : [];
+
+    const nextDrafts = [
+      draftEntry,
+      ...existingDrafts.filter((draft) => draft.id !== draftEntry.id),
+    ];
+
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(nextDrafts));
+  }
 
   async function handleCreateTemplate() {
     const title = templateForm.title.trim();
@@ -109,10 +162,23 @@ export default function EditorToolbar() {
         throw new Error("Template response was missing template data.");
       }
 
+      const templateId = result.template._id;
+
+      if (!templateId) {
+        throw new Error("Template response was missing template id.");
+      }
+
+      cacheDraftTemplate(
+        templateId,
+        result?.message || "Builder template created and saved to drafts",
+      );
+
       dispatch({
         type: "SAVE_TEMPLATE_SUCCESS",
         payload: {
-          message: result?.message || "Builder template created",
+          message:
+            result?.message ||
+            "Builder template created and saved to drafts",
           template: result?.template,
           urls: result?.urls || null,
         },

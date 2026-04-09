@@ -1,7 +1,9 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ChangeEvent, type ReactNode, useState } from "react";
 
+const TEMPLATE_IMAGE_UPLOAD_API =
+  "https://6jnqmj85-3000.inc1.devtunnels.ms/api/template/upload-image";
 const inputClass =
   "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500";
 const selectClass = inputClass;
@@ -38,6 +40,14 @@ function Row({ children }: { children: ReactNode }) {
 
 export default function SettingsPanel({ widget, updateWidget }: SettingsPanelProps) {
   const [tab, setTab] = useState<"general" | "style">("general");
+  const [uploadState, setUploadState] = useState<{
+    image: "idle" | "uploading" | "error";
+    hero: "idle" | "uploading" | "error";
+  }>({
+    image: "idle",
+    hero: "idle",
+  });
+  const [uploadMessage, setUploadMessage] = useState("");
 
   if (!widget) {
     return <div className="w-96 border-l p-4 text-gray-500">Select a widget</div>;
@@ -84,6 +94,90 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
   const updateHeroStyle = (key: string, value: any) => {
     updateWidget("style", key, value);
   };
+
+  async function uploadImageFile(
+    file: File,
+    target: "image" | "hero",
+  ) {
+    setUploadState((current) => ({
+      ...current,
+      [target]: "uploading",
+    }));
+    setUploadMessage("");
+
+    try {
+      const formData = new FormData();
+      formData.append("post_thumbnail", file);
+
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("cms_token") : null;
+      const headers: HeadersInit = {};
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(TEMPLATE_IMAGE_UPLOAD_API, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      let result:
+        | {
+            success?: boolean;
+            data?: {
+              url?: string;
+              public_key?: string;
+            };
+            message?: string;
+          }
+        | null = null;
+
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (!response.ok || !result?.success || !result.data?.url) {
+        throw new Error(result?.message || "Image upload failed.");
+      }
+
+      if (target === "image") {
+        updateWidget("general", "src", result.data.url);
+      } else {
+        updateWidget("general", "bgType", "image");
+        updateWidget("general", "bgImage", result.data.url);
+      }
+
+      setUploadState((current) => ({
+        ...current,
+        [target]: "idle",
+      }));
+      setUploadMessage("Image uploaded successfully.");
+    } catch (error) {
+      setUploadState((current) => ({
+        ...current,
+        [target]: "error",
+      }));
+      setUploadMessage(
+        error instanceof Error ? error.message : "Something went wrong while uploading the image.",
+      );
+    }
+  }
+
+  async function handleFileChange(
+    event: ChangeEvent<HTMLInputElement>,
+    target: "image" | "hero",
+  ) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    await uploadImageFile(file, target);
+    event.target.value = "";
+  }
 
   return (
     <div className="w-96 border-l p-4 text-sm overflow-y-auto bg-white">
@@ -379,6 +473,20 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
             <>
               <Section title="Image Source">
                 <Field label="Image URL"><input className={inputClass} placeholder="https://..." value={g.src || ""} onChange={(e) => updateWidget("general", "src", e.target.value)} /></Field>
+                <Field label="Upload Image">
+                  <input
+                    className={inputClass}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "image")}
+                    disabled={uploadState.image === "uploading"}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {uploadState.image === "uploading"
+                      ? "Uploading image..."
+                      : "Uploads to the template image API using the `post_thumbnail` form-data key."}
+                  </p>
+                </Field>
                 <Field label="Alt Text"><input className={inputClass} placeholder="Describe the image" value={g.alt || ""} onChange={(e) => updateWidget("general", "alt", e.target.value)} /></Field>
                 <Row>
                   <Field label="Loading">
@@ -869,6 +977,20 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
                     <option value="gradient">Gradient</option>
                   </select>
                 </Field>
+                <Field label="Upload Background Image">
+                  <input
+                    className={inputClass}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "hero")}
+                    disabled={uploadState.hero === "uploading"}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    {uploadState.hero === "uploading"
+                      ? "Uploading background image..."
+                      : "Uploads to the template image API using the `post_thumbnail` form-data key."}
+                  </p>
+                </Field>
                 {g.bgType === "color" && <Field label="Background Color"><input className={inputClass} type="color" value={g.bgColor || "#0f172a"} onChange={(e) => updateWidget("general", "bgColor", e.target.value)} /></Field>}
                 {g.bgType === "image" && <Field label="Background Image URL"><input className={inputClass} placeholder="https://..." value={g.bgImage || ""} onChange={(e) => updateWidget("general", "bgImage", e.target.value)} /></Field>}
                 {g.bgType === "gradient" && <Field label="Gradient CSS"><input className={inputClass} placeholder="linear-gradient(...)" value={g.bgGradient || ""} onChange={(e) => updateWidget("general", "bgGradient", e.target.value)} /></Field>}
@@ -894,6 +1016,18 @@ export default function SettingsPanel({ widget, updateWidget }: SettingsPanelPro
               </Section>
             </>
           )}
+        </div>
+      )}
+
+      {uploadMessage && (
+        <div
+          className={`mt-4 rounded-md px-3 py-2 text-xs ${
+            uploadState.image === "error" || uploadState.hero === "error"
+              ? "border border-red-200 bg-red-50 text-red-600"
+              : "border border-green-200 bg-green-50 text-green-700"
+          }`}
+        >
+          {uploadMessage}
         </div>
       )}
 
