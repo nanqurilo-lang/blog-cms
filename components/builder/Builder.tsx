@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import WidgetList from "./WidgetList";
 import Canvas from "./Canvas";
 import SettingsPanel from "./SettingsPanel";
 import EditorToolbar from "./EditorToolbar";
-import { EditorProvider, useEditor } from "./EditorProvider";
+import { EditorProvider, useEditor, type WidgetData } from "./EditorProvider";
 
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
+
+const BUILDER_TEMPLATE_API =
+  "https://6jnqmj85-3000.inc1.devtunnels.ms/api/builder/template";
 
 function createWidget(type: string) {
   const id = crypto.randomUUID();
@@ -884,9 +892,105 @@ function createWidget(type: string) {
 
 function BuilderContent() {
   const { state, dispatch } = useEditor();
+  const searchParams = useSearchParams();
   const widgets = state.present.widgets;
-
+  const templateId = searchParams.get("templateId");
   const [activeId, setActiveId] = useState<string | null>(null);
+  const loadedTemplateIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    async function loadDraftTemplate() {
+      if (!templateId || loadedTemplateIdRef.current === templateId) {
+        return;
+      }
+
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("cms_token") : null;
+
+      if (!token) {
+        dispatch({
+          type: "SAVE_TEMPLATE_ERROR",
+          message: "cms_token not found. Please log in again before editing a draft.",
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${BUILDER_TEMPLATE_API}/${templateId}/preview`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          },
+        );
+
+        let result: {
+          message?: string;
+          templateId?: string;
+          status?: "draft" | "published";
+          version?: number;
+          content?: {
+            widgets?: unknown[];
+          } | null;
+          metadata?: {
+            title?: string;
+            slug?: string;
+            description?: string;
+          } | null;
+          urls?: {
+            previewPath?: string;
+            livePath?: string;
+          } | null;
+        } | null = null;
+
+        try {
+          result = await response.json();
+        } catch {
+          result = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(result?.message || "Failed to load draft template.");
+        }
+
+        if (!result?.templateId) {
+          throw new Error("Draft template response was missing template id.");
+        }
+
+        dispatch({
+          type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+          payload: {
+            message: result.message || "Draft template loaded",
+            templateId: result.templateId,
+            status: result.status,
+            version: result.version,
+            content: result.content
+              ? {
+                  widgets: result.content.widgets as never[] | undefined,
+                }
+              : null,
+            metadata: result.metadata || null,
+            urls: result.urls || null,
+          },
+        });
+
+        loadedTemplateIdRef.current = result.templateId;
+        setActiveId(null);
+      } catch (error) {
+        dispatch({
+          type: "SAVE_TEMPLATE_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Something went wrong while loading the draft template.",
+        });
+      }
+    }
+
+    loadDraftTemplate();
+  }, [dispatch, templateId]);
 
   function addWidget(type: string) {
     const newWidget = createWidget(type);
@@ -902,19 +1006,19 @@ function BuilderContent() {
     setActiveId(newWidget.id);
   }
 
-  function updateWidget(section: string, key: string, value: any) {
+  function updateWidget(section: string, key: string, value: unknown) {
     if (!activeId) return;
 
     dispatch({
       type: "UPDATE",
       payload: {
         ...state.present,
-        widgets: widgets.map((w: any) =>
+        widgets: widgets.map((w: WidgetData) =>
           w.id === activeId
             ? {
                 ...w,
                 [section]: {
-                  ...w[section],
+                  ...((w[section] as Record<string, unknown> | undefined) || {}),
                   [key]: value,
                 },
               }
@@ -924,12 +1028,12 @@ function BuilderContent() {
     });
   }
 
-  function onDragEnd(event: any) {
+  function onDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = widgets.findIndex((i: any) => i.id === active.id);
-    const newIndex = widgets.findIndex((i: any) => i.id === over.id);
+    const oldIndex = widgets.findIndex((i: WidgetData) => i.id === active.id);
+    const newIndex = widgets.findIndex((i: WidgetData) => i.id === over.id);
 
     dispatch({
       type: "UPDATE",
@@ -955,7 +1059,7 @@ function BuilderContent() {
           />
 
           <SettingsPanel
-            widget={widgets.find((w: any) => w.id === activeId)}
+            widget={widgets.find((w: WidgetData) => w.id === activeId)}
             updateWidget={updateWidget}
           />
         </div>

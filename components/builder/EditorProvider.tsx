@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useReducer } from "react";
 
-type WidgetData = {
+export type WidgetData = {
   id?: string;
   type?: string;
   general?: Record<string, unknown>;
@@ -111,6 +111,10 @@ type Action =
     }
   | {
       type: "LOAD_TEMPLATE_PREVIEW_SUCCESS";
+      payload: PreviewTemplatePayload;
+    }
+  | {
+      type: "LOAD_TEMPLATE_EDIT_SUCCESS";
       payload: PreviewTemplatePayload;
     }
   | { type: "SAVE_TEMPLATE_ERROR"; message: string };
@@ -280,6 +284,58 @@ function reducer(state: EditorState, action: Action): EditorState {
           description:
             action.payload.metadata?.description ||
             state.templateForm.description,
+          slugTouched: true,
+        },
+      };
+    }
+
+    case "LOAD_TEMPLATE_EDIT_SUCCESS": {
+      const editContent = action.payload.content;
+      const editWidgets = editContent?.widgets || state.present.widgets;
+      const nextStatus = action.payload.status || state.status;
+
+      localStorage.setItem("draft", JSON.stringify({ widgets: editWidgets }));
+
+      return {
+        ...state,
+        present: { widgets: editWidgets },
+        past: [],
+        future: [],
+        mode: "edit",
+        status: nextStatus,
+        saveState: "success",
+        saveMessage: action.payload.message || "Draft template loaded",
+        template: {
+          ...state.template,
+          _id: action.payload.templateId,
+          title:
+            action.payload.metadata?.title ||
+            state.template?.title ||
+            state.templateForm.title,
+          slug:
+            action.payload.metadata?.slug ||
+            state.template?.slug ||
+            state.templateForm.slug,
+          description:
+            action.payload.metadata?.description ||
+            state.template?.description ||
+            state.templateForm.description,
+          status: nextStatus,
+          draftContent:
+            nextStatus === "draft"
+              ? { widgets: editWidgets }
+              : state.template?.draftContent || null,
+          publishedContent:
+            nextStatus === "published"
+              ? { widgets: editWidgets }
+              : state.template?.publishedContent || null,
+        },
+        templateUrls: action.payload.urls || state.templateUrls,
+        templateForm: {
+          title: action.payload.metadata?.title || state.templateForm.title,
+          slug: action.payload.metadata?.slug || state.templateForm.slug,
+          description:
+            action.payload.metadata?.description || state.templateForm.description,
           slugTouched: true,
         },
       };

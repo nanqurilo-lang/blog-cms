@@ -101,6 +101,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { MoreVertical, Pencil, Save, Search, Trash2 } from "lucide-react"
 
 const BUILDER_API_BASE_URL = "https://6jnqmj85-3000.inc1.devtunnels.ms"
@@ -202,6 +203,7 @@ function mapBlogToDraftTemplate(blog: DraftBlog): DraftTemplate {
 }
 
 export default function Page() {
+  const router = useRouter()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [drafts, setDrafts] = useState<DraftTemplate[]>([])
@@ -318,6 +320,10 @@ export default function Page() {
     }
   }
 
+  const handleOpenDraft = (postId: string) => {
+    router.push(`/builder?templateId=${encodeURIComponent(postId)}`)
+  }
+
   return (
     <div className="min-h-screen space-y-6 bg-white p-6">
       <div className="relative w-72">
@@ -348,11 +354,21 @@ export default function Page() {
             <div
               key={post.id}
               className="relative overflow-hidden rounded-xl border border-blue-500 bg-white"
+              role="button"
+              tabIndex={0}
+              onClick={() => handleOpenDraft(post.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault()
+                  handleOpenDraft(post.id)
+                }
+              }}
             >
               <button
-                onClick={() =>
+                onClick={(event) => {
+                  event.stopPropagation()
                   setOpenMenu(openMenu === post.id ? null : post.id)
-                }
+                }}
                 className="absolute right-2 top-2 z-20 rounded-md bg-blue-600 p-1.5 text-white"
                 type="button"
               >
@@ -362,7 +378,10 @@ export default function Page() {
               {openMenu === post.id && (
                 <div className="absolute right-2 top-10 z-30 w-48 rounded-lg border bg-white shadow-lg">
                   <button
-                    onClick={() => handleAction("edit", post.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleAction("edit", post.id)
+                    }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
                     type="button"
                   >
@@ -370,7 +389,10 @@ export default function Page() {
                   </button>
 
                   <button
-                    onClick={() => handleAction("template", post.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleAction("template", post.id)
+                    }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
                     type="button"
                   >
@@ -378,7 +400,10 @@ export default function Page() {
                   </button>
 
                   <button
-                    onClick={() => handleAction("delete", post.id)}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleAction("delete", post.id)
+                    }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     type="button"
                   >
