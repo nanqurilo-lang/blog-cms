@@ -31,6 +31,28 @@ type CreateTemplateResponse = {
   } | null;
 };
 
+type UpdateDraftResponse = {
+  message?: string;
+  template?: {
+    _id?: string;
+    title?: string;
+    slug?: string;
+    description?: string;
+    status?: "draft" | "published";
+    lastSavedAt?: string | null;
+    draftContent?: {
+      widgets?: unknown[];
+    } | null;
+    publishedContent?: {
+      widgets?: unknown[];
+    } | null;
+  } | null;
+  urls?: {
+    previewPath?: string;
+    livePath?: string;
+  } | null;
+};
+
 type PreviewTemplateResponse = {
   message?: string;
   templateId?: string;
@@ -196,6 +218,7 @@ export default function EditorToolbar() {
     const title = templateForm.title.trim();
     const slug = templateForm.slug.trim();
     const description = templateForm.description.trim();
+    const templateId = template?._id;
 
     if (!title) {
       dispatch({
@@ -219,7 +242,9 @@ export default function EditorToolbar() {
     if (!token) {
       dispatch({
         type: "SAVE_TEMPLATE_ERROR",
-        message: "cms_token not found. Please log in again before creating a template.",
+        message: `cms_token not found. Please log in again before ${
+          templateId ? "updating" : "creating"
+        } a template.`,
       });
       return;
     }
@@ -227,6 +252,55 @@ export default function EditorToolbar() {
     dispatch({ type: "SAVE_TEMPLATE_START" });
 
     try {
+      if (templateId) {
+        const response = await fetch(`${BUILDER_TEMPLATE_API}/${templateId}/draft`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            description,
+            content: {
+              widgets: state.present.widgets,
+            },
+          }),
+        });
+
+        let result: UpdateDraftResponse | null = null;
+
+        try {
+          result = await response.json();
+        } catch {
+          result = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(result?.message || "Failed to update draft template.");
+        }
+
+        if (!result?.template?._id) {
+          throw new Error("Draft update response was missing template data.");
+        }
+
+        cacheDraftTemplate(
+          result.template._id,
+          result.message || "Draft saved",
+        );
+
+        dispatch({
+          type: "SAVE_TEMPLATE_SUCCESS",
+          payload: {
+            message: result.message || "Draft saved",
+            template: result.template,
+            urls: result.urls || null,
+          },
+        });
+
+        return;
+      }
+
       const response = await fetch(BUILDER_TEMPLATE_API, {
         method: "POST",
         headers: {
@@ -255,29 +329,23 @@ export default function EditorToolbar() {
         throw new Error(result?.message || "Failed to create template.");
       }
 
-      if (!result?.template) {
+      if (!result?.template?._id) {
         throw new Error("Template response was missing template data.");
       }
 
-      const templateId = result.template._id;
-
-      if (!templateId) {
-        throw new Error("Template response was missing template id.");
-      }
-
       cacheDraftTemplate(
-        templateId,
-        result?.message || "Builder template created and saved to drafts",
+        result.template._id,
+        result.message || "Builder template created and saved to drafts",
       );
 
       dispatch({
         type: "SAVE_TEMPLATE_SUCCESS",
         payload: {
           message:
-            result?.message ||
+            result.message ||
             "Builder template created and saved to drafts",
-          template: result?.template,
-          urls: result?.urls || null,
+          template: result.template,
+          urls: result.urls || null,
         },
       });
     } catch (error) {
@@ -286,7 +354,9 @@ export default function EditorToolbar() {
         message:
           error instanceof Error
             ? error.message
-            : "Something went wrong while creating the template.",
+            : `Something went wrong while ${
+                templateId ? "updating" : "creating"
+              } the template.`,
       });
     }
   }
@@ -365,7 +435,13 @@ export default function EditorToolbar() {
             type="button"
             disabled={saveState === "saving"}
           >
-            {saveState === "saving" ? "Creating..." : "Create Template"}
+            {saveState === "saving"
+              ? template?._id
+                ? "Saving..."
+                : "Creating..."
+              : template?._id
+                ? "Save Draft"
+                : "Create Template"}
           </button>
           <button
             className="rounded-md border px-3 py-2 text-sm"

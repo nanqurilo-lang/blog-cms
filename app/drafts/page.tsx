@@ -308,7 +308,7 @@ export default function Page() {
     setOpenMenu(null)
 
     if (action === "edit") {
-      console.log("Edit draft template:", postId)
+      handleOpenDraft(postId)
     }
 
     if (action === "template") {
