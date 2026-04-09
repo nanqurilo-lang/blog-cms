@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useEditor } from "./EditorProvider";
 
-const BUILDER_TEMPLATE_API =
-  "https://6jnqmj85-3000.inc1.devtunnels.ms/api/builder/template";
+const BUILDER_API_BASE_URL = "https://6jnqmj85-3000.inc1.devtunnels.ms";
+const BUILDER_TEMPLATE_API = `${BUILDER_API_BASE_URL}/api/builder/template`;
 const DRAFT_STORAGE_KEY = "builder_template_drafts";
 const FALLBACK_DRAFT_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Crect width='1200' height='700' fill='%23eff6ff'/%3E%3Crect x='72' y='88' width='1056' height='524' rx='36' fill='%23dbeafe'/%3E%3Ctext x='50%25' y='47%25' text-anchor='middle' fill='%231d4ed8' font-family='Arial, sans-serif' font-size='54' font-weight='700'%3EDraft Template%3C/text%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' fill='%23475569' font-family='Arial, sans-serif' font-size='28'%3EBuilder preview image not available%3C/text%3E%3C/svg%3E";
@@ -31,18 +31,38 @@ type CreateTemplateResponse = {
   } | null;
 };
 
+type PreviewTemplateResponse = {
+  message?: string;
+  templateId?: string;
+  status?: "draft" | "published";
+  version?: number;
+  content?: {
+    widgets?: unknown[];
+  } | null;
+  metadata?: {
+    title?: string;
+    slug?: string;
+    description?: string;
+  } | null;
+  urls?: {
+    previewPath?: string;
+    livePath?: string;
+  } | null;
+};
+
 export default function EditorToolbar() {
   const { dispatch, state } = useEditor();
   const { templateForm, saveState, saveMessage, template, templateUrls } = state;
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const previewUrl = useMemo(() => {
     if (!templateUrls?.previewPath) return "";
-    return `https://6jnqmj85-3000.inc1.devtunnels.ms${templateUrls.previewPath}`;
+    return `${BUILDER_API_BASE_URL}${templateUrls.previewPath}`;
   }, [templateUrls?.previewPath]);
 
   const liveUrl = useMemo(() => {
     if (!templateUrls?.livePath) return "";
-    return `https://6jnqmj85-3000.inc1.devtunnels.ms${templateUrls.livePath}`;
+    return `${BUILDER_API_BASE_URL}${templateUrls.livePath}`;
   }, [templateUrls?.livePath]);
 
   function getTemplateThumbnail() {
@@ -93,6 +113,83 @@ export default function EditorToolbar() {
     ];
 
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(nextDrafts));
+  }
+
+  async function handlePreviewTemplate() {
+    const templateId = template?._id;
+
+    if (!templateId) {
+      dispatch({ type: "PREVIEW" });
+      return;
+    }
+
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("cms_token") : null;
+
+    if (!token) {
+      dispatch({
+        type: "SAVE_TEMPLATE_ERROR",
+        message: "cms_token not found. Please log in again before loading preview.",
+      });
+      return;
+    }
+
+    setIsPreviewLoading(true);
+
+    try {
+      const response = await fetch(
+        `${BUILDER_TEMPLATE_API}/${templateId}/preview`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
+        },
+      );
+
+      let result: PreviewTemplateResponse | null = null;
+
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to fetch preview data.");
+      }
+
+      if (!result?.templateId) {
+        throw new Error("Preview response was missing template id.");
+      }
+
+      dispatch({
+        type: "LOAD_TEMPLATE_PREVIEW_SUCCESS",
+        payload: {
+          message: result.message || "Preview data fetched",
+          templateId: result.templateId,
+          status: result.status,
+          version: result.version,
+          content: result.content
+            ? {
+                widgets: result.content.widgets as never[] | undefined,
+              }
+            : null,
+          metadata: result.metadata || null,
+          urls: result.urls || null,
+        },
+      });
+    } catch (error) {
+      dispatch({
+        type: "SAVE_TEMPLATE_ERROR",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while loading preview.",
+      });
+    } finally {
+      setIsPreviewLoading(false);
+    }
   }
 
   async function handleCreateTemplate() {
@@ -256,10 +353,11 @@ export default function EditorToolbar() {
           </button>
           <button
             className="rounded-md border px-3 py-2 text-sm"
-            onClick={() => dispatch({ type: "PREVIEW" })}
+            onClick={handlePreviewTemplate}
             type="button"
+            disabled={isPreviewLoading}
           >
-            Preview
+            {isPreviewLoading ? "Loading Preview..." : "Preview"}
           </button>
           <button
             className="rounded-md bg-blue-600 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-70"

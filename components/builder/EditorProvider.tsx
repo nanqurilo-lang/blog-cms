@@ -44,6 +44,22 @@ type TemplateUrls = {
   livePath?: string;
 };
 
+type PreviewTemplatePayload = {
+  message?: string;
+  templateId: string;
+  status?: "draft" | "published";
+  version?: number;
+  content?: {
+    widgets?: WidgetData[];
+  } | null;
+  metadata?: {
+    title?: string;
+    slug?: string;
+    description?: string;
+  } | null;
+  urls?: TemplateUrls | null;
+};
+
 type EditorState = {
   past: EditorDocument[];
   present: EditorDocument;
@@ -92,6 +108,10 @@ type Action =
         template: BuilderTemplate;
         urls?: TemplateUrls | null;
       };
+    }
+  | {
+      type: "LOAD_TEMPLATE_PREVIEW_SUCCESS";
+      payload: PreviewTemplatePayload;
     }
   | { type: "SAVE_TEMPLATE_ERROR"; message: string };
 
@@ -205,6 +225,61 @@ function reducer(state: EditorState, action: Action): EditorState {
           title: template.title || state.templateForm.title,
           slug: template.slug || state.templateForm.slug,
           description: template.description || state.templateForm.description,
+          slugTouched: true,
+        },
+      };
+    }
+
+    case "LOAD_TEMPLATE_PREVIEW_SUCCESS": {
+      const previewContent = action.payload.content;
+      const previewWidgets = previewContent?.widgets || state.present.widgets;
+      const nextStatus = action.payload.status || state.status;
+
+      localStorage.setItem("draft", JSON.stringify({ widgets: previewWidgets }));
+
+      return {
+        ...state,
+        present: { widgets: previewWidgets },
+        mode: "preview",
+        status: nextStatus,
+        saveState: "success",
+        saveMessage: action.payload.message || "Preview data fetched",
+        template: {
+          ...state.template,
+          _id: action.payload.templateId,
+          title:
+            action.payload.metadata?.title ||
+            state.template?.title ||
+            state.templateForm.title,
+          slug:
+            action.payload.metadata?.slug ||
+            state.template?.slug ||
+            state.templateForm.slug,
+          description:
+            action.payload.metadata?.description ||
+            state.template?.description ||
+            state.templateForm.description,
+          status: nextStatus,
+          draftContent:
+            nextStatus === "draft"
+              ? { widgets: previewWidgets }
+              : state.template?.draftContent || null,
+          publishedContent:
+            nextStatus === "published"
+              ? { widgets: previewWidgets }
+              : state.template?.publishedContent || null,
+        },
+        templateUrls: action.payload.urls || state.templateUrls,
+        templateForm: {
+          title:
+            action.payload.metadata?.title ||
+            state.templateForm.title,
+          slug:
+            action.payload.metadata?.slug ||
+            state.templateForm.slug,
+          description:
+            action.payload.metadata?.description ||
+            state.templateForm.description,
           slugTouched: true,
         },
       };
