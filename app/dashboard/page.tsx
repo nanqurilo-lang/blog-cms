@@ -26,8 +26,10 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { log } from "console"
 
-const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms"
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null)
@@ -40,95 +42,83 @@ export default function DashboardPage() {
     fetchDashboard()
   }, [])
 
-  async function fetchDashboard() {
-    try {
-      setLoading(true)
+ 
+async function fetchDashboard() {
+console.log("BASE_URL:", BASE_URL)
 
-      // ✅ CORRECT TOKEN KEY
-      const token = localStorage.getItem("cms_token")
+  try {
+    setLoading(true)
 
-      if (!token) {
-        console.error("❌ cms_token not found in localStorage")
-        setLoading(false)
-        return
-      }
+    const token = localStorage.getItem("cms_token")
 
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      }
-
-      const [
-        statsRes,
-        contentRes,
-        activityRes,
-        engagementRes,
-      ] = await Promise.all([
-        fetch(`${BASE_URL}/api/analytics/dashboard`, {
-          headers,
-          cache: "no-store",
-        }),
-        fetch(`${BASE_URL}/api/analytics/recent-content`, {
-          headers,
-          cache: "no-store",
-        }),
-        fetch(`${BASE_URL}/api/analytics/recent-activity`, {
-          headers,
-          cache: "no-store",
-        }),
-        fetch(`${BASE_URL}/api/analytics/engagement`, {
-          headers,
-          cache: "no-store",
-        }),
-      ])
-
-      const statsJson = await statsRes.json()
-      const contentJson = await contentRes.json()
-      const activityJson = await activityRes.json()
-      const engagementJson = await engagementRes.json()
-
-      /* ---------------- NORMALIZE STATS ---------------- */
-      setStats({
-        totalPosts: statsJson?.data?.totalPosts ?? 0,
-        totalViews: statsJson?.data?.totalViews ?? 0,
-        totalComments: statsJson?.data?.totalComments ?? 0,
-        totalEnquiry:
-          typeof statsJson?.data?.totalEnquiry === "object"
-            ? statsJson.data.totalEnquiry.total
-            : statsJson?.data?.totalEnquiry ?? 0,
-      })
-
-      /* ---------------- LIST DATA ---------------- */
-      setRecentContent(Array.isArray(contentJson?.data) ? contentJson.data : [])
-      setActivity(Array.isArray(activityJson?.data) ? activityJson.data : [])
-
-      /* ---------------- ENGAGEMENT ---------------- */
-      const e = engagementJson?.data
-
-      if (
-        e &&
-        Array.isArray(e.labels) &&
-        Array.isArray(e.like) &&
-        Array.isArray(e.comment) &&
-        Array.isArray(e.enquiry)
-      ) {
-        const formatted = e.labels.map((label: string, i: number) => ({
-          month: label,
-          like: e.like[i] ?? 0,
-          comment: e.comment[i] ?? 0,
-          enquiry: e.enquiry[i] ?? 0,
-        }))
-        setChartData(formatted)
-      } else {
-        setChartData([])
-      }
-    } catch (err) {
-      console.error("❌ Dashboard API error:", err)
-      setChartData([])
-    } finally {
+    if (!token) {
+      console.error("❌ cms_token not found")
       setLoading(false)
+      return
     }
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }
+
+
+
+
+const [postRes, viewRes] = await Promise.all([
+  fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
+    headers,
+    cache: "no-store",
+  }),
+
+
+
+  
+  fetch(`${BASE_URL}/api/dashboard/total-view-count`, {
+    headers,
+    cache: "no-store",
+  }),
+])
+
+
+
+const postJson = await postRes.json()
+const viewJson = await viewRes.json()
+
+console.log("POST API:", postJson)
+console.log("VIEW API:", viewJson)
+
+
+
+ setStats({
+      totalPosts:
+        postJson?.total_Post ??
+        postJson?.totalPosts ??
+        postJson?.data?.total_Post ??
+        0,
+
+      totalViews:
+        viewJson?.totalViews ??
+        viewJson?.total_views ??
+        viewJson?.data?.totalViews ??
+        0,
+
+      totalComments: 0,
+      totalEnquiry: 0,
+    })
+
+  } catch (err) {
+    console.error("❌ Dashboard API error:", err)
+  } finally {
+    setLoading(false)
   }
+}
+
+
+
+
+// console.log("Stats:", stats)
+
 
   return (
     <div className="space-y-6 pl-10">
