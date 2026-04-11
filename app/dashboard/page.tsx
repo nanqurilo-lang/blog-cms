@@ -65,7 +65,7 @@ console.log("BASE_URL:", BASE_URL)
 
 
 
-const [postRes, viewRes] = await Promise.all([
+const [postRes, viewRes ,CommentRes] = await Promise.all([
   fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
     headers,
     cache: "no-store",
@@ -78,15 +78,26 @@ const [postRes, viewRes] = await Promise.all([
     headers,
     cache: "no-store",
   }),
+
+
+
+ fetch(`${BASE_URL}/api/dashboard/total-comment-count`, {
+    headers,
+    cache: "no-store",
+  }),
+
 ])
 
 
 
 const postJson = await postRes.json()
 const viewJson = await viewRes.json()
+const commentJson = await CommentRes.json()
+
 
 console.log("POST API:", postJson)
 console.log("VIEW API:", viewJson)
+console.log("COMMENT API:", commentJson)
 
 
 
@@ -103,7 +114,15 @@ console.log("VIEW API:", viewJson)
         viewJson?.data?.totalViews ??
         0,
 
-      totalComments: 0,
+      
+
+
+
+  totalComments:
+    commentJson?.totalComments ??
+    commentJson?.data?.totalComments ??
+    0,
+
       totalEnquiry: 0,
     })
 
