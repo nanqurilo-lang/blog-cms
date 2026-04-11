@@ -65,7 +65,7 @@ console.log("BASE_URL:", BASE_URL)
 
 
 
-const [postRes, viewRes ,CommentRes] = await Promise.all([
+const [postRes, viewRes ,CommentRes,recentRes] = await Promise.all([
   fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
     headers,
     cache: "no-store",
@@ -86,6 +86,11 @@ const [postRes, viewRes ,CommentRes] = await Promise.all([
     cache: "no-store",
   }),
 
+   fetch(`${BASE_URL}/api/dashboard/get-lastest-blog`, {
+    headers,
+    cache: "no-store",
+  }),
+
 ])
 
 
@@ -93,11 +98,55 @@ const [postRes, viewRes ,CommentRes] = await Promise.all([
 const postJson = await postRes.json()
 const viewJson = await viewRes.json()
 const commentJson = await CommentRes.json()
+const recentJson = await recentRes.json()
+
 
 
 console.log("POST API:", postJson)
 console.log("VIEW API:", viewJson)
 console.log("COMMENT API:", commentJson)
+console.log("RECENT API:", recentJson) // 👈 add this also
+
+
+
+setRecentContent(
+  recentJson?.latestBlog?.map((item: any) => ({
+    id: item._id,
+    title: item.title,
+    status: item.status,
+    lastUpdated: item.updatedAt,
+  })) || []
+)
+
+
+
+// setRecentContent(
+//   recentJson?.latestBlog
+//     ?.slice(0, 5)
+//     .map((item: any) => ({
+//       id: item._id,
+//       title: item.title,
+//       status: item.status,
+//       lastUpdated: item.updatedAt,
+//     })) || []
+// )
+
+
+// setRecentContent(
+//   recentJson?.latestBlog
+//     ?.sort(
+//       (a: any, b: any) =>
+//         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+//     )
+//     .slice(0, 5)
+//     .map((item: any) => ({
+//       id: item._id,
+//       title: item.title,
+//       status: item.status,
+//       lastUpdated: item.updatedAt,
+//     })) || []
+// )
+
 
 
 
@@ -166,7 +215,7 @@ console.log("COMMENT API:", commentJson)
             <CardTitle className="text-sm">Recent Content</CardTitle>
           </CardHeader>
 
-          <CardContent>
+          {/* <CardContent>
             {loading ? (
               <p className="text-sm text-muted-foreground">Loading...</p>
             ) : (
@@ -205,7 +254,60 @@ console.log("COMMENT API:", commentJson)
                 </tbody>
               </table>
             )}
-          </CardContent>
+          </CardContent> */}
+
+
+
+
+<CardContent>
+  {loading ? (
+    <p className="text-sm text-muted-foreground">Loading...</p>
+  ) : (
+
+<div className="max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+
+      <table className="w-full text-sm">
+        <thead className="sticky top-0 bg-blue-50 ">
+          <tr className="text-left">
+            <th className="p-2">Title</th>
+            <th className="p-2">Status</th>
+            <th className="p-2">Last Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {recentContent.map((row) => (
+            <tr key={row.id} className="border-b">
+              <td className="p-2">{row.title}</td>
+              <td className="p-2">
+                <Badge
+                  className={
+                    row.status === "published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-orange-100 text-orange-700"
+                  }
+                >
+                  {row.status}
+                </Badge>
+              </td>
+              <td className="p-2">
+                {new Date(row.lastUpdated).toLocaleDateString()}
+              </td>
+              <td className="p-2">
+                <Pencil className="h-4 w-4 cursor-pointer text-muted-foreground" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</CardContent>
+
+
+
+
         </Card>
 
         {/* RECENT ACTIVITY */}
