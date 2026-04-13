@@ -209,7 +209,19 @@ function reducer(state: EditorState, action: Action): EditorState {
       };
 
     case "SAVE_TEMPLATE_SUCCESS": {
-      const template = action.payload.template;
+      // const template = action.payload.template;
+
+
+const template = action.payload?.template;
+
+if (!template) {
+  return {
+    ...state,
+    saveState: "error",
+    saveMessage: "Template data missing in response",
+  };
+}
+
       const nextWidgets =
         template.draftContent?.widgets ||
         template.publishedContent?.widgets ||

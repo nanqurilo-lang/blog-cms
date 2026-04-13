@@ -7,6 +7,8 @@ import Canvas from "./Canvas";
 import SettingsPanel from "./SettingsPanel";
 import EditorToolbar from "./EditorToolbar";
 import { EditorProvider, useEditor, type WidgetData } from "./EditorProvider";
+import { useRouter } from "next/navigation";
+
 
 import {
   DndContext,
@@ -892,6 +894,10 @@ function createWidget(type: string) {
 
 function BuilderContent() {
   const { state, dispatch } = useEditor();
+
+  const router = useRouter(); // ✅ HERE
+
+
   const searchParams = useSearchParams();
   const widgets = state.present.widgets;
   const templateId = searchParams.get("templateId");
@@ -1044,9 +1050,140 @@ function BuilderContent() {
     });
   }
 
+
+
+
+
+async function createTemplate() {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("cms_token")
+      : null;
+
+  if (!token) {
+    dispatch({
+      type: "SAVE_TEMPLATE_ERROR",
+      message: "Please login again",
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BUILDER_TEMPLATE_API}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        content: state.present, // ✅ IMPORTANT
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Create failed");
+    }
+
+    dispatch({
+      type: "SAVE_TEMPLATE_SUCCESS",
+      payload: {
+        message: data.message,
+        template: data.template,
+        urls: data.urls || null,
+      },
+    });
+
+    console.log("✅ Template Created:", data);
+
+  } catch (err) {
+    dispatch({
+      type: "SAVE_TEMPLATE_ERROR",
+      message:
+        err instanceof Error ? err.message : "Create failed",
+    });
+  }
+}
+
+
+
+
+
+
+async function publishTemplate() {
+  if (!templateId) {
+    dispatch({
+      type: "SAVE_TEMPLATE_ERROR",
+      message: "Template ID missing",
+    });
+    return;
+  }
+
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("cms_token")
+      : null;
+
+  if (!token) {
+    dispatch({
+      type: "SAVE_TEMPLATE_ERROR",
+      message: "Please login again",
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${BUILDER_TEMPLATE_API}/${templateId}/publish`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Publish failed");
+    }
+
+    dispatch({
+      type: "SAVE_TEMPLATE_SUCCESS",
+      // message: data.message || "Published successfully",
+       payload: {
+        message: data.message,
+        template: data.template,
+        urls: data.urls || null,
+      },
+    });
+
+        console.log("✅ Template Created:", data);
+
+    router.push("/posts"); // ✅ redirect
+
+  } catch (err) {
+    dispatch({
+      type: "SAVE_TEMPLATE_ERROR",
+      message:
+        err instanceof Error
+          ? err.message
+          : "Publish failed",
+    });
+  }
+}
+
+
+
+
   return (
     <>
-      <EditorToolbar />
+      {/* <EditorToolbar /> */}
+<EditorToolbar publishTemplate={publishTemplate}
+ createTemplate={createTemplate} />
 
       <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <div className="flex h-[calc(100vh-56px)]">

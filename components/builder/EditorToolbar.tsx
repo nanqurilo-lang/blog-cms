@@ -72,7 +72,7 @@ type PreviewTemplateResponse = {
   } | null;
 };
 
-export default function EditorToolbar() {
+export default function EditorToolbar({ publishTemplate }: any) {
   const { dispatch, state } = useEditor();
   const { templateForm, saveState, saveMessage, template, templateUrls } = state;
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
@@ -345,6 +345,8 @@ export default function EditorToolbar() {
             result.message ||
             "Builder template created and saved to drafts",
           template: result.template,
+              // template: data.template, // ✅ THIS WAS MISSING
+
           urls: result.urls || null,
         },
       });
@@ -445,8 +447,11 @@ export default function EditorToolbar() {
           </button>
           <button
             className="rounded-md border px-3 py-2 text-sm"
-            onClick={() => dispatch({ type: "PUBLISH" })}
-            type="button"
+
+onClick={publishTemplate}
+
+            // onClick={() => dispatch({ type: "PUBLISH" })}
+            // type="button"
           >
             Publish
           </button>
