@@ -99,27 +99,95 @@ async function fetchInquiries() {
 
 
 
+/* ---------------- MARK AS READ ---------------- */
+async function markAsRead(id: string) {
+  try {
+    const token = localStorage.getItem("cms_token")
+    if (!token) return
+
+    const res = await fetch(
+      `${BASE_URL}/api/enquiry/admin/read-enquiry/${id}`,
+      {
+        method: "PUT", // confirm backend (PUT or PATCH)
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    )
+
+    const json = await res.json()
+
+    if (json?.success) {
+      setList((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: "read" } : item
+        )
+      )
+    }
+  } catch (err) {
+    console.error("Mark as read error", err)
+  }
+}
+
+
+
+
 
   /* ---------------- FETCH DETAIL ---------------- */
-  async function selectInquiry(id: string) {
-    try {
-      setSelectedId(id)
-      setDetail(null)
+  // async function selectInquiry(id: string) {
+  //   try {
+  //     setSelectedId(id)
+  //     setDetail(null)
 
-      const token = localStorage.getItem("cms_token")
-      if (!token) return
+  //     const token = localStorage.getItem("cms_token")
+  //     if (!token) return
 
-      const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
+  //     const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //       cache: "no-store",
+  //     })
+
+  //     const json = await res.json()
+  //     setDetail(json?.data ?? null)
+  //   } catch (err) {
+  //     console.error("Inquiry detail error", err)
+  //   }
+  // }
+
+
+async function selectInquiry(id: string) {
+  try {
+    setSelectedId(id)
+    setDetail(null)
+
+    // ✅ mark as read
+    markAsRead(id)
+
+    const token = localStorage.getItem("cms_token")
+    if (!token) return
+
+    // ❌ OLD WRONG API
+    // `/api/inquiries/${id}`
+
+    // 👉 If detail API NOT available, use list data instead
+    const selected = list.find((item) => item.id === id)
+
+    if (selected) {
+      setDetail({
+        ...selected,
+        initials: selected.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase(),
+        replyMail: `mailto:${selected.email}`,
       })
-
-      const json = await res.json()
-      setDetail(json?.data ?? null)
-    } catch (err) {
-      console.error("Inquiry detail error", err)
     }
+  } catch (err) {
+    console.error("Inquiry detail error", err)
   }
+}
+
+
+
 
   /* ---------------- DELETE ---------------- */
   async function deleteInquiry(id: string) {
