@@ -120,7 +120,7 @@ async function markAsRead(id: string) {
     if (json?.success) {
       setList((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, status: "read" } : item
+          item.id === id ? { ...item, status: "unread" } : item
         )
       )
     }
