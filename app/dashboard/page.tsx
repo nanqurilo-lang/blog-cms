@@ -38,9 +38,41 @@ export default function DashboardPage() {
   const [chartData, setChartData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   fetchDashboard()
+  // }, [])
+
+
+
+useEffect(() => {
+  const token = localStorage.getItem("cms_token")
+
+  if (!token) {
+    window.location.href = "/login"
+    return
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]))
+    const currentTime = Date.now() / 1000
+
+    if (payload.exp < currentTime) {
+      // ❌ token expired
+      localStorage.removeItem("cms_token")
+      window.location.href = "/login"
+      return
+    }
+
+    // ✅ token valid
     fetchDashboard()
-  }, [])
+  } catch {
+    localStorage.removeItem("cms_token")
+    window.location.href = "/login"
+  }
+}, [])
+
+
+
 
  
 async function fetchDashboard() {

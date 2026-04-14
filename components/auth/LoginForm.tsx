@@ -36,6 +36,8 @@ export default function LoginForm() {
         throw new Error(result?.message || "Failed to send OTP")
       }
 
+localStorage.removeItem("cms_token")
+
       localStorage.setItem("admin_login_email", normalizedEmail)
       router.push("/verify-otp")
     } catch (err) {
