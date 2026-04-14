@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react"
 import { Search, Trash2 } from "lucide-react"
 
-const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms"
+const BASE_URL = "https://6jnqmj85-3000.inc1.devtunnels.ms"
 
 type Inquiry = {
   id: string
@@ -30,30 +30,75 @@ export default function Page() {
   }, [])
 
   /* ---------------- FETCH LIST ---------------- */
-  async function fetchInquiries() {
-    try {
-      const token = localStorage.getItem("cms_token")
-      if (!token) return console.error("cms_token missing")
+  // async function fetchInquiries() {
+  //   try {
+  //     const token = localStorage.getItem("cms_token")
+  //     if (!token) return console.error("cms_token missing")
 
-      const res = await fetch(`${BASE_URL}/api/inquiries`, {
+  //     const res = await fetch(`${BASE_URL}/api/inquiries`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //       cache: "no-store",
+  //     })
+
+  //     const json = await res.json()
+  //     const data = Array.isArray(json?.data) ? json.data : []
+
+  //     setList(data)
+
+  //     if (data.length) {
+  //       selectInquiry(data[0].id)
+  //     }
+  //   } catch (err) {
+  //     console.error("Inquiry list error", err)
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
+
+
+
+
+async function fetchInquiries() {
+  try {
+    const token = localStorage.getItem("cms_token")
+    if (!token) return console.error("cms_token missing")
+
+    const res = await fetch(
+      `${BASE_URL}/api/enquiry/admin/all-enquiry`,
+      {
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
-      })
-
-      const json = await res.json()
-      const data = Array.isArray(json?.data) ? json.data : []
-
-      setList(data)
-
-      if (data.length) {
-        selectInquiry(data[0].id)
       }
-    } catch (err) {
-      console.error("Inquiry list error", err)
-    } finally {
-      setLoading(false)
+    )
+
+    const json = await res.json()
+
+    const data = Array.isArray(json?.response)
+      ? json.response.map((item: any) => ({
+          id: item._id,
+          name: item.name,
+          email: item.email,
+          message: item.message,
+          blog: { title: item.blogtitle }, // FIX
+          status: item.status.toLowerCase(), // "Read" → "read"
+          date: item.createdAt,
+        }))
+      : []
+
+    setList(data)
+
+    if (data.length) {
+      selectInquiry(data[0].id)
     }
+  } catch (err) {
+    console.error("Inquiry list error", err)
+  } finally {
+    setLoading(false)
   }
+}
+
+
+
 
   /* ---------------- FETCH DETAIL ---------------- */
   async function selectInquiry(id: string) {
