@@ -97,7 +97,7 @@ console.log("BASE_URL:", BASE_URL)
 
 
 
-const [postRes, viewRes ,CommentRes,recentRes] = await Promise.all([
+const [postRes, viewRes ,CommentRes,recentRes,enquiryRes] = await Promise.all([
   fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
     headers,
     cache: "no-store",
@@ -123,6 +123,12 @@ const [postRes, viewRes ,CommentRes,recentRes] = await Promise.all([
     cache: "no-store",
   }),
 
+   // ✅ NEW API
+  fetch(`${BASE_URL}/api/dashboard/get-all-count`, {
+    headers,
+    cache: "no-store",
+  }),
+
 ])
 
 
@@ -131,6 +137,7 @@ const postJson = await postRes.json()
 const viewJson = await viewRes.json()
 const commentJson = await CommentRes.json()
 const recentJson = await recentRes.json()
+const enquiryJson = await enquiryRes.json()
 
 
 
@@ -138,6 +145,7 @@ console.log("POST API:", postJson)
 console.log("VIEW API:", viewJson)
 console.log("COMMENT API:", commentJson)
 console.log("RECENT API:", recentJson) // 👈 add this also
+console.log("ENQUIRY API:", enquiryJson)
 
 
 
@@ -204,7 +212,15 @@ setRecentContent(
     commentJson?.data?.totalComments ??
     0,
 
-      totalEnquiry: 0,
+      // totalEnquiry: 0,
+
+ // ✅ FIX HERE
+  totalEnquiry:
+    enquiryJson?.totalEnquiry ??
+    enquiryJson?.data?.totalEnquiry ??
+    0,
+
+
     })
 
   } catch (err) {
