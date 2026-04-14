@@ -25,6 +25,8 @@ export default function Page() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
 
+  const [replyMessage, setReplyMessage] = useState("")
+
   useEffect(() => {
     fetchInquiries()
   }, [])
@@ -222,6 +224,52 @@ async function selectInquiry(id: string) {
     }
   }
 
+
+
+
+
+async function sendReply() {
+  try {
+    const token = localStorage.getItem("cms_token")
+    if (!token || !detail) return
+
+    const res = await fetch(
+      `${BASE_URL}/api/enquiry/admin/reply-to-message`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          email: detail.email,
+          subject: "Thank You for Your Enquiry – We've Got Your Message!",
+          message: `Hi ${detail.name},
+
+Thank you so much for reaching out to us! We truly appreciate your message.
+
+We have received your enquiry and will get back to you soon.
+
+Warm regards,
+The Blog Team`,
+        }),
+      }
+    )
+
+    const json = await res.json()
+
+    if (json?.message) {
+      alert("✅ Reply sent successfully!")
+    }
+  } catch (err) {
+    console.error("Reply error", err)
+    alert("❌ Failed to send reply")
+  }
+}
+
+
+
+
   /* ---------------- FILTER ---------------- */
   const filteredList = list.filter((item) => {
     const matchesSearch =
@@ -384,17 +432,47 @@ async function selectInquiry(id: string) {
                   </span>
                 </div>
 
+
+
+
                 <div className="mt-2 rounded-lg bg-gray-100 p-3 text-xs text-gray-700 leading-relaxed">
                   {detail.message}
                 </div>
               </div>
 
-              <a
+
+
+
+<div className="mt-4">
+  <div className="text-xs text-gray-500 mb-1">Reply</div>
+
+  <textarea
+    value={replyMessage}
+    onChange={(e) => setReplyMessage(e.target.value)}
+    placeholder="Write your reply..."
+    className="w-full rounded-lg border p-2 text-sm"
+  />
+</div>
+
+
+
+              {/* <a
                 href={detail.replyMail}
                 className="mt-6 block w-full rounded-lg bg-blue-600 py-2 text-center text-sm font-medium text-white"
               >
                 Reply via Mail
-              </a>
+              </a> */}
+
+
+<button
+  onClick={sendReply}
+  className="mt-6 w-full rounded-lg bg-blue-600 py-2 text-sm font-medium text-white"
+>
+  Send Reply
+</button>
+
+
+
             </>
           )}
         </div>
