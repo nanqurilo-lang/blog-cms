@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useEditor } from "./EditorProvider";
 
-const BUILDER_API_BASE_URL = "https://6jnqmj85-3000.inc1.devtunnels.ms";
+const BUILDER_API_BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
 const BUILDER_TEMPLATE_API = `${BUILDER_API_BASE_URL}/api/builder/template`;
 const DRAFT_STORAGE_KEY = "builder_template_drafts";
 const FALLBACK_DRAFT_IMAGE =

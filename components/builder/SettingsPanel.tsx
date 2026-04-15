@@ -3,7 +3,7 @@
 import { type ChangeEvent, type ReactNode, useState } from "react";
 
 const TEMPLATE_IMAGE_UPLOAD_API =
-  "https://6jnqmj85-3000.inc1.devtunnels.ms/api/template/upload-image";
+  "https://w7xqb95q-3000.inc1.devtunnels.ms/api/template/upload-image";
 const inputClass =
   "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500";
 const selectClass = inputClass;

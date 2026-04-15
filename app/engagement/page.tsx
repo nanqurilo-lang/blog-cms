@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react"
 import { Search, Trash2 } from "lucide-react"
 
-const BASE_URL = "https://6jnqmj85-3000.inc1.devtunnels.ms"
+const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms"
 
 type Inquiry = {
   id: string

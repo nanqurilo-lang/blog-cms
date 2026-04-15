@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react"
 
 const ADMIN_VERIFY_OTP_URL =
-  "https://6jnqmj85-3000.inc1.devtunnels.ms/app/auth/admin/verify-otp"
+  "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/verify-otp"
 
 type VerifyOtpResponse = {
   message?: string

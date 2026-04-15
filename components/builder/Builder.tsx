@@ -18,7 +18,7 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 
 const BUILDER_TEMPLATE_API =
-  "https://6jnqmj85-3000.inc1.devtunnels.ms/api/builder/template";
+  "https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/template";
 
 function createWidget(type: string) {
   const id = crypto.randomUUID();
