@@ -192,38 +192,79 @@ async function selectInquiry(id: string) {
 
 
   /* ---------------- DELETE ---------------- */
-  async function deleteInquiry(id: string) {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this inquiry?"
-    )
-    if (!confirmDelete) return
+  // async function deleteInquiry(id: string) {
+  //   const confirmDelete = window.confirm(
+  //     "Are you sure you want to delete this inquiry?"
+  //   )
+  //   if (!confirmDelete) return
 
-    try {
-      const token = localStorage.getItem("cms_token")
-      if (!token) return console.error("cms_token missing")
+  //   try {
+  //     const token = localStorage.getItem("cms_token")
+  //     if (!token) return console.error("cms_token missing")
 
-      const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
-        method: "DELETE",
+  //     const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
+  //       method: "DELETE",
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     })
+
+  //     const json = await res.json()
+  //     if (!json?.success) {
+  //       alert("Failed to delete inquiry")
+  //       return
+  //     }
+
+  //     setList((prev) => prev.filter((item) => item.id !== id))
+
+  //     if (selectedId === id) {
+  //       setSelectedId(null)
+  //       setDetail(null)
+  //     }
+  //   } catch (err) {
+  //     console.error("Delete inquiry error", err)
+  //   }
+  // }
+
+
+
+async function deleteInquiry(id: string) {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this inquiry?"
+  )
+  if (!confirmDelete) return
+
+  try {
+    const token = localStorage.getItem("cms_token")
+    if (!token) return console.error("cms_token missing")
+
+    const res = await fetch(
+      `${BASE_URL}/api/enquiry/admin/delete-enquiry/${id}`, // ✅ FIXED API
+      {
+        method: "DELETE", // ✅ correct method (confirm backend if needed)
         headers: { Authorization: `Bearer ${token}` },
-      })
-
-      const json = await res.json()
-      if (!json?.success) {
-        alert("Failed to delete inquiry")
-        return
       }
+    )
 
+    const json = await res.json()
+
+    if (json?.success) {
+      // ✅ remove from UI
       setList((prev) => prev.filter((item) => item.id !== id))
 
+      // ✅ clear detail if deleted
       if (selectedId === id) {
         setSelectedId(null)
         setDetail(null)
       }
-    } catch (err) {
-      console.error("Delete inquiry error", err)
-    }
-  }
 
+      alert("✅ Enquiry deleted successfully!")
+    } else {
+      alert("❌ Failed to delete enquiry")
+    }
+  } catch (err) {
+    console.error("Delete enquiry error", err)
+    alert("❌ Something went wrong")
+  }
+}
 
 
 
