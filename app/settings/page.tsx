@@ -8,6 +8,104 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("General");
   const [openPasswordModal, setOpenPasswordModal] = useState(false);
 
+
+  const [settings, setSettings] = useState<any>({
+    language: "",
+    timezone: "",
+    dateformat: "",
+    showAuthorName: false,
+    showpublishDate: false,
+      showReadingTime: false, // ✅ ADD THIS
+
+    cookieConsentEnabled: false,
+    privacyPolicyUrl: "",
+  });
+
+
+
+
+
+
+
+  const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
+
+  const fetchSettings = async () => {
+    try {
+      const token = localStorage.getItem("cms_token");
+
+      const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (data?.data) {
+        setSettings(data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching settings", err);
+    }
+  };
+
+
+
+const updateSettings = async () => {
+  try {
+    const token = localStorage.getItem("cms_token");
+
+    if (!token) {
+      alert("Authentication token missing ❌");
+      return;
+    }
+
+    const payload = {
+      ...settings,
+      timezone: "UTC", // ✅ FIX format
+      cookieConsentVersion: "1.0",
+      cookieConsentExpiryDays: 365,
+      cookieConsentBannerText:
+        "We use cookies to enhance your experience.",
+      showCookieRejectButton: false,
+    };
+
+    const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
+      method: "PUT", // ⚠️ if still fails → change to PUT
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+
+
+    
+    const data = await res.json();
+
+    console.log("UPDATE RESPONSE 👉", data);
+
+    if (res.ok) {
+      alert("✅ Settings saved successfully!");
+    } else {
+      alert(data?.message || "Failed to update settings ❌");
+    }
+  } catch (err) {
+    console.error("Update error", err);
+    alert("Something went wrong ❌");
+  }
+};
+
+
+
+
+  // ✅ 4. useEffect (👇 PASTE HERE)
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+
   return (
     <div className="min-h-screen bg-white p-6">
       {/* Header */}
@@ -20,8 +118,8 @@ export default function SettingsPage() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`pb-2 text-sm font-medium ${activeTab === tab
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500"
+              ? "border-b-2 border-blue-600 text-blue-600"
+              : "text-gray-500"
               }`}
           >
             {tab}
@@ -30,13 +128,41 @@ export default function SettingsPage() {
       </div>
 
       {/* Sections */}
-      {activeTab === "General" && (
+      {/* {activeTab === "General" && (
         <General onChangePassword={() => setOpenPasswordModal(true)} />
-      )}
-      {activeTab === "Display Defaults" && <DisplayDefaults />}
-      {activeTab === "Comments" && <Comments />}
-      {activeTab === "Privacy & Legal" && <PrivacyLegal />}
+      )} */}
 
+
+      {activeTab === "General" && (
+        <General
+          settings={settings}
+          setSettings={setSettings}
+          updateSettings={updateSettings}
+          onChangePassword={() => setOpenPasswordModal(true)}
+        />
+      )}
+
+
+      {/* {activeTab === "Display Defaults" && <DisplayDefaults />}
+      {activeTab === "Comments" && <Comments />}
+      {activeTab === "Privacy & Legal" && <PrivacyLegal />} */}
+      {activeTab === "Comments" && <Comments />}
+
+   {activeTab === "Display Defaults" && (
+  <DisplayDefaults
+    settings={settings}
+    setSettings={setSettings}
+    updateSettings={updateSettings}
+  />
+)}
+
+{activeTab === "Privacy & Legal" && (
+  <PrivacyLegal
+    settings={settings}
+    setSettings={setSettings}
+    updateSettings={updateSettings}
+  />
+)}
       {/* Change Password Modal */}
       {openPasswordModal && (
         <ChangePasswordModal onClose={() => setOpenPasswordModal(false)} />
@@ -66,27 +192,57 @@ function Select({ value }: { value: string }) {
   );
 }
 
-function Toggle() {
+
+
+
+
+function Toggle({ value = false, onChange = () => {} }: any) {
   return (
-    <div className="w-10 h-6 bg-blue-600 rounded-full relative">
-      <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1" />
+    <div
+      onClick={() => onChange(!value)}
+      className={`w-10 h-6 rounded-full relative cursor-pointer ${
+        value ? "bg-blue-600" : "bg-gray-300"
+      }`}
+    >
+      <div
+        className={`w-4 h-4 bg-white rounded-full absolute top-1 transition ${
+          value ? "right-1" : "left-1"
+        }`}
+      />
     </div>
   );
 }
 
-function SaveButton() {
+
+
+
+
+function SaveButton({ onClick }: any) {
   return (
     <div className="max-w-8xl flex justify-end">
-      <button className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm">
+      <button
+        onClick={onClick}
+        className="bg-blue-600 text-white px-5 py-2 rounded-md text-sm"
+      >
         Save Changes
       </button>
     </div>
   );
 }
 
+
+
 /* ------------------ General ------------------ */
 
-function General({ onChangePassword }: { onChangePassword: () => void }) {
+// function General({ onChangePassword }: { onChangePassword: () => void }) {
+
+function General({
+  onChangePassword,
+  settings,
+  setSettings,
+  updateSettings,
+}: any) {
+
   return (
     <>
       <Card
@@ -156,7 +312,14 @@ function General({ onChangePassword }: { onChangePassword: () => void }) {
         <div className="space-y-4">
           <div>
             <label className="text-sm text-gray-600">Default Language</label>
-            <Select value="English" />
+            {/* <Select value="English" /> */}
+            <input
+              value={settings.language}
+              onChange={(e) =>
+                setSettings({ ...settings, language: e.target.value })
+              }
+              className="bg-gray-100 rounded-md px-4 py-2 text-sm w-full"
+            />
           </div>
 
           <div>
@@ -171,7 +334,8 @@ function General({ onChangePassword }: { onChangePassword: () => void }) {
         </div>
       </Card>
 
-      <SaveButton />
+      {/* <SaveButton /> */}
+      <SaveButton onClick={updateSettings} />
     </>
   );
 }
@@ -228,7 +392,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
 /* ------------------ Other Tabs ------------------ */
 
-function DisplayDefaults() {
+function DisplayDefaults({ settings, setSettings,updateSettings }: any) {
   return (
     <>
       <Card
@@ -236,38 +400,63 @@ function DisplayDefaults() {
         desc="Global defaults for reader experience. Can be overridden per post."
       >
         <div className="space-y-6">
-          <Row title="Show Author Name" desc="Display author name on blog posts" />
-          <Row title="Show Publish Date" desc="Display publication date on posts" />
-          <Row title="Show Reading Time" desc="Display estimated reading time" />
+          {/* <Row title="Show Author Name" desc="Display author name on blog posts" />
+          <Row title="Show Publish Date" desc="Display publication date on posts" /> */}
+
+
+          <Row
+            title="Show Author Name"
+            desc="Display author name on blog posts"
+            value={settings.showAuthorName}
+            onChange={(val: boolean) =>
+              setSettings({ ...settings, showAuthorName: val })
+            }
+          />
+
+          <Row
+            title="Show Publish Date"
+            desc="Display publication date on posts"
+            value={settings.showpublishDate}
+            onChange={(val: boolean) =>
+              setSettings({ ...settings, showpublishDate: val })
+            }
+          />
+
+<Row
+  title="Show Reading Time"
+  desc="Display estimated reading time"
+  value={settings.showReadingTime}
+  onChange={(val: boolean) =>
+    setSettings({ ...settings, showReadingTime: val })
+  }
+/>
+
+
+          {/* <Row title="Show Reading Time" desc="Display estimated reading time" /> */}
         </div>
       </Card>
-      <SaveButton />
+      {/* <SaveButton /> */}
+
+      <SaveButton onClick={updateSettings} />
     </>
   );
 }
 
-function Row({ title, desc }: any) {
+
+
+
+function Row({ title, desc, value, onChange }: any) {
   return (
     <div className="flex items-center justify-between">
       <div>
         <p className="text-sm font-medium">{title}</p>
         <p className="text-xs text-gray-500">{desc}</p>
       </div>
-      <Toggle />
+
+      <Toggle value={value} onChange={onChange} />
     </div>
   );
 }
-
-// function Comments() {
-//   return (
-//     <p className="text-sm text-gray-500">
-//       🚧 Comments settings – <b>In future</b>
-//     </p>
-//   );
-// }
-
-
-
 
 
 
@@ -294,25 +483,7 @@ function Comments() {
     fetchComments();
   }, []);
 
-  // const fetchComments = async () => {
-  //   try {
-  //     setLoading(true);
-
-  //     const res = await fetch(`${BASE_URL}/api/comment/get-all`);
-  //     const data = await res.json();
-
-  //     if (data?.success) {
-  //       setComments(data.data);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching comments", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-
-
+  
   const fetchComments = async () => {
     try {
       setLoading(true);
@@ -348,9 +519,6 @@ function Comments() {
       setLoading(false);
     }
   };
-
-
-
 
 
   const deleteComment = async (id: string) => {
@@ -437,16 +605,7 @@ function Comments() {
                         🗑️
                       </button>
 
-
-
-                    
-
                     </div>
-
-
-
-
-
 
                   </div>
 
@@ -461,9 +620,9 @@ function Comments() {
                   </p>
                 </div>
 
-  <p className="text-xs mt-4 text-gray-400">
-                        {new Date(item.createdAt).toLocaleDateString()}
-                      </p>
+                <p className="text-xs mt-4 text-gray-400">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </p>
 
               </div>
             ))}
@@ -478,11 +637,7 @@ function Comments() {
 
 
 
-
-
-
-
-function PrivacyLegal() {
+function PrivacyLegal({ settings, setSettings,updateSettings }: any) {
   return (
     <>
       <Card
@@ -497,21 +652,38 @@ function PrivacyLegal() {
                 Show cookie consent notice to visitors
               </p>
             </div>
-            <Toggle />
+            {/* <Toggle /> */}
+
+<Toggle
+  value={settings.cookieConsentEnabled}
+  onChange={(val: boolean) =>
+    setSettings({ ...settings, cookieConsentEnabled: val })
+  }
+/>
+
           </div>
 
           <div>
             <label className="text-sm text-gray-600">
               Privacy Policy Page URL
             </label>
-            <div className="bg-gray-100 rounded-md px-4 py-2 text-sm text-gray-400">
-              URL
-            </div>
+           
+
+            <input
+              value={settings.privacyPolicyUrl}
+              onChange={(e) =>
+                setSettings({ ...settings, privacyPolicyUrl: e.target.value })
+              }
+              className="bg-gray-100 rounded-md px-4 py-2 text-sm w-full"
+            />
+
+
           </div>
         </div>
       </Card>
 
-      <SaveButton />
+      {/* <SaveButton /> */}
+      <SaveButton onClick={updateSettings} />
     </>
   );
 }
