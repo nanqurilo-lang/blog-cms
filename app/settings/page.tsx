@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const TABS = ["General", "Display Defaults", "Comments", "Privacy & Legal"];
 
@@ -259,13 +259,169 @@ function Row({ title, desc }: any) {
   );
 }
 
+// function Comments() {
+//   return (
+//     <p className="text-sm text-gray-500">
+//       🚧 Comments settings – <b>In future</b>
+//     </p>
+//   );
+// }
+
+
+
+
+
+
+
+type Comment = {
+  _id: string;
+  name: string;
+  text: string;
+  createdAt: string;
+  userId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+};
+
 function Comments() {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
+
+  useEffect(() => {
+    fetchComments();
+  }, []);
+
+  // const fetchComments = async () => {
+  //   try {
+  //     setLoading(true);
+
+  //     const res = await fetch(`${BASE_URL}/api/comment/get-all`);
+  //     const data = await res.json();
+
+  //     if (data?.success) {
+  //       setComments(data.data);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching comments", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+const fetchComments = async () => {
+  try {
+    setLoading(true);
+
+    const token = localStorage.getItem("cms_token"); // ✅ get token
+
+    if (!token) {
+      console.error("No token found ❌");
+      return;
+    }
+
+    const res = await fetch(`${BASE_URL}/api/comment/get-all`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // ✅ VERY IMPORTANT
+      },
+    });
+
+    const data = await res.json();
+
+    console.log("API RESPONSE 👉", data);
+
+    if (data?.success) {
+      const filtered = data.data.filter((c: any) => !c.isDeleted);
+      setComments(filtered);
+    } else {
+      console.error("API Error:", data.message);
+    }
+  } catch (err) {
+    console.error("Error fetching comments", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+
+
+
   return (
-    <p className="text-sm text-gray-500">
-      🚧 Comments settings – <b>In future</b>
-    </p>
+    <>
+      <Card
+        title="User Testimonials"
+        desc="What users are saying about your blogs."
+      >
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading comments...</p>
+        ) : comments.length === 0 ? (
+          <p className="text-sm text-gray-500">No comments found.</p>
+        ) : (
+          <div className="space-y-4">
+            {comments.map((item) => (
+              <div
+                key={item._id}
+                className="border rounded-lg p-4 flex gap-4 items-start bg-gray-50"
+              >
+                {/* Avatar */}
+                <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
+                  {item.userId?.name?.charAt(0) || "U"}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-sm">
+                        {item.userId?.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {item.userId?.email}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-gray-400">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* Comment */}
+                  <p className="text-sm text-gray-700 mt-2">
+                    {item.text}
+                  </p>
+
+                  {/* Extra Info */}
+                  <p className="text-xs text-gray-400 mt-2">
+                    User ID: {item.userId?._id}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <SaveButton />
+    </>
   );
 }
+
+
+
+
+
+
 
 function PrivacyLegal() {
   return (
