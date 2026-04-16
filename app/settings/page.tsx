@@ -11,7 +11,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-white p-6">
       {/* Header */}
-      
+
 
       {/* Tabs */}
       <div className="flex gap-20 border-b mb-8">
@@ -19,11 +19,10 @@ export default function SettingsPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-2 text-sm font-medium ${
-              activeTab === tab
+            className={`pb-2 text-sm font-medium ${activeTab === tab
                 ? "border-b-2 border-blue-600 text-blue-600"
                 : "text-gray-500"
-            }`}
+              }`}
           >
             {tab}
           </button>
@@ -314,44 +313,78 @@ function Comments() {
 
 
 
-const fetchComments = async () => {
-  try {
-    setLoading(true);
+  const fetchComments = async () => {
+    try {
+      setLoading(true);
 
-    const token = localStorage.getItem("cms_token"); // ✅ get token
+      const token = localStorage.getItem("cms_token"); // ✅ get token
 
-    if (!token) {
-      console.error("No token found ❌");
-      return;
+      if (!token) {
+        console.error("No token found ❌");
+        return;
+      }
+
+      const res = await fetch(`${BASE_URL}/api/comment/get-all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ VERY IMPORTANT
+        },
+      });
+
+      const data = await res.json();
+
+      console.log("API RESPONSE 👉", data);
+
+      if (data?.success) {
+        const filtered = data.data.filter((c: any) => !c.isDeleted);
+        setComments(filtered);
+      } else {
+        console.error("API Error:", data.message);
+      }
+    } catch (err) {
+      console.error("Error fetching comments", err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const res = await fetch(`${BASE_URL}/api/comment/get-all`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // ✅ VERY IMPORTANT
-      },
-    });
 
-    const data = await res.json();
 
-    console.log("API RESPONSE 👉", data);
 
-    if (data?.success) {
-      const filtered = data.data.filter((c: any) => !c.isDeleted);
-      setComments(filtered);
-    } else {
-      console.error("API Error:", data.message);
+
+  const deleteComment = async (id: string) => {
+    try {
+      const token = localStorage.getItem("cms_token");
+
+      if (!token) {
+        alert("Token missing ❌");
+        return;
+      }
+
+      const confirmDelete = confirm("Are you sure you want to delete this comment?");
+      if (!confirmDelete) return;
+
+      const res = await fetch(`${BASE_URL}/api/comment/delete/${id}`, {
+        method: "DELETE", // ✅ adjust if your API uses POST
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (data?.success) {
+        // ✅ remove from UI instantly
+        setComments((prev) => prev.filter((c) => c._id !== id));
+      } else {
+        alert(data.message || "Delete failed ❌");
+      }
+    } catch (err) {
+      console.error("Delete error", err);
     }
-  } catch (err) {
-    console.error("Error fetching comments", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
+  };
 
 
 
@@ -391,9 +424,30 @@ const fetchComments = async () => {
                       </p>
                     </div>
 
-                    <p className="text-xs text-gray-400">
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </p>
+
+                    <div>
+
+
+
+                      {/* DELETE ICON */}
+                      <button
+                        onClick={() => deleteComment(item._id)}
+                        className="text-red-500 mt-4 hover:text-red-700 text-sm"
+                      >
+                        🗑️
+                      </button>
+
+
+
+                    
+
+                    </div>
+
+
+
+
+
+
                   </div>
 
                   {/* Comment */}
@@ -406,6 +460,11 @@ const fetchComments = async () => {
                     User ID: {item.userId?._id}
                   </p>
                 </div>
+
+  <p className="text-xs mt-4 text-gray-400">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+
               </div>
             ))}
           </div>
