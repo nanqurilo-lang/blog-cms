@@ -16,7 +16,7 @@ export default function SettingsPage() {
     showAuthorName: false,
     showpublishDate: false,
     // showReadingTime: false, // ✅ ADD THIS
-      theme: "light", // ✅ ADD THIS
+    theme: "light", // ✅ ADD THIS
 
 
     cookieConsentEnabled: false,
@@ -108,19 +108,19 @@ export default function SettingsPage() {
   }, []);
 
 
-// // ✅ ADD THIS HERE (right below fetchSettings useEffect)
-// useEffect(() => {
-//   if (settings.theme === "dark") {
-//     document.documentElement.classList.add("dark");
-//   } else {
-//     document.documentElement.classList.remove("dark");
-//   }
-// }, [settings.theme]);
+  // // ✅ ADD THIS HERE (right below fetchSettings useEffect)
+  // useEffect(() => {
+  //   if (settings.theme === "dark") {
+  //     document.documentElement.classList.add("dark");
+  //   } else {
+  //     document.documentElement.classList.remove("dark");
+  //   }
+  // }, [settings.theme]);
 
   return (
     <div className="min-h-screen bg-white p-6">
 
-      
+
       {/* Header */}
 
 
@@ -140,10 +140,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* Sections */}
-      {/* {activeTab === "General" && (
-        <General onChangePassword={() => setOpenPasswordModal(true)} />
-      )} */}
+      
 
 
       {activeTab === "General" && (
@@ -156,9 +153,7 @@ export default function SettingsPage() {
       )}
 
 
-      {/* {activeTab === "Display Defaults" && <DisplayDefaults />}
-      {activeTab === "Comments" && <Comments />}
-      {activeTab === "Privacy & Legal" && <PrivacyLegal />} */}
+      
       {activeTab === "Comments" && <Comments />}
 
       {activeTab === "Display Defaults" && (
@@ -186,31 +181,17 @@ export default function SettingsPage() {
 
 /* ------------------ UI Helpers ------------------ */
 
-// function Card({ title, desc, children }: any) {
-//   return (
-//     <div className="border rounded-xl p-6 max-w-8xl mb-6 bg-white">
-//       <h2 className="font-semibold">{title}</h2>
-//       <p className="text-sm text-gray-500 mb-4">{desc}</p>
-//       {children}
-//     </div>
-//   );
-// }
-
-
-
-
 
 function Card({ title, desc, children }: any) {
   return (
     <div
-      className={`border rounded-xl p-6 max-w-8xl mb-6 ${
-        title
+      className={`border rounded-xl p-6 max-w-8xl mb-6 ${title
           ? "bg-white text-black"
           : ""
-      } ${
+        } ${
         // dark mode
         "dark:bg-gray-800 dark:text-white"
-      }`}
+        }`}
     >
       <h2 className="font-semibold">{title}</h2>
       <p className="text-sm text-gray-500 mb-4">{desc}</p>
@@ -218,11 +199,6 @@ function Card({ title, desc, children }: any) {
     </div>
   );
 }
-
-
-
-
-
 
 
 function Select({
@@ -287,7 +263,6 @@ function SaveButton({ onClick }: any) {
 
 /* ------------------ General ------------------ */
 
-// function General({ onChangePassword }: { onChangePassword: () => void }) {
 
 function General({
   onChangePassword,
@@ -362,71 +337,48 @@ function General({
         title="System Defaults"
         desc="These settings are used when new blogs are created. Safe to change anytime."
       >
-        {/* <div className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-600">Default Language</label>
-            <input
-              value={settings.language}
-              onChange={(e) =>
-                setSettings({ ...settings, language: e.target.value })
-              }
-              className="bg-gray-100 rounded-md px-4 py-2 text-sm w-full"
-            />
-          </div>
 
-          <div>
-            <label className="text-sm text-gray-600">Default Timezone</label>
-            <Select value="UTC (GMT+0)" />
-          </div>
+        <div>
+          <label className="text-sm text-gray-600">Default Language</label>
+          <Select
+            value={settings.language}
+            options={["English", "Hindi", "Spanish", "French"]}
+            onChange={(val) =>
+              setSettings({ ...settings, language: val })
+            }
+          />
+        </div>
 
-          <div>
-            <label className="text-sm text-gray-600">Date Format</label>
-            <Select value="MM/DD/YYYY" />
-          </div>
-        </div> */}
+        <div>
+          <label className="text-sm text-gray-600">Default Timezone</label>
+          <Select
+            value={settings.timezone}
+            options={[
+              "UTC",
+              "Asia/Kolkata",
+              "America/New_York",
+              "Europe/London",
+            ]}
+            onChange={(val) =>
+              setSettings({ ...settings, timezone: val })
+            }
+          />
+        </div>
 
-
-<div>
-  <label className="text-sm text-gray-600">Default Language</label>
-  <Select
-    value={settings.language}
-    options={["English", "Hindi", "Spanish", "French"]}
-    onChange={(val) =>
-      setSettings({ ...settings, language: val })
-    }
-  />
-</div>
-
-<div>
-  <label className="text-sm text-gray-600">Default Timezone</label>
-  <Select
-    value={settings.timezone}
-    options={[
-      "UTC",
-      "Asia/Kolkata",
-      "America/New_York",
-      "Europe/London",
-    ]}
-    onChange={(val) =>
-      setSettings({ ...settings, timezone: val })
-    }
-  />
-</div>
-
-<div>
-  <label className="text-sm text-gray-600">Date Format</label>
-  <Select
-    value={settings.dateformat}
-    options={[
-      "MM/DD/YYYY",
-      "DD/MM/YYYY",
-      "YYYY-MM-DD",
-    ]}
-    onChange={(val) =>
-      setSettings({ ...settings, dateformat: val })
-    }
-  />
-</div>
+        <div>
+          <label className="text-sm text-gray-600">Date Format</label>
+          <Select
+            value={settings.dateformat}
+            options={[
+              "MM/DD/YYYY",
+              "DD/MM/YYYY",
+              "YYYY-MM-DD",
+            ]}
+            onChange={(val) =>
+              setSettings({ ...settings, dateformat: val })
+            }
+          />
+        </div>
 
 
 
@@ -498,8 +450,6 @@ function DisplayDefaults({ settings, setSettings, updateSettings }: any) {
         desc="Global defaults for reader experience. Can be overridden per post."
       >
         <div className="space-y-6">
-          {/* <Row title="Show Author Name" desc="Display author name on blog posts" />
-          <Row title="Show Publish Date" desc="Display publication date on posts" /> */}
 
 
           <Row
@@ -520,47 +470,33 @@ function DisplayDefaults({ settings, setSettings, updateSettings }: any) {
             }
           />
 
-          {/* <Row
-            title="Show Reading Time"
-            desc="Display estimated reading time"
-            value={settings.showReadingTime}
-            onChange={(val: boolean) =>
-              setSettings({ ...settings, showReadingTime: val })
-            }
-          /> */}
 
 
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Theme</p>
+              <p className="text-xs text-gray-500">
+                Switch between light and dark mode
+              </p>
+            </div>
 
+            <div className="flex items-center gap-2">
+              <span className="text-xs">☀️</span>
 
-<div className="flex items-center justify-between">
-  <div>
-    <p className="text-sm font-medium">Theme</p>
-    <p className="text-xs text-gray-500">
-      Switch between light and dark mode
-    </p>
-  </div>
+              <Toggle
+                value={settings.theme === "dark"}
+                onChange={(val: boolean) =>
+                  setSettings({
+                    ...settings,
+                    theme: val ? "dark" : "light",
+                  })
+                }
+              />
 
-  <div className="flex items-center gap-2">
-    <span className="text-xs">☀️</span>
+              <span className="text-xs">🌙</span>
+            </div>
+          </div>
 
-    <Toggle
-      value={settings.theme === "dark"}
-      onChange={(val: boolean) =>
-        setSettings({
-          ...settings,
-          theme: val ? "dark" : "light",
-        })
-      }
-    />
-
-    <span className="text-xs">🌙</span>
-  </div>
-</div>
-
-
-
-
-          {/* <Row title="Show Reading Time" desc="Display estimated reading time" /> */}
         </div>
       </Card>
       {/* <SaveButton /> */}
@@ -726,10 +662,6 @@ function Comments() {
                 key={item._id}
                 className="border rounded-lg p-4 flex gap-4 items-start bg-gray-50"
               >
-                {/* Avatar */}
-                {/* <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
-                  {item.userId?.name?.charAt(0) || "U"}
-                </div> */}
 
 
 
@@ -753,9 +685,6 @@ function Comments() {
                       <p className="font-medium text-sm">
                         {item.userId?.name}
                       </p>
-                      {/* <p className="text-xs text-gray-500">
-                        {item.userId?.email}
-                      </p> */}
 
 
                       <p className="text-xs text-gray-500">
