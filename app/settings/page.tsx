@@ -15,7 +15,9 @@ export default function SettingsPage() {
     dateformat: "",
     showAuthorName: false,
     showpublishDate: false,
-    showReadingTime: false, // ✅ ADD THIS
+    // showReadingTime: false, // ✅ ADD THIS
+      theme: "light", // ✅ ADD THIS
+
 
     cookieConsentEnabled: false,
     privacyPolicyUrl: "",
@@ -106,8 +108,19 @@ export default function SettingsPage() {
   }, []);
 
 
+// // ✅ ADD THIS HERE (right below fetchSettings useEffect)
+// useEffect(() => {
+//   if (settings.theme === "dark") {
+//     document.documentElement.classList.add("dark");
+//   } else {
+//     document.documentElement.classList.remove("dark");
+//   }
+// }, [settings.theme]);
+
   return (
     <div className="min-h-screen bg-white p-6">
+
+      
       {/* Header */}
 
 
@@ -173,9 +186,32 @@ export default function SettingsPage() {
 
 /* ------------------ UI Helpers ------------------ */
 
+// function Card({ title, desc, children }: any) {
+//   return (
+//     <div className="border rounded-xl p-6 max-w-8xl mb-6 bg-white">
+//       <h2 className="font-semibold">{title}</h2>
+//       <p className="text-sm text-gray-500 mb-4">{desc}</p>
+//       {children}
+//     </div>
+//   );
+// }
+
+
+
+
+
 function Card({ title, desc, children }: any) {
   return (
-    <div className="border rounded-xl p-6 max-w-8xl mb-6 bg-white">
+    <div
+      className={`border rounded-xl p-6 max-w-8xl mb-6 ${
+        title
+          ? "bg-white text-black"
+          : ""
+      } ${
+        // dark mode
+        "dark:bg-gray-800 dark:text-white"
+      }`}
+    >
       <h2 className="font-semibold">{title}</h2>
       <p className="text-sm text-gray-500 mb-4">{desc}</p>
       {children}
@@ -183,14 +219,7 @@ function Card({ title, desc, children }: any) {
   );
 }
 
-// function Select({ value }: { value: string }) {
-//   return (
-//     <div className="bg-gray-100 rounded-md px-4 py-2 text-sm flex justify-between">
-//       {value}
-//       <span>⌄</span>
-//     </div>
-//   );
-// }
+
 
 
 
@@ -491,14 +520,44 @@ function DisplayDefaults({ settings, setSettings, updateSettings }: any) {
             }
           />
 
-          <Row
+          {/* <Row
             title="Show Reading Time"
             desc="Display estimated reading time"
             value={settings.showReadingTime}
             onChange={(val: boolean) =>
               setSettings({ ...settings, showReadingTime: val })
             }
-          />
+          /> */}
+
+
+
+
+<div className="flex items-center justify-between">
+  <div>
+    <p className="text-sm font-medium">Theme</p>
+    <p className="text-xs text-gray-500">
+      Switch between light and dark mode
+    </p>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <span className="text-xs">☀️</span>
+
+    <Toggle
+      value={settings.theme === "dark"}
+      onChange={(val: boolean) =>
+        setSettings({
+          ...settings,
+          theme: val ? "dark" : "light",
+        })
+      }
+    />
+
+    <span className="text-xs">🌙</span>
+  </div>
+</div>
+
+
 
 
           {/* <Row title="Show Reading Time" desc="Display estimated reading time" /> */}
