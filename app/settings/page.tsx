@@ -15,7 +15,7 @@ export default function SettingsPage() {
     dateformat: "",
     showAuthorName: false,
     showpublishDate: false,
-      showReadingTime: false, // ✅ ADD THIS
+    showReadingTime: false, // ✅ ADD THIS
 
     cookieConsentEnabled: false,
     privacyPolicyUrl: "",
@@ -51,51 +51,51 @@ export default function SettingsPage() {
 
 
 
-const updateSettings = async () => {
-  try {
-    const token = localStorage.getItem("cms_token");
+  const updateSettings = async () => {
+    try {
+      const token = localStorage.getItem("cms_token");
 
-    if (!token) {
-      alert("Authentication token missing ❌");
-      return;
+      if (!token) {
+        alert("Authentication token missing ❌");
+        return;
+      }
+
+      const payload = {
+        ...settings,
+        timezone: "UTC", // ✅ FIX format
+        cookieConsentVersion: "1.0",
+        cookieConsentExpiryDays: 365,
+        cookieConsentBannerText:
+          "We use cookies to enhance your experience.",
+        showCookieRejectButton: false,
+      };
+
+      const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
+        method: "PUT", // ⚠️ if still fails → change to PUT
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+
+
+
+      const data = await res.json();
+
+      console.log("UPDATE RESPONSE 👉", data);
+
+      if (res.ok) {
+        alert("✅ Settings saved successfully!");
+      } else {
+        alert(data?.message || "Failed to update settings ❌");
+      }
+    } catch (err) {
+      console.error("Update error", err);
+      alert("Something went wrong ❌");
     }
-
-    const payload = {
-      ...settings,
-      timezone: "UTC", // ✅ FIX format
-      cookieConsentVersion: "1.0",
-      cookieConsentExpiryDays: 365,
-      cookieConsentBannerText:
-        "We use cookies to enhance your experience.",
-      showCookieRejectButton: false,
-    };
-
-    const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
-      method: "PUT", // ⚠️ if still fails → change to PUT
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-
-
-    
-    const data = await res.json();
-
-    console.log("UPDATE RESPONSE 👉", data);
-
-    if (res.ok) {
-      alert("✅ Settings saved successfully!");
-    } else {
-      alert(data?.message || "Failed to update settings ❌");
-    }
-  } catch (err) {
-    console.error("Update error", err);
-    alert("Something went wrong ❌");
-  }
-};
+  };
 
 
 
@@ -148,21 +148,21 @@ const updateSettings = async () => {
       {activeTab === "Privacy & Legal" && <PrivacyLegal />} */}
       {activeTab === "Comments" && <Comments />}
 
-   {activeTab === "Display Defaults" && (
-  <DisplayDefaults
-    settings={settings}
-    setSettings={setSettings}
-    updateSettings={updateSettings}
-  />
-)}
+      {activeTab === "Display Defaults" && (
+        <DisplayDefaults
+          settings={settings}
+          setSettings={setSettings}
+          updateSettings={updateSettings}
+        />
+      )}
 
-{activeTab === "Privacy & Legal" && (
-  <PrivacyLegal
-    settings={settings}
-    setSettings={setSettings}
-    updateSettings={updateSettings}
-  />
-)}
+      {activeTab === "Privacy & Legal" && (
+        <PrivacyLegal
+          settings={settings}
+          setSettings={setSettings}
+          updateSettings={updateSettings}
+        />
+      )}
       {/* Change Password Modal */}
       {openPasswordModal && (
         <ChangePasswordModal onClose={() => setOpenPasswordModal(false)} />
@@ -196,18 +196,16 @@ function Select({ value }: { value: string }) {
 
 
 
-function Toggle({ value = false, onChange = () => {} }: any) {
+function Toggle({ value = false, onChange = () => { } }: any) {
   return (
     <div
       onClick={() => onChange(!value)}
-      className={`w-10 h-6 rounded-full relative cursor-pointer ${
-        value ? "bg-blue-600" : "bg-gray-300"
-      }`}
+      className={`w-10 h-6 rounded-full relative cursor-pointer ${value ? "bg-blue-600" : "bg-gray-300"
+        }`}
     >
       <div
-        className={`w-4 h-4 bg-white rounded-full absolute top-1 transition ${
-          value ? "right-1" : "left-1"
-        }`}
+        className={`w-4 h-4 bg-white rounded-full absolute top-1 transition ${value ? "right-1" : "left-1"
+          }`}
       />
     </div>
   );
@@ -392,7 +390,7 @@ function ChangePasswordModal({ onClose }: { onClose: () => void }) {
 
 /* ------------------ Other Tabs ------------------ */
 
-function DisplayDefaults({ settings, setSettings,updateSettings }: any) {
+function DisplayDefaults({ settings, setSettings, updateSettings }: any) {
   return (
     <>
       <Card
@@ -422,14 +420,14 @@ function DisplayDefaults({ settings, setSettings,updateSettings }: any) {
             }
           />
 
-<Row
-  title="Show Reading Time"
-  desc="Display estimated reading time"
-  value={settings.showReadingTime}
-  onChange={(val: boolean) =>
-    setSettings({ ...settings, showReadingTime: val })
-  }
-/>
+          <Row
+            title="Show Reading Time"
+            desc="Display estimated reading time"
+            value={settings.showReadingTime}
+            onChange={(val: boolean) =>
+              setSettings({ ...settings, showReadingTime: val })
+            }
+          />
 
 
           {/* <Row title="Show Reading Time" desc="Display estimated reading time" /> */}
@@ -470,6 +468,8 @@ type Comment = {
     _id: string;
     name: string;
     email: string;
+    profileImage?: string; // ✅ add this
+
   };
 };
 
@@ -483,7 +483,7 @@ function Comments() {
     fetchComments();
   }, []);
 
-  
+
   const fetchComments = async () => {
     try {
       setLoading(true);
@@ -508,8 +508,29 @@ function Comments() {
       console.log("API RESPONSE 👉", data);
 
       if (data?.success) {
-        const filtered = data.data.filter((c: any) => !c.isDeleted);
-        setComments(filtered);
+        // const filtered = data.data.filter((c: any) => !c.isDeleted);
+        // setComments(filtered);
+
+
+        const formatted = data.data
+          .filter((c: any) => !c.isDeleted)
+          .map((c: any) => ({
+            _id: c._id,
+            text: c.text,
+            createdAt: c.createdAt,
+            userId: {
+              _id: c.userId?._id,
+              name: c.userId?.name || "Unknown User",
+              email: c.userId?.email || "No Email", // ✅ fallback
+              profileImage: c.userId?.profileImage,
+            },
+          }));
+
+        setComments(formatted);
+
+
+
+
       } else {
         console.error("API Error:", data.message);
       }
@@ -576,9 +597,24 @@ function Comments() {
                 className="border rounded-lg p-4 flex gap-4 items-start bg-gray-50"
               >
                 {/* Avatar */}
-                <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
+                {/* <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
                   {item.userId?.name?.charAt(0) || "U"}
-                </div>
+                </div> */}
+
+
+
+                {item.userId?.profileImage ? (
+                  <img
+                    src={item.userId.profileImage}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
+                    {item.userId?.name?.charAt(0) || "U"}
+                  </div>
+                )}
+
+
 
                 {/* Content */}
                 <div className="flex-1">
@@ -587,9 +623,16 @@ function Comments() {
                       <p className="font-medium text-sm">
                         {item.userId?.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      {/* <p className="text-xs text-gray-500">
                         {item.userId?.email}
+                      </p> */}
+
+
+                      <p className="text-xs text-gray-500">
+                        {item.userId?.email || "No Email"}
                       </p>
+
+
                     </div>
 
 
@@ -621,7 +664,8 @@ function Comments() {
                 </div>
 
                 <p className="text-xs mt-4 text-gray-400">
-                  {new Date(item.createdAt).toLocaleDateString()}
+                  {/* {new Date(item.createdAt).toLocaleDateString()} */}
+                  {new Date(item.createdAt).toLocaleString()}
                 </p>
 
               </div>
@@ -637,7 +681,7 @@ function Comments() {
 
 
 
-function PrivacyLegal({ settings, setSettings,updateSettings }: any) {
+function PrivacyLegal({ settings, setSettings, updateSettings }: any) {
   return (
     <>
       <Card
@@ -654,12 +698,12 @@ function PrivacyLegal({ settings, setSettings,updateSettings }: any) {
             </div>
             {/* <Toggle /> */}
 
-<Toggle
-  value={settings.cookieConsentEnabled}
-  onChange={(val: boolean) =>
-    setSettings({ ...settings, cookieConsentEnabled: val })
-  }
-/>
+            <Toggle
+              value={settings.cookieConsentEnabled}
+              onChange={(val: boolean) =>
+                setSettings({ ...settings, cookieConsentEnabled: val })
+              }
+            />
 
           </div>
 
@@ -667,7 +711,7 @@ function PrivacyLegal({ settings, setSettings,updateSettings }: any) {
             <label className="text-sm text-gray-600">
               Privacy Policy Page URL
             </label>
-           
+
 
             <input
               value={settings.privacyPolicyUrl}
