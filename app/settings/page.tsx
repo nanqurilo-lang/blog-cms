@@ -183,16 +183,42 @@ function Card({ title, desc, children }: any) {
   );
 }
 
-function Select({ value }: { value: string }) {
+// function Select({ value }: { value: string }) {
+//   return (
+//     <div className="bg-gray-100 rounded-md px-4 py-2 text-sm flex justify-between">
+//       {value}
+//       <span>⌄</span>
+//     </div>
+//   );
+// }
+
+
+
+
+
+function Select({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (val: string) => void;
+}) {
   return (
-    <div className="bg-gray-100 rounded-md px-4 py-2 text-sm flex justify-between">
-      {value}
-      <span>⌄</span>
-    </div>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="bg-gray-100 rounded-md px-4 py-2 text-sm w-full outline-none"
+    >
+      {options.map((opt) => (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
   );
 }
-
-
 
 
 
@@ -307,10 +333,9 @@ function General({
         title="System Defaults"
         desc="These settings are used when new blogs are created. Safe to change anytime."
       >
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <div>
             <label className="text-sm text-gray-600">Default Language</label>
-            {/* <Select value="English" /> */}
             <input
               value={settings.language}
               onChange={(e) =>
@@ -329,7 +354,53 @@ function General({
             <label className="text-sm text-gray-600">Date Format</label>
             <Select value="MM/DD/YYYY" />
           </div>
-        </div>
+        </div> */}
+
+
+<div>
+  <label className="text-sm text-gray-600">Default Language</label>
+  <Select
+    value={settings.language}
+    options={["English", "Hindi", "Spanish", "French"]}
+    onChange={(val) =>
+      setSettings({ ...settings, language: val })
+    }
+  />
+</div>
+
+<div>
+  <label className="text-sm text-gray-600">Default Timezone</label>
+  <Select
+    value={settings.timezone}
+    options={[
+      "UTC",
+      "Asia/Kolkata",
+      "America/New_York",
+      "Europe/London",
+    ]}
+    onChange={(val) =>
+      setSettings({ ...settings, timezone: val })
+    }
+  />
+</div>
+
+<div>
+  <label className="text-sm text-gray-600">Date Format</label>
+  <Select
+    value={settings.dateformat}
+    options={[
+      "MM/DD/YYYY",
+      "DD/MM/YYYY",
+      "YYYY-MM-DD",
+    ]}
+    onChange={(val) =>
+      setSettings({ ...settings, dateformat: val })
+    }
+  />
+</div>
+
+
+
       </Card>
 
       {/* <SaveButton /> */}
