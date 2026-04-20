@@ -1,101 +1,3 @@
-// import React from 'react'
-
-// const page = () => {
-//   return (
-//     <div>Drafts</div>
-//   )
-// }
-
-// export default page
-
-
-
-// "use client"
-
-// import React from "react"
-// import Image from "next/image"
-// import { MoreVertical, Search } from "lucide-react"
-
-// const posts = [
-//   {
-//     id: 1,
-//     title: "Lorem ipsum dolor sit amet, consectetur",
-//     desc:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim a",
-//     image:
-//       "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?q=80&w=1200",
-//     updated: "12/12/2025",
-//   },
-//   {
-//     id: 2,
-//     title: "Lorem ipsum dolor sit amet, consectetur",
-//     desc:
-//       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim a",
-//     image:
-//       "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?q=80&w=1200",
-//     updated: "12/12/2025",
-//   },
-// ]
-
-// export default function Page() {
-//   return (
-//     <div className="p-6 bg-white min-h-screen space-y-6">
-//       {/* Search */}
-//       <div className="relative w-72">
-//         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-//         <input
-//           placeholder="Search posts"
-//           className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-//         />
-//       </div>
-
-//       {/* Cards */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-//         {posts.map((post) => (
-//           <div
-//             key={post.id}
-//             className="relative rounded-xl border border-blue-500 overflow-hidden bg-white"
-//           >
-//             {/* Kebab */}
-//             <button className="absolute top-2 right-2 z-10 bg-blue-600 p-1.5 rounded-md text-white">
-//               <MoreVertical size={16} />
-//             </button>
-
-//             {/* Image */}
-//             <div className="relative h-44 w-full">
-//               <Image
-//                 src={post.image}
-//                 alt="post"
-//                 fill
-//                 className="object-cover"
-//               />
-//             </div>
-
-//             {/* Content */}
-//             <div className="p-4 space-y-2">
-//               <h3 className="font-semibold leading-snug text-gray-900">
-//                 {post.title}
-//               </h3>
-
-//               <p className="text-sm text-gray-500 leading-relaxed">
-//                 {post.desc}
-//               </p>
-
-//               <p className="text-xs text-gray-400">
-//                 Last edited on : {post.updated}
-//               </p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
-
-
-
-
-
 
 "use client"
 
@@ -210,6 +112,13 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+
+
+
+
+
+
+
   useEffect(() => {
     let isMounted = true
 
@@ -294,6 +203,55 @@ export default function Page() {
     }
   }, [])
 
+
+
+
+
+
+
+
+
+  const handleDeleteDraft = async (postId: string) => {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+
+    if (!token) {
+      alert("Token missing. Please login again.")
+      return
+    }
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this draft?")
+    if (!confirmDelete) return
+
+    try {
+      const response = await fetch(
+        `${BUILDER_API_BASE_URL}/api/builder/delete/blog-template/${postId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to delete draft")
+      }
+
+      // ✅ remove from UI instantly
+      setDrafts((prev) => prev.filter((draft) => draft.id !== postId))
+
+      console.log("Deleted:", result.deleted_id)
+    } catch (error) {
+      console.error(error)
+      alert("Something went wrong while deleting.")
+    }
+  }
+
+
+
   const filteredDrafts = useMemo(() => {
     const query = search.trim().toLowerCase()
 
@@ -315,9 +273,16 @@ export default function Page() {
       console.log("Save draft as template:", postId)
     }
 
+    // if (action === "delete") {
+    //   console.log("Delete draft template:", postId)
+    // }
+
     if (action === "delete") {
-      console.log("Delete draft template:", postId)
+      handleDeleteDraft(postId)
     }
+
+
+
   }
 
   const handleOpenDraft = (postId: string) => {
