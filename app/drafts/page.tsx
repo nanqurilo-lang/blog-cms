@@ -147,7 +147,8 @@ export default function Page() {
 
         while (currentPage <= totalPages) {
           const response = await fetch(
-            `${BUILDER_API_BASE_URL}/api/builder/get/blog-template/draft?page=${currentPage}&limit=${DRAFT_TEMPLATE_LIMIT}`,
+            // `${BUILDER_API_BASE_URL}/api/builder/get/blog-template/draft?page=${currentPage}&limit=${DRAFT_TEMPLATE_LIMIT}`,
+            `${BUILDER_API_BASE_URL}/api/builder/templates`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -158,11 +159,16 @@ export default function Page() {
 
           let result: DraftBlogsResponse | null = null
 
+
+
+
           try {
             result = (await response.json()) as DraftBlogsResponse
           } catch {
             result = null
           }
+
+console.log(response);
 
           if (!response.ok) {
             throw new Error(result?.message || "Failed to fetch draft templates.")
