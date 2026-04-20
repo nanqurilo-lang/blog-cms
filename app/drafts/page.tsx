@@ -34,7 +34,8 @@ type DraftBlog = {
 
 type DraftBlogsResponse = {
   message?: string
-  blogs?: DraftBlog[]
+  templates?: DraftBlog[]
+  count?: number
   pagination?: {
     currentPage?: number
     totalPages?: number
@@ -119,97 +120,162 @@ export default function Page() {
 
 
 
-  useEffect(() => {
-    let isMounted = true
+//   useEffect(() => {
+//     let isMounted = true
 
-    async function fetchAllDraftTemplates() {
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+//     async function fetchAllDraftTemplates() {
+//       const token =
+//         typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
 
-      if (!token) {
-        if (!isMounted) {
-          return
+//       if (!token) {
+//         if (!isMounted) {
+//           return
+//         }
+
+//         setError("cms_token not found. Please log in again to load drafts.")
+//         setDrafts([])
+//         setIsLoading(false)
+//         return
+//       }
+
+//       try {
+//         setIsLoading(true)
+//         setError(null)
+
+//         const allBlogs: DraftBlog[] = []
+//         let currentPage = 1
+//         let totalPages = 1
+
+//         while (currentPage <= totalPages) {
+//           const response = await fetch(
+//             // `${BUILDER_API_BASE_URL}/api/builder/get/blog-template/draft?page=${currentPage}&limit=${DRAFT_TEMPLATE_LIMIT}`,
+//             `${BUILDER_API_BASE_URL}/api/builder/templates`,
+//             {
+//               headers: {
+//                 Authorization: `Bearer ${token}`,
+//               },
+//               cache: "no-store",
+//             },
+//           )
+
+//           let result: DraftBlogsResponse | null = null
+
+
+
+
+//           try {
+//             result = (await response.json()) as DraftBlogsResponse
+//           } catch {
+//             result = null
+//           }
+
+// console.log(response);
+
+//           if (!response.ok) {
+//             throw new Error(result?.message || "Failed to fetch draft templates.")
+//           }
+
+//           // allBlogs.push(...(result?.blogs || []))
+//           allBlogs.push(...(result?.templates || []))
+//           totalPages = result?.pagination?.totalPages || currentPage
+//           currentPage += 1
+//         }
+
+//         if (!isMounted) {
+//           return
+//         }
+
+//         setDrafts(allBlogs.map(mapBlogToDraftTemplate))
+//       } catch (fetchError) {
+//         if (!isMounted) {
+//           return
+//         }
+
+//         setError(
+//           fetchError instanceof Error
+//             ? fetchError.message
+//             : "Something went wrong while loading draft templates.",
+//         )
+//         setDrafts([])
+//       } finally {
+//         if (isMounted) {
+//           setIsLoading(false)
+//         }
+//       }
+//     }
+
+//     fetchAllDraftTemplates()
+
+//     return () => {
+//       isMounted = false
+//     }
+//   }, [])
+
+
+
+useEffect(() => {
+  let isMounted = true
+
+  async function fetchAllDraftTemplates() {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+
+    if (!token) {
+      setError("cms_token not found. Please log in again.")
+      setDrafts([])
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await fetch(
+        `${BUILDER_API_BASE_URL}/api/builder/templates`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          cache: "no-store",
         }
+      )
 
-        setError("cms_token not found. Please log in again to load drafts.")
-        setDrafts([])
-        setIsLoading(false)
-        return
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to fetch draft templates.")
       }
 
-      try {
-        setIsLoading(true)
-        setError(null)
+      console.log("API RESULT:", result)
 
-        const allBlogs: DraftBlog[] = []
-        let currentPage = 1
-        let totalPages = 1
+      // ✅ FIXED LINE
+      const templates = result?.templates || []
 
-        while (currentPage <= totalPages) {
-          const response = await fetch(
-            // `${BUILDER_API_BASE_URL}/api/builder/get/blog-template/draft?page=${currentPage}&limit=${DRAFT_TEMPLATE_LIMIT}`,
-            `${BUILDER_API_BASE_URL}/api/builder/templates`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              cache: "no-store",
-            },
-          )
+      if (isMounted) {
+        setDrafts(templates.map(mapBlogToDraftTemplate))
+      }
 
-          let result: DraftBlogsResponse | null = null
-
-
-
-
-          try {
-            result = (await response.json()) as DraftBlogsResponse
-          } catch {
-            result = null
-          }
-
-console.log(response);
-
-          if (!response.ok) {
-            throw new Error(result?.message || "Failed to fetch draft templates.")
-          }
-
-          allBlogs.push(...(result?.blogs || []))
-          totalPages = result?.pagination?.totalPages || currentPage
-          currentPage += 1
-        }
-
-        if (!isMounted) {
-          return
-        }
-
-        setDrafts(allBlogs.map(mapBlogToDraftTemplate))
-      } catch (fetchError) {
-        if (!isMounted) {
-          return
-        }
-
+    } catch (error) {
+      if (isMounted) {
         setError(
-          fetchError instanceof Error
-            ? fetchError.message
-            : "Something went wrong while loading draft templates.",
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while loading draft templates."
         )
         setDrafts([])
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
       }
+    } finally {
+      if (isMounted) setIsLoading(false)
     }
+  }
 
-    fetchAllDraftTemplates()
+  fetchAllDraftTemplates()
 
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-
+  return () => {
+    isMounted = false
+  }
+}, [])
 
 
 
