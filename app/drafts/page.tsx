@@ -117,102 +117,6 @@ export default function Page() {
 
 
 
-
-
-
-//   useEffect(() => {
-//     let isMounted = true
-
-//     async function fetchAllDraftTemplates() {
-//       const token =
-//         typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
-
-//       if (!token) {
-//         if (!isMounted) {
-//           return
-//         }
-
-//         setError("cms_token not found. Please log in again to load drafts.")
-//         setDrafts([])
-//         setIsLoading(false)
-//         return
-//       }
-
-//       try {
-//         setIsLoading(true)
-//         setError(null)
-
-//         const allBlogs: DraftBlog[] = []
-//         let currentPage = 1
-//         let totalPages = 1
-
-//         while (currentPage <= totalPages) {
-//           const response = await fetch(
-//             // `${BUILDER_API_BASE_URL}/api/builder/get/blog-template/draft?page=${currentPage}&limit=${DRAFT_TEMPLATE_LIMIT}`,
-//             `${BUILDER_API_BASE_URL}/api/builder/templates`,
-//             {
-//               headers: {
-//                 Authorization: `Bearer ${token}`,
-//               },
-//               cache: "no-store",
-//             },
-//           )
-
-//           let result: DraftBlogsResponse | null = null
-
-
-
-
-//           try {
-//             result = (await response.json()) as DraftBlogsResponse
-//           } catch {
-//             result = null
-//           }
-
-// console.log(response);
-
-//           if (!response.ok) {
-//             throw new Error(result?.message || "Failed to fetch draft templates.")
-//           }
-
-//           // allBlogs.push(...(result?.blogs || []))
-//           allBlogs.push(...(result?.templates || []))
-//           totalPages = result?.pagination?.totalPages || currentPage
-//           currentPage += 1
-//         }
-
-//         if (!isMounted) {
-//           return
-//         }
-
-//         setDrafts(allBlogs.map(mapBlogToDraftTemplate))
-//       } catch (fetchError) {
-//         if (!isMounted) {
-//           return
-//         }
-
-//         setError(
-//           fetchError instanceof Error
-//             ? fetchError.message
-//             : "Something went wrong while loading draft templates.",
-//         )
-//         setDrafts([])
-//       } finally {
-//         if (isMounted) {
-//           setIsLoading(false)
-//         }
-//       }
-//     }
-
-//     fetchAllDraftTemplates()
-
-//     return () => {
-//       isMounted = false
-//     }
-//   }, [])
-
-
-
 useEffect(() => {
   let isMounted = true
 
@@ -280,6 +184,45 @@ useEffect(() => {
 
 
 
+const handleSaveAsTemplate = async (postId: string) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+
+  if (!token) {
+    alert("Token missing. Please login again.")
+    return
+  }
+
+  try {
+    const response = await fetch(
+      `${BUILDER_API_BASE_URL}/api/builder/template/${postId}/save-as`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error(result?.message || "Failed to save as template")
+    }
+
+    console.log("Saved as template:", result)
+
+    // ✅ Remove from drafts UI (since it moves to templates section)
+    setDrafts((prev) => prev.filter((draft) => draft.id !== postId))
+
+  } catch (error) {
+    console.error(error)
+    alert("Something went wrong while saving as template.")
+  }
+}
+
+
+
 
 
 
@@ -341,9 +284,15 @@ useEffect(() => {
       handleOpenDraft(postId)
     }
 
-    if (action === "template") {
-      console.log("Save draft as template:", postId)
-    }
+    // if (action === "template") {
+    //   console.log("Save draft as template:", postId)
+    // }
+
+
+if (action === "template") {
+  handleSaveAsTemplate(postId)
+}
+
 
     // if (action === "delete") {
     //   console.log("Delete draft template:", postId)
