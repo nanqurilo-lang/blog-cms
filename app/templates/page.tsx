@@ -1,6 +1,7 @@
 "use client"
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms"
 
@@ -14,6 +15,60 @@ type Template = {
 export default function Page() {
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
+
+
+
+
+ const router = useRouter()   // ✅ HERE
+
+  const handleUseTemplate = async (templateId: string) => {   // ✅ HERE
+    try {
+      const token = localStorage.getItem("cms_token")
+
+      const res = await fetch(
+        `${BASE_URL}/api/builder/template/${templateId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!res.ok) throw new Error("Failed to fetch template")
+
+      const data = await res.json()
+
+      // Save template data
+      // localStorage.setItem(
+      //   "builder_template",
+      //   JSON.stringify(data.template.draftContent)
+      // )
+
+
+
+
+localStorage.setItem(
+  "builder_template",
+  JSON.stringify({
+    widgets: data.template.draftContent?.widgets || [],
+    title: data.template.title || "",
+    slug: data.template.slug || "",
+    description: data.template.description || "",
+  })
+)
+
+
+
+      // Redirect
+      router.push("/builder")
+
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+
+
 
 
 useEffect(() => {
@@ -106,9 +161,19 @@ useEffect(() => {
             </p>
 
             {/* Button */}
-            <button className="mt-4 w-full rounded-lg bg-blue-600 py-2 text-white font-medium">
+            {/* <button className="mt-4 w-full rounded-lg bg-blue-600 py-2 text-white font-medium">
               Use Template
-            </button>
+            </button> */}
+
+
+<button
+  onClick={() => handleUseTemplate(template._id)}
+  className="mt-4 w-full rounded-lg bg-blue-600 py-2 text-white font-medium"
+>
+  Use Template
+</button>
+
+
           </div>
         ))}
       </div>

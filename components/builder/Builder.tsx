@@ -904,6 +904,61 @@ function BuilderContent() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const loadedTemplateIdRef = useRef<string | null>(null);
 
+
+
+
+
+useEffect(() => {
+  const savedTemplate = localStorage.getItem("builder_template");
+
+  if (savedTemplate) {
+    try {
+      const parsed = JSON.parse(savedTemplate);
+
+      console.log("Loaded from localStorage:", parsed);
+
+      // if (parsed?.widgets) {
+      //   dispatch({
+      //     type: "UPDATE",
+      //     payload: {
+      //       ...state.present,
+      //       widgets: parsed.widgets,
+      //     },
+      //   });
+      // }
+
+
+
+
+if (parsed) {
+  dispatch({
+    type: "UPDATE",
+    payload: {
+      ...state.present,
+      widgets: parsed.widgets || [],
+      title: parsed.title || "",
+      slug: parsed.slug || "",
+      description: parsed.description || "",
+    },
+  });
+}
+
+
+
+
+      // optional cleanup
+      localStorage.removeItem("builder_template");
+
+    } catch (err) {
+      console.error("Failed to parse template", err);
+    }
+  }
+}, []);
+
+
+
+
+
   useEffect(() => {
     async function loadDraftTemplate() {
       if (!templateId || loadedTemplateIdRef.current === templateId) {
@@ -965,22 +1020,42 @@ function BuilderContent() {
           throw new Error("Draft template response was missing template id.");
         }
 
-        dispatch({
-          type: "LOAD_TEMPLATE_EDIT_SUCCESS",
-          payload: {
-            message: result.message || "Draft template loaded",
-            templateId: result.templateId,
-            status: result.status,
-            version: result.version,
-            content: result.content
-              ? {
-                  widgets: result.content.widgets as never[] | undefined,
-                }
-              : null,
-            metadata: result.metadata || null,
-            urls: result.urls || null,
-          },
-        });
+        // dispatch({
+        //   type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+        //   payload: {
+        //     message: result.message || "Draft template loaded",
+        //     templateId: result.templateId,
+        //     status: result.status,
+        //     version: result.version,
+        //     content: result.content
+        //       ? {
+        //           widgets: result.content.widgets as never[] | undefined,
+        //         }
+        //       : null,
+        //     metadata: result.metadata || null,
+        //     urls: result.urls || null,
+        //   },
+        // });
+
+
+dispatch({
+  type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+  payload: {
+    message: result.message || "Draft template loaded",
+    templateId: result.templateId,
+    status: result.status,
+    version: result.version,
+
+    content: {
+      widgets: result.content?.widgets || [],
+    },
+
+    metadata: result.metadata || null,
+    urls: result.urls || null,
+  },
+});
+
+
 
         loadedTemplateIdRef.current = result.templateId;
         setActiveId(null);
