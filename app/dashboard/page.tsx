@@ -7,7 +7,10 @@ import {
   MessageCircle,
   HelpCircle,
   Pencil,
+  Router,
 } from "lucide-react"
+import Link from "next/link"
+
 import {
   LineChart,
   Line,
@@ -241,9 +244,19 @@ setRecentContent(
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-medium">Welcome back, Admin</h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        {/* <Button className="bg-blue-600 hover:bg-blue-700">
           Open Editor
-        </Button>
+        </Button> */}
+
+
+<Link href="/builder">
+  <Button className="bg-blue-600 hover:bg-blue-700">
+    Open Editor
+  </Button>
+</Link>
+
+
+
       </div>
 
       {/* STATS */}
