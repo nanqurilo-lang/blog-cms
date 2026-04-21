@@ -350,17 +350,16 @@ export function DashboardHeader() {
   }
 
   return (
-    <header className="flex items-center justify-between h-14 px-4 pl-6 border-b bg-background">
+    <header className="flex items-center justify-between h-14 px-4 pl-8 border-b bg-background">
 
       {/* Left */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-1">
         <SidebarTrigger />
         <h1 className="text-lg font-semibold">{title}</h1>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-4">
-
+      <div className="flex items-center gap-4 ml-auto">
         {/* :bell: Notification */}
         <DropdownMenu onOpenChange={handleNotificationOpen} open={isOpen}>
           {/*           <DropdownMenuTrigger asChild>
