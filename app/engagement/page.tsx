@@ -31,34 +31,6 @@ export default function Page() {
     fetchInquiries()
   }, [])
 
-  /* ---------------- FETCH LIST ---------------- */
-  // async function fetchInquiries() {
-  //   try {
-  //     const token = localStorage.getItem("cms_token")
-  //     if (!token) return console.error("cms_token missing")
-
-  //     const res = await fetch(`${BASE_URL}/api/inquiries`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //       cache: "no-store",
-  //     })
-
-  //     const json = await res.json()
-  //     const data = Array.isArray(json?.data) ? json.data : []
-
-  //     setList(data)
-
-  //     if (data.length) {
-  //       selectInquiry(data[0].id)
-  //     }
-  //   } catch (err) {
-  //     console.error("Inquiry list error", err)
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-
-
-
 
 async function fetchInquiries() {
   try {
@@ -131,30 +103,6 @@ async function markAsRead(id: string) {
 
 
 
-
-
-  /* ---------------- FETCH DETAIL ---------------- */
-  // async function selectInquiry(id: string) {
-  //   try {
-  //     setSelectedId(id)
-  //     setDetail(null)
-
-  //     const token = localStorage.getItem("cms_token")
-  //     if (!token) return
-
-  //     const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //       cache: "no-store",
-  //     })
-
-  //     const json = await res.json()
-  //     setDetail(json?.data ?? null)
-  //   } catch (err) {
-  //     console.error("Inquiry detail error", err)
-  //   }
-  // }
-
-
 async function selectInquiry(id: string) {
   try {
     setSelectedId(id)
@@ -192,40 +140,7 @@ async function selectInquiry(id: string) {
 
 
   /* ---------------- DELETE ---------------- */
-  // async function deleteInquiry(id: string) {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete this inquiry?"
-  //   )
-  //   if (!confirmDelete) return
-
-  //   try {
-  //     const token = localStorage.getItem("cms_token")
-  //     if (!token) return console.error("cms_token missing")
-
-  //     const res = await fetch(`${BASE_URL}/api/inquiries/${id}`, {
-  //       method: "DELETE",
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     })
-
-  //     const json = await res.json()
-  //     if (!json?.success) {
-  //       alert("Failed to delete inquiry")
-  //       return
-  //     }
-
-  //     setList((prev) => prev.filter((item) => item.id !== id))
-
-  //     if (selectedId === id) {
-  //       setSelectedId(null)
-  //       setDetail(null)
-  //     }
-  //   } catch (err) {
-  //     console.error("Delete inquiry error", err)
-  //   }
-  // }
-
-
-
+  
 async function deleteInquiry(id: string) {
   const confirmDelete = window.confirm(
     "Are you sure you want to delete this inquiry?"
@@ -380,7 +295,7 @@ The Blog Team`,
               ) : filteredList.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center text-gray-500">
-                    No inquiries found
+                    No Enquiries found
                   </td>
                 </tr>
               ) : (
