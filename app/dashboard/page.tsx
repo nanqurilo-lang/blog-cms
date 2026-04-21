@@ -41,202 +41,232 @@ export default function DashboardPage() {
   const [chartData, setChartData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [year, setYear] = useState(new Date().getFullYear())
+
+
   // useEffect(() => {
   //   fetchDashboard()
   // }, [])
 
 
 
-useEffect(() => {
-  const token = localStorage.getItem("cms_token")
+  useEffect(() => {
+    const token = localStorage.getItem("cms_token")
 
-  if (!token) {
-    window.location.href = "/login"
-    return
-  }
-
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]))
-    const currentTime = Date.now() / 1000
-
-    if (payload.exp < currentTime) {
-      // ❌ token expired
-      localStorage.removeItem("cms_token")
+    if (!token) {
       window.location.href = "/login"
       return
     }
 
-    // ✅ token valid
-    fetchDashboard()
-  } catch {
-    localStorage.removeItem("cms_token")
-    window.location.href = "/login"
-  }
-}, [])
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]))
+      const currentTime = Date.now() / 1000
+
+      if (payload.exp < currentTime) {
+        // ❌ token expired
+        localStorage.removeItem("cms_token")
+        window.location.href = "/login"
+        return
+      }
+
+      // ✅ token valid
+      fetchDashboard()
+    } catch {
+      localStorage.removeItem("cms_token")
+      window.location.href = "/login"
+    }
+  }, [year])
 
 
 
 
- 
-async function fetchDashboard() {
-console.log("BASE_URL:", BASE_URL)
 
-  try {
-    setLoading(true)
+  async function fetchDashboard() {
+    console.log("BASE_URL:", BASE_URL)
 
-    const token = localStorage.getItem("cms_token")
+    try {
+      setLoading(true)
 
-    if (!token) {
-      console.error("❌ cms_token not found")
+      const token = localStorage.getItem("cms_token")
+
+      if (!token) {
+        console.error("❌ cms_token not found")
+        setLoading(false)
+        return
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+
+
+
+
+      const [postRes, viewRes, CommentRes, recentRes, enquiryRes, monthlyRes] = await Promise.all([
+        fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
+          headers,
+          cache: "no-store",
+        }),
+
+
+
+
+        fetch(`${BASE_URL}/api/dashboard/total-view-count`, {
+          headers,
+          cache: "no-store",
+        }),
+
+
+
+        fetch(`${BASE_URL}/api/dashboard/total-comment-count`, {
+          headers,
+          cache: "no-store",
+        }),
+
+        fetch(`${BASE_URL}/api/dashboard/get-lastest-blog`, {
+          headers,
+          cache: "no-store",
+        }),
+
+        // ✅ NEW API
+        fetch(`${BASE_URL}/api/dashboard/get-all-count`, {
+          headers,
+          cache: "no-store",
+        }),
+
+        // ✅ NEW API
+        // fetch(
+        //   `${BASE_URL}/api/dashboard/get-monthly-engagementdata?year=2026`,
+        //   { headers }
+        // ),
+
+
+        fetch(
+          `${BASE_URL}/api/dashboard/get-monthly-engagementdata?year=${year}`,
+          { headers }
+        )
+
+
+      ])
+
+
+
+      const postJson = await postRes.json()
+      const viewJson = await viewRes.json()
+      const commentJson = await CommentRes.json()
+      const recentJson = await recentRes.json()
+      const enquiryJson = await enquiryRes.json()
+      const monthlyJson = await monthlyRes.json()
+
+      console.log("MONTHLY API:", monthlyJson)
+
+
+      console.log("POST API:", postJson)
+      console.log("VIEW API:", viewJson)
+      console.log("COMMENT API:", commentJson)
+      console.log("RECENT API:", recentJson) // 👈 add this also
+      console.log("ENQUIRY API:", enquiryJson)
+
+
+
+      setRecentContent(
+        recentJson?.latestBlog?.map((item: any) => ({
+          id: item._id,
+          title: item.title,
+          status: item.status,
+          lastUpdated: item.updatedAt,
+        })) || []
+      )
+
+
+
+      const formattedChartData =
+        monthlyJson?.data?.map((item: any) => ({
+          month: item.month,
+          like: item.likes,       // ✅ rename
+          comment: item.comments, // ✅ rename
+          enquiry: item.enquiries // ✅ rename
+        })) || []
+
+      setChartData(formattedChartData)
+
+
+
+      // setRecentContent(
+      //   recentJson?.latestBlog
+      //     ?.slice(0, 5)
+      //     .map((item: any) => ({
+      //       id: item._id,
+      //       title: item.title,
+      //       status: item.status,
+      //       lastUpdated: item.updatedAt,
+      //     })) || []
+      // )
+
+
+      // setRecentContent(
+      //   recentJson?.latestBlog
+      //     ?.sort(
+      //       (a: any, b: any) =>
+      //         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      //     )
+      //     .slice(0, 5)
+      //     .map((item: any) => ({
+      //       id: item._id,
+      //       title: item.title,
+      //       status: item.status,
+      //       lastUpdated: item.updatedAt,
+      //     })) || []
+      // )
+
+
+
+
+      setStats({
+        totalPosts:
+          postJson?.total_Post ??
+          postJson?.totalPosts ??
+          postJson?.data?.total_Post ??
+          0,
+
+        totalViews:
+          viewJson?.totalViews ??
+          viewJson?.total_views ??
+          viewJson?.data?.totalViews ??
+          0,
+
+
+
+
+
+        totalComments:
+          commentJson?.totalComments ??
+          commentJson?.data?.totalComments ??
+          0,
+
+        // totalEnquiry: 0,
+
+        // ✅ FIX HERE
+        totalEnquiry:
+          enquiryJson?.totalEnquiry ??
+          enquiryJson?.data?.totalEnquiry ??
+          0,
+
+
+      })
+
+    } catch (err) {
+      console.error("❌ Dashboard API error:", err)
+    } finally {
       setLoading(false)
-      return
     }
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    }
-
-
-
-
-const [postRes, viewRes ,CommentRes,recentRes,enquiryRes] = await Promise.all([
-  fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
-    headers,
-    cache: "no-store",
-  }),
-
-
-
-  
-  fetch(`${BASE_URL}/api/dashboard/total-view-count`, {
-    headers,
-    cache: "no-store",
-  }),
-
-
-
- fetch(`${BASE_URL}/api/dashboard/total-comment-count`, {
-    headers,
-    cache: "no-store",
-  }),
-
-   fetch(`${BASE_URL}/api/dashboard/get-lastest-blog`, {
-    headers,
-    cache: "no-store",
-  }),
-
-   // ✅ NEW API
-  fetch(`${BASE_URL}/api/dashboard/get-all-count`, {
-    headers,
-    cache: "no-store",
-  }),
-
-])
-
-
-
-const postJson = await postRes.json()
-const viewJson = await viewRes.json()
-const commentJson = await CommentRes.json()
-const recentJson = await recentRes.json()
-const enquiryJson = await enquiryRes.json()
-
-
-
-console.log("POST API:", postJson)
-console.log("VIEW API:", viewJson)
-console.log("COMMENT API:", commentJson)
-console.log("RECENT API:", recentJson) // 👈 add this also
-console.log("ENQUIRY API:", enquiryJson)
-
-
-
-setRecentContent(
-  recentJson?.latestBlog?.map((item: any) => ({
-    id: item._id,
-    title: item.title,
-    status: item.status,
-    lastUpdated: item.updatedAt,
-  })) || []
-)
-
-
-
-// setRecentContent(
-//   recentJson?.latestBlog
-//     ?.slice(0, 5)
-//     .map((item: any) => ({
-//       id: item._id,
-//       title: item.title,
-//       status: item.status,
-//       lastUpdated: item.updatedAt,
-//     })) || []
-// )
-
-
-// setRecentContent(
-//   recentJson?.latestBlog
-//     ?.sort(
-//       (a: any, b: any) =>
-//         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-//     )
-//     .slice(0, 5)
-//     .map((item: any) => ({
-//       id: item._id,
-//       title: item.title,
-//       status: item.status,
-//       lastUpdated: item.updatedAt,
-//     })) || []
-// )
-
-
-
-
- setStats({
-      totalPosts:
-        postJson?.total_Post ??
-        postJson?.totalPosts ??
-        postJson?.data?.total_Post ??
-        0,
-
-      totalViews:
-        viewJson?.totalViews ??
-        viewJson?.total_views ??
-        viewJson?.data?.totalViews ??
-        0,
-
-      
-
-
-
-  totalComments:
-    commentJson?.totalComments ??
-    commentJson?.data?.totalComments ??
-    0,
-
-      // totalEnquiry: 0,
-
- // ✅ FIX HERE
-  totalEnquiry:
-    enquiryJson?.totalEnquiry ??
-    enquiryJson?.data?.totalEnquiry ??
-    0,
-
-
-    })
-
-  } catch (err) {
-    console.error("❌ Dashboard API error:", err)
-  } finally {
-    setLoading(false)
   }
-}
 
 
 
 
-// console.log("Stats:", stats)
+  // console.log("Stats:", stats)
 
 
   return (
@@ -249,11 +279,11 @@ setRecentContent(
         </Button> */}
 
 
-<Link href="/builder">
-  <Button className="bg-blue-600 hover:bg-blue-700">
-    Open Editor
-  </Button>
-</Link>
+        <Link href="/builder">
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            Open Editor
+          </Button>
+        </Link>
 
 
 
@@ -320,51 +350,51 @@ setRecentContent(
 
 
 
-<CardContent>
-  {loading ? (
-    <p className="text-sm text-muted-foreground">Loading...</p>
-  ) : (
+          <CardContent>
+            {loading ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : (
 
-<div className="max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+              <div className="max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
 
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 bg-blue-50 ">
-          <tr className="text-left">
-            <th className="p-2">Title</th>
-            <th className="p-2">Status</th>
-            <th className="p-2">Last Updated</th>
-            <th></th>
-          </tr>
-        </thead>
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-blue-50 ">
+                    <tr className="text-left">
+                      <th className="p-2">Title</th>
+                      <th className="p-2">Status</th>
+                      <th className="p-2">Last Updated</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
-        <tbody>
-          {recentContent.map((row) => (
-            <tr key={row.id} className="border-b">
-              <td className="p-2">{row.title}</td>
-              <td className="p-2">
-                <Badge
-                  className={
-                    row.status === "published"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-orange-100 text-orange-700"
-                  }
-                >
-                  {row.status}
-                </Badge>
-              </td>
-              <td className="p-2">
-                {new Date(row.lastUpdated).toLocaleDateString()}
-              </td>
-              <td className="p-2">
-                <Pencil className="h-4 w-4 cursor-pointer text-muted-foreground" />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</CardContent>
+                  <tbody>
+                    {recentContent.map((row) => (
+                      <tr key={row.id} className="border-b">
+                        <td className="p-2">{row.title}</td>
+                        <td className="p-2">
+                          <Badge
+                            className={
+                              row.status === "published"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-orange-100 text-orange-700"
+                            }
+                          >
+                            {row.status}
+                          </Badge>
+                        </td>
+                        <td className="p-2">
+                          {new Date(row.lastUpdated).toLocaleDateString()}
+                        </td>
+                        <td className="p-2">
+                          <Pencil className="h-4 w-4 cursor-pointer text-muted-foreground" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
 
 
 
@@ -389,8 +419,8 @@ setRecentContent(
                     a.message?.toLowerCase().includes("like")
                       ? ThumbsUp
                       : a.message?.toLowerCase().includes("comment")
-                      ? MessageCircle
-                      : HelpCircle
+                        ? MessageCircle
+                        : HelpCircle
                   }
                 />
               ))
@@ -401,9 +431,33 @@ setRecentContent(
 
       {/* ENGAGEMENT */}
       <Card>
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle className="text-sm">Blogs Engagement</CardTitle>
+        </CardHeader> */}
+
+
+
+
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-sm">Blogs Engagement</CardTitle>
+
+          {/* YEAR DROPDOWN */}
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="border rounded-md px-3 py-1 text-sm"
+          >
+            {[2023, 2024, 2025, 2026].map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
         </CardHeader>
+
+
+
+
         <CardContent className="h-72">
           {chartData.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
@@ -416,9 +470,17 @@ setRecentContent(
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line dataKey="like" strokeWidth={2} />
+                {/* <Line dataKey="like" strokeWidth={2} />
                 <Line dataKey="comment" strokeWidth={2} />
-                <Line dataKey="enquiry" strokeWidth={2} />
+                <Line dataKey="enquiry" strokeWidth={2} /> */}
+
+
+                <Line dataKey="like" stroke="#df20d9" strokeWidth={2} />
+                <Line dataKey="comment" stroke="#13d159" strokeWidth={2} />
+                <Line dataKey="enquiry" stroke="#1d11fa" strokeWidth={2} />
+
+
+
               </LineChart>
             </ResponsiveContainer>
           )}
