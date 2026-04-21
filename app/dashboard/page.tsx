@@ -44,6 +44,10 @@ export default function DashboardPage() {
   const [year, setYear] = useState(new Date().getFullYear())
 
 
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
+
+
   // useEffect(() => {
   //   fetchDashboard()
   // }, [])
@@ -442,7 +446,7 @@ export default function DashboardPage() {
           <CardTitle className="text-sm">Blogs Engagement</CardTitle>
 
           {/* YEAR DROPDOWN */}
-          <select
+          {/* <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
             className="border rounded-md px-3 py-1 text-sm"
@@ -452,7 +456,27 @@ export default function DashboardPage() {
                 {y}
               </option>
             ))}
+          </select> */}
+
+
+
+
+
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="border rounded-md px-3 py-1 text-sm"
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
           </select>
+
+
+
+
         </CardHeader>
 
 
