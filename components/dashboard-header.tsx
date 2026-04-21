@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 
-
+import { useRouter } from "next/navigation"
 
 function decodeToken(token: string) {
   try {
@@ -52,6 +52,8 @@ function getTitleFromPath(pathname: string) {
 }
 
 export function DashboardHeader() {
+
+  const router = useRouter()
   const pathname = usePathname()
   const title = getTitleFromPath(pathname)
 
@@ -71,6 +73,45 @@ export function DashboardHeader() {
       setUser(decoded)
     }
   }, [])
+
+
+
+const handleLogout = async () => {
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("cms_token")
+      : null
+
+  if (!token) {
+    router.push("/")
+    return
+  }
+
+  try {
+    await fetch(
+      "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/logout",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+
+    // ✅ Remove token
+    localStorage.removeItem("cms_token")
+
+    // ✅ Redirect to login
+    router.push("/")
+  } catch (error) {
+    console.error("Logout failed:", error)
+
+    // even if API fails, force logout
+    localStorage.removeItem("cms_token")
+    router.push("/")
+  }
+}
+
 
 
   return (
@@ -138,9 +179,19 @@ export function DashboardHeader() {
               <DropdownMenuItem>Settings</DropdownMenuItem>
             </Link>
 
-            <DropdownMenuItem className="text-red-500">
+            {/* <DropdownMenuItem className="text-red-500">
               Logout
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
+
+
+<DropdownMenuItem
+  onClick={handleLogout}
+  className="text-red-500 cursor-pointer"
+>
+  Logout
+</DropdownMenuItem>
+
+
           </DropdownMenuContent>
         </DropdownMenu>
 
