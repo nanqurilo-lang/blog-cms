@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
 
 
-      const [postRes, viewRes, CommentRes, recentRes, enquiryRes, monthlyRes] = await Promise.all([
+      const [postRes, viewRes, CommentRes, recentRes, enquiryRes, monthlyRes, activityRes] = await Promise.all([
         fetch(`${BASE_URL}/api/dashboard/total-post-count`, {
           headers,
           cache: "no-store",
@@ -149,7 +149,13 @@ export default function DashboardPage() {
         fetch(
           `${BASE_URL}/api/dashboard/get-monthly-engagementdata?year=${year}`,
           { headers }
-        )
+        ),
+
+
+        fetch(`${BASE_URL}/api/dashboard/get-all-notification`, {
+          headers,
+          cache: "no-store",
+        }),
 
 
       ])
@@ -162,8 +168,11 @@ export default function DashboardPage() {
       const recentJson = await recentRes.json()
       const enquiryJson = await enquiryRes.json()
       const monthlyJson = await monthlyRes.json()
+      const activityJson = await activityRes.json()
 
-      console.log("MONTHLY API:", monthlyJson)
+
+
+
 
 
       console.log("POST API:", postJson)
@@ -171,6 +180,8 @@ export default function DashboardPage() {
       console.log("COMMENT API:", commentJson)
       console.log("RECENT API:", recentJson) // 👈 add this also
       console.log("ENQUIRY API:", enquiryJson)
+      console.log("MONTHLY API:", monthlyJson)
+      console.log("ACTIVITY API:", activityJson)
 
 
 
@@ -180,6 +191,13 @@ export default function DashboardPage() {
           title: item.title,
           status: item.status,
           lastUpdated: item.updatedAt,
+        })) || []
+      )
+
+
+      setActivity(
+        activityJson?.notification?.map((item: any) => ({
+          message: item.message
         })) || []
       )
 
