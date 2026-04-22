@@ -335,9 +335,9 @@ export default function Page() {
                 <span className="flex items-center gap-1 text-purple-500">
                   <MessageSquare size={14} /> {post.comments?.length || 0}
                 </span>
-                <span className="flex items-center gap-1">
+                {/* <span className="flex items-center gap-1">
                   <Repeat size={14} /> {post.shares || 0}
-                </span>
+                </span> */}
               </div>
             </div>
           </div>
