@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -39,6 +38,9 @@ export default function Page() {
   const [loading, setLoading] = useState(true)
   const [openMenu, setOpenMenu] = useState<number | null>(null)
 
+  const [search, setSearch] = useState("")
+  const [filter, setFilter] = useState("all") // "all" | "favourites"
+
 
 
   useEffect(() => {
@@ -68,12 +70,12 @@ export default function Page() {
       // setPosts(data.blogs || [])
 
 
-setPosts(
-  (data.blogs || []).map((p: any) => ({
-    ...p,
-    favourite: p.isfavourite ?? false, // ✅ map backend → frontend
-  }))
-)
+      setPosts(
+        (data.blogs || []).map((p: any) => ({
+          ...p,
+          favourite: p.isfavourite ?? false, // ✅ map backend → frontend
+        }))
+      )
 
 
     } catch (err) {
@@ -85,88 +87,44 @@ setPosts(
 
 
 
-  // const toggleFavourite = (id: number) => {
-  //   setPosts(prev =>
-  //     prev.map(p =>
-  //       p._id === id ? { ...p, favourite: !p.favourite } : p
-  //     )
-  //   )
-  //   setOpenMenu(null)
-  // }
-
-
-
-  // const toggleFavourite = async (id: string) => {
-  //   try {
-  //     const token = localStorage.getItem("cms_token")
-
-  //     const res = await fetch(
-  //       `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: token ? `Bearer ${token}` : "",
-  //         },
-  //       }
-  //     )
-
-  //     const data = await res.json()
-
-  //     console.log("Favourite Response 👉", data)
-
-  //     // ✅ update UI based on API response
-  //     setPosts(prev =>
-  //       prev.map(p =>
-  //         p._id === id
-  //           ? { ...p, favourite: data.isFavourite }
-  //           : p
-  //       )
-  //     )
-  //   } catch (err) {
-  //     console.error("Favourite error:", err)
-  //   } finally {
-  //     setOpenMenu(null)
-  //   }
-  // }
-
 
 
   const toggleFavourite = async (id: string) => {
-  try {
-    const token = localStorage.getItem("cms_token")
+    try {
+      const token = localStorage.getItem("cms_token")
 
-    const res = await fetch(
-      `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      }
-    )
-
-    const data = await res.json()
-
-    console.log("Favourite Response 👉", data)
-
-    // ✅ update instantly
-    setPosts(prev =>
-      prev.map(p =>
-        p._id === id
-          ? { ...p, favourite: data.isFavourite }
-          : p
+      const res = await fetch(
+        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
       )
-    )
 
-    // ✅ IMPORTANT: refetch from backend (fix refresh issue)
-    fetchPosts()
+      const data = await res.json()
 
-  } catch (err) {
-    console.error("Favourite error:", err)
-  } finally {
-    setOpenMenu(null)
+      console.log("Favourite Response 👉", data)
+
+      // ✅ update instantly
+      setPosts(prev =>
+        prev.map(p =>
+          p._id === id
+            ? { ...p, favourite: data.isFavourite }
+            : p
+        )
+      )
+
+      // ✅ IMPORTANT: refetch from backend (fix refresh issue)
+      fetchPosts()
+
+    } catch (err) {
+      console.error("Favourite error:", err)
+    } finally {
+      setOpenMenu(null)
+    }
   }
-}
 
 
   const handleView = (id: number) => {
@@ -195,21 +153,51 @@ setPosts(
   }
 
 
+  // 👇 ✅ PASTE HERE
+  const filteredPosts = posts.filter((post: any) => {
+    const matchesSearch =
+      post.title?.toLowerCase().includes(search.toLowerCase()) ||
+      post.description?.toLowerCase().includes(search.toLowerCase())
+
+    const matchesFilter =
+      filter === "all" ? true : post.favourite === true
+
+    return matchesSearch && matchesFilter
+  })
+
+
 
   return (
     <div className="p-6 space-y-6 bg-white min-h-screen">
       {/* Top Bar */}
       <div className="flex items-center justify-between gap-4">
+
+
+
         <input
           type="text"
           placeholder="Search posts"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-sm rounded-md border px-4 py-2 text-sm focus:outline-none"
         />
 
-        <select className="rounded-md border px-4 py-2 text-sm">
-          <option>All</option>
-          <option>Favourites</option>
+
+
+
+
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="rounded-md border px-4 py-2 text-sm"
+        >
+          <option value="all">All</option>
+          <option value="favourites">Favourites</option>
         </select>
+
+
+
+
       </div>
 
 
@@ -218,7 +206,9 @@ setPosts(
         <p className="text-center">Loading posts...</p>
       )}
 
-      {!loading && posts.length === 0 && (
+
+
+      {!loading && filteredPosts.length === 0 && (
         <p className="text-center text-gray-500">No posts found</p>
       )}
 
@@ -226,11 +216,11 @@ setPosts(
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post, index) => (
+        {/* {posts.map((post, index) => ( */}
+
+        {filteredPosts.map((post, index) => (
           <div
             key={post._id || index}
-            // className={`rounded-xl border-2 overflow-hidden bg-white ${index % 3 === 0 ? "border-yellow-400" : "border-blue-500"
-            //   }`}
 
 
             className={`rounded-xl border-2 overflow-hidden bg-white ${post.favourite ? "border-yellow-400" : "border-blue-500"
@@ -239,20 +229,9 @@ setPosts(
 
           >
             <div className="relative h-44">
-              {/* <Image
-        src={post.thumbnail || "https://via.placeholder.com/400"}
-        alt="post"
-        fill
-        className="object-cover"
-      /> */}
 
 
-              {/* <Image
-                src={post.thumbnail || "/fallback.png"}
-                alt="post"
-                fill
-                className="object-cover"
-              /> */}
+
 
 
 
@@ -274,8 +253,7 @@ setPosts(
                 onClick={() =>
                   setOpenMenu(openMenu === post._id ? null : post._id)
                 }
-                // className={`absolute top-3 right-3 p-1 rounded-md ${index % 3 === 0 ? "bg-yellow-400" : "bg-blue-600"
-                //   }`}
+
 
 
                 className={`absolute top-3 right-3 p-1 rounded-md ${post.favourite ? "bg-yellow-400" : "bg-blue-600"
@@ -301,19 +279,13 @@ setPosts(
                     <Pencil size={14} /> Edit
                   </button>
 
-                  {/* <button
-                    onClick={() => handleSaveAsTemplate(post._id)}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
-                  >
-                    <Save size={14} /> Save as Template
-                  </button> */}
+
 
                   <button
                     onClick={() => toggleFavourite(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
-                    {/* <Star size={14} />
-                    Mark as Favourite */}
+
 
                     <Star size={14} />
                     {post.favourite ? "Remove from Favourite" : "Mark as Favourite"}
@@ -336,7 +308,6 @@ setPosts(
                 <h3 className="font-semibold text-sm leading-snug">
                   {post.title}
                 </h3>
-                {/* <Star size={18} className="text-gray-300" /> */}
 
                 <Star
                   size={18}
