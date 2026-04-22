@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { MoreVertical, Pencil, Save, Search, Trash2 } from "lucide-react"
@@ -27,6 +27,10 @@ type DraftBlog = {
   description?: string | null
   lastSavedAt?: string | null
   updatedAt?: string | null
+  // ✅ ADD THIS
+  template_thumbnail?: string
+  thumbnail_public_key?: string
+
   draftContent?: {
     widgets?: DraftWidget[]
   } | null
@@ -99,7 +103,13 @@ function mapBlogToDraftTemplate(blog: DraftBlog): DraftTemplate {
     id: blog._id,
     title: blog.title?.trim() || "Untitled draft template",
     desc: blog.description?.trim() || "Draft template saved from the builder.",
-    image: normalizeDraftImage(getDraftThumbnail(blog.draftContent?.widgets)),
+    // image: normalizeDraftImage(getDraftThumbnail(blog.draftContent?.widgets)),
+
+image: normalizeDraftImage(
+  blog.template_thumbnail ||
+    getDraftThumbnail(blog.draftContent?.widgets)
+),
+
     updated: blog.lastSavedAt || blog.updatedAt || new Date().toISOString(),
     slug: blog.slug?.trim() || "",
   }
@@ -113,113 +123,117 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [uploadingId, setUploadingId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
 
 
 
 
-useEffect(() => {
-  let isMounted = true
 
-  async function fetchAllDraftTemplates() {
+  useEffect(() => {
+    let isMounted = true
+
+    async function fetchAllDraftTemplates() {
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+
+      if (!token) {
+        setError("cms_token not found. Please log in again.")
+        setDrafts([])
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const response = await fetch(
+          `${BUILDER_API_BASE_URL}/api/builder/templates`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            cache: "no-store",
+          }
+        )
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result?.message || "Failed to fetch draft templates.")
+        }
+
+        console.log("API RESULT:", result)
+
+        // ✅ FIXED LINE
+        const templates = result?.templates || []
+
+        if (isMounted) {
+          setDrafts(templates.map(mapBlogToDraftTemplate))
+        }
+
+      } catch (error) {
+        if (isMounted) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Something went wrong while loading draft templates."
+          )
+          setDrafts([])
+        }
+      } finally {
+        if (isMounted) setIsLoading(false)
+      }
+    }
+
+    fetchAllDraftTemplates()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+
+
+
+  const handleSaveAsTemplate = async (postId: string) => {
     const token =
       typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
 
     if (!token) {
-      setError("cms_token not found. Please log in again.")
-      setDrafts([])
-      setIsLoading(false)
+      alert("Token missing. Please login again.")
       return
     }
 
     try {
-      setIsLoading(true)
-      setError(null)
-
       const response = await fetch(
-        `${BUILDER_API_BASE_URL}/api/builder/templates`,
+        `${BUILDER_API_BASE_URL}/api/builder/template/${postId}/save-as`,
         {
+          method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          cache: "no-store",
         }
       )
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result?.message || "Failed to fetch draft templates.")
+        throw new Error(result?.message || "Failed to save as template")
       }
 
-      console.log("API RESULT:", result)
+      console.log("Saved as template:", result)
 
-      // ✅ FIXED LINE
-      const templates = result?.templates || []
-
-      if (isMounted) {
-        setDrafts(templates.map(mapBlogToDraftTemplate))
-      }
+      // ✅ Remove from drafts UI (since it moves to templates section)
+      setDrafts((prev) => prev.filter((draft) => draft.id !== postId))
 
     } catch (error) {
-      if (isMounted) {
-        setError(
-          error instanceof Error
-            ? error.message
-            : "Something went wrong while loading draft templates."
-        )
-        setDrafts([])
-      }
-    } finally {
-      if (isMounted) setIsLoading(false)
+      console.error(error)
+      alert("Something went wrong while saving as template.")
     }
   }
-
-  fetchAllDraftTemplates()
-
-  return () => {
-    isMounted = false
-  }
-}, [])
-
-
-
-
-const handleSaveAsTemplate = async (postId: string) => {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
-
-  if (!token) {
-    alert("Token missing. Please login again.")
-    return
-  }
-
-  try {
-    const response = await fetch(
-      `${BUILDER_API_BASE_URL}/api/builder/template/${postId}/save-as`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-
-    const result = await response.json()
-
-    if (!response.ok) {
-      throw new Error(result?.message || "Failed to save as template")
-    }
-
-    console.log("Saved as template:", result)
-
-    // ✅ Remove from drafts UI (since it moves to templates section)
-    setDrafts((prev) => prev.filter((draft) => draft.id !== postId))
-
-  } catch (error) {
-    console.error(error)
-    alert("Something went wrong while saving as template.")
-  }
-}
 
 
 
@@ -267,6 +281,72 @@ const handleSaveAsTemplate = async (postId: string) => {
 
 
 
+  const handleUploadThumbnail = (postId: string) => {
+    setSelectedPostId(postId)
+    fileInputRef.current?.click()
+  }
+
+
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedPostId) return
+
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("cms_token") : null
+
+    if (!token) {
+      alert("Token missing")
+      return
+    }
+
+    try {
+      setUploadingId(selectedPostId)
+
+      const formData = new FormData()
+      formData.append("post_thumbnail", file)
+
+      const response = await fetch(
+        `${BUILDER_API_BASE_URL}/api/builder/update/thumbnail/${selectedPostId}`,
+        {
+          method: "PUT", // ⚠️ usually update APIs are PUT (confirm if POST needed)
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      )
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Upload failed")
+      }
+
+      console.log("Thumbnail updated:", result)
+
+      const newThumbnail = result?.data?.template_thumbnail
+
+      // ✅ Update UI instantly
+      setDrafts((prev) =>
+        prev.map((draft) =>
+          draft.id === selectedPostId
+            ? { ...draft, image: newThumbnail }
+            : draft
+        )
+      )
+
+    } catch (error) {
+      console.error(error)
+      alert("Failed to upload thumbnail")
+    } finally {
+      setUploadingId(null)
+      setSelectedPostId(null)
+    }
+  }
+
+
+
   const filteredDrafts = useMemo(() => {
     const query = search.trim().toLowerCase()
 
@@ -289,9 +369,9 @@ const handleSaveAsTemplate = async (postId: string) => {
     // }
 
 
-if (action === "template") {
-  handleSaveAsTemplate(postId)
-}
+    if (action === "template") {
+      handleSaveAsTemplate(postId)
+    }
 
 
     // if (action === "delete") {
@@ -312,6 +392,15 @@ if (action === "template") {
 
   return (
     <div className="min-h-screen space-y-6 bg-white p-6">
+
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       <div className="relative w-72">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
@@ -374,11 +463,28 @@ if (action === "template") {
                     <Pencil size={16} /> Edit
                   </button>
 
+
+
+                  <button 
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleUploadThumbnail(post.id)
+                    }}
+                    
+                    className="flex w-full object-cover items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
+                    type="button"
+                  >
+                    📤 Upload Thumbnail
+                  </button>
+
+
+
                   <button
                     onClick={(event) => {
                       event.stopPropagation()
                       handleAction("template", post.id)
                     }}
+                    
                     className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
                     type="button"
                   >
@@ -398,7 +504,7 @@ if (action === "template") {
                 </div>
               )}
 
-              <div className="relative h-44 w-full">
+              {/* <div className="relative h-44 w-full">
                 <Image
                   src={post.image}
                   alt={post.title}
@@ -406,7 +512,30 @@ if (action === "template") {
                   className="object-cover"
                   unoptimized={post.image.startsWith("data:")}
                 />
-              </div>
+              </div> */}
+
+
+
+<div className="relative h-44 w-full">
+  <Image
+    src={post.image}
+    alt={post.title}
+    fill
+    className={`object-cover ${
+      uploadingId === post.id ? "opacity-50" : ""
+    }`}
+    unoptimized={post.image.startsWith("data:")}
+  />
+
+  {uploadingId === post.id && (
+    <div className="absolute inset-0 flex items-center justify-center text-sm text-white bg-black/40">
+      Uploading...
+    </div>
+  )}
+</div>
+
+
+
 
               <div className="space-y-2 p-4">
                 <h3 className="font-semibold leading-snug text-gray-900">
