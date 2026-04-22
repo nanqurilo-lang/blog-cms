@@ -58,14 +58,24 @@ export default function Page() {
         }
       )
 
-      
+
       const data = await res.json()
 
       console.log("API DATA 👉", data)
-          console.log("First Thumbnail 👉", data.blogs?.[0]?.template_thumbnail)
+      console.log("First Thumbnail 👉", data.blogs?.[0]?.template_thumbnail)
 
 
-      setPosts(data.blogs || [])
+      // setPosts(data.blogs || [])
+
+
+setPosts(
+  (data.blogs || []).map((p: any) => ({
+    ...p,
+    favourite: p.isfavourite ?? false, // ✅ map backend → frontend
+  }))
+)
+
+
     } catch (err) {
       console.error("Error fetching posts:", err)
     } finally {
@@ -75,14 +85,89 @@ export default function Page() {
 
 
 
-  const toggleFavourite = (id: number) => {
+  // const toggleFavourite = (id: number) => {
+  //   setPosts(prev =>
+  //     prev.map(p =>
+  //       p._id === id ? { ...p, favourite: !p.favourite } : p
+  //     )
+  //   )
+  //   setOpenMenu(null)
+  // }
+
+
+
+  // const toggleFavourite = async (id: string) => {
+  //   try {
+  //     const token = localStorage.getItem("cms_token")
+
+  //     const res = await fetch(
+  //       `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           Authorization: token ? `Bearer ${token}` : "",
+  //         },
+  //       }
+  //     )
+
+  //     const data = await res.json()
+
+  //     console.log("Favourite Response 👉", data)
+
+  //     // ✅ update UI based on API response
+  //     setPosts(prev =>
+  //       prev.map(p =>
+  //         p._id === id
+  //           ? { ...p, favourite: data.isFavourite }
+  //           : p
+  //       )
+  //     )
+  //   } catch (err) {
+  //     console.error("Favourite error:", err)
+  //   } finally {
+  //     setOpenMenu(null)
+  //   }
+  // }
+
+
+
+  const toggleFavourite = async (id: string) => {
+  try {
+    const token = localStorage.getItem("cms_token")
+
+    const res = await fetch(
+      `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      }
+    )
+
+    const data = await res.json()
+
+    console.log("Favourite Response 👉", data)
+
+    // ✅ update instantly
     setPosts(prev =>
       prev.map(p =>
-        p._id === id ? { ...p, favourite: !p.favourite } : p
+        p._id === id
+          ? { ...p, favourite: data.isFavourite }
+          : p
       )
     )
+
+    // ✅ IMPORTANT: refetch from backend (fix refresh issue)
+    fetchPosts()
+
+  } catch (err) {
+    console.error("Favourite error:", err)
+  } finally {
     setOpenMenu(null)
   }
+}
+
 
   const handleView = (id: number) => {
     alert(`View post ID: ${id}`)
@@ -109,7 +194,7 @@ export default function Page() {
     setOpenMenu(null)
   }
 
-  
+
 
   return (
     <div className="p-6 space-y-6 bg-white min-h-screen">
@@ -144,8 +229,14 @@ export default function Page() {
         {posts.map((post, index) => (
           <div
             key={post._id || index}
-            className={`rounded-xl border-2 overflow-hidden bg-white ${index % 3 === 0 ? "border-yellow-400" : "border-blue-500"
+            // className={`rounded-xl border-2 overflow-hidden bg-white ${index % 3 === 0 ? "border-yellow-400" : "border-blue-500"
+            //   }`}
+
+
+            className={`rounded-xl border-2 overflow-hidden bg-white ${post.favourite ? "border-yellow-400" : "border-blue-500"
               }`}
+
+
           >
             <div className="relative h-44">
               {/* <Image
@@ -166,16 +257,16 @@ export default function Page() {
 
 
               <Image
- src={
-  post.template_thumbnail && post.template_thumbnail !== ""
-    ? post.template_thumbnail
-    : "/fallback.png"
-}
+                src={
+                  post.template_thumbnail && post.template_thumbnail !== ""
+                    ? post.template_thumbnail
+                    : "/fallback.png"
+                }
 
- alt="post"
-  fill
-  className="object-cover"
-/>
+                alt="post"
+                fill
+                className="object-cover"
+              />
 
 
 
@@ -183,8 +274,13 @@ export default function Page() {
                 onClick={() =>
                   setOpenMenu(openMenu === post._id ? null : post._id)
                 }
-                className={`absolute top-3 right-3 p-1 rounded-md ${index % 3 === 0 ? "bg-yellow-400" : "bg-blue-600"
+                // className={`absolute top-3 right-3 p-1 rounded-md ${index % 3 === 0 ? "bg-yellow-400" : "bg-blue-600"
+                //   }`}
+
+
+                className={`absolute top-3 right-3 p-1 rounded-md ${post.favourite ? "bg-yellow-400" : "bg-blue-600"
                   }`}
+
               >
                 <MoreVertical size={16} className="text-white" />
               </button>
@@ -216,8 +312,13 @@ export default function Page() {
                     onClick={() => toggleFavourite(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
+                    {/* <Star size={14} />
+                    Mark as Favourite */}
+
                     <Star size={14} />
-                    Mark as Favourite
+                    {post.favourite ? "Remove from Favourite" : "Mark as Favourite"}
+
+
                   </button>
 
                   <button
@@ -235,7 +336,14 @@ export default function Page() {
                 <h3 className="font-semibold text-sm leading-snug">
                   {post.title}
                 </h3>
-                <Star size={18} className="text-gray-300" />
+                {/* <Star size={18} className="text-gray-300" /> */}
+
+                <Star
+                  size={18}
+                  className={post.favourite ? "text-yellow-400" : "text-gray-300"}
+                />
+
+
               </div>
 
               <p className="text-xs text-gray-500 line-clamp-3">
