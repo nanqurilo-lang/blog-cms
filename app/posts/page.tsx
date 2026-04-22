@@ -205,12 +205,12 @@ export default function Page() {
                     <Pencil size={14} /> Edit
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => handleSaveAsTemplate(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
                     <Save size={14} /> Save as Template
-                  </button>
+                  </button> */}
 
                   <button
                     onClick={() => toggleFavourite(post._id)}
