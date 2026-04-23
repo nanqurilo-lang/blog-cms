@@ -901,6 +901,43 @@ function BuilderContent() {
   const searchParams = useSearchParams();
   const widgets = state.present.widgets;
   const templateId = searchParams.get("templateId");
+
+
+
+// ✅ 👉 PASTE HERE
+  async function saveDraft() {
+    if (!templateId) return;
+
+    const token = localStorage.getItem("cms_token");
+
+    try {
+      const res = await fetch(
+        `${BUILDER_TEMPLATE_API}/${templateId}/draft`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify({
+            title: state.present.title,
+            description: state.present.description,
+            content: {
+              widgets: state.present.widgets,
+            },
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      console.log("Saved 👉", data);
+    } catch (err) {
+      console.error("Save error:", err);
+    }
+  }
+
+
   const [activeId, setActiveId] = useState<string | null>(null);
   const loadedTemplateIdRef = useRef<string | null>(null);
 
@@ -978,7 +1015,8 @@ if (parsed) {
 
       try {
         const response = await fetch(
-          `${BUILDER_TEMPLATE_API}/${templateId}/preview`,
+          // `${BUILDER_TEMPLATE_API}/${templateId}/preview`,
+          `${BUILDER_TEMPLATE_API}/${templateId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1016,9 +1054,86 @@ if (parsed) {
           throw new Error(result?.message || "Failed to load draft template.");
         }
 
-        if (!result?.templateId) {
-          throw new Error("Draft template response was missing template id.");
-        }
+        // if (!result?.templateId) {
+        //   throw new Error("Draft template response was missing template id.");
+        // }
+
+
+
+
+// const templateData = result?.template;
+
+// if (!templateData?._id) {
+//   throw new Error("Template data missing");
+// }
+
+// const widgetsFromAPI =
+//   templateData?.draftContent?.widgets ||
+//   templateData?.publishedContent?.widgets ||
+//   [];
+
+// dispatch({
+//   type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+//   payload: {
+//     message: "Template loaded",
+//     templateId: templateData._id, // ✅ FIXED
+//     status: templateData.status,
+//     version: templateData.version,
+
+//     content: {
+//       widgets: widgetsFromAPI,
+//     },
+
+//     metadata: {
+//       title: templateData.title,
+//       slug: templateData.slug,
+//       description: templateData.description,
+//     },
+
+//     urls: result?.urls || null,
+//   },
+// });
+
+
+
+
+
+const templateData = result?.template;
+
+if (!templateData?._id) {
+  throw new Error("Template data missing");
+}
+
+const widgetsFromAPI =
+  templateData?.draftContent?.widgets ||
+  templateData?.publishedContent?.widgets ||
+  [];
+
+dispatch({
+  type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+  payload: {
+    message: "Template loaded",
+    templateId: templateData._id, // ✅ FIXED
+    status: templateData.status,
+    version: templateData.version,
+
+    content: {
+      widgets: widgetsFromAPI,
+    },
+
+    metadata: {
+      title: templateData.title,
+      slug: templateData.slug,
+      description: templateData.description,
+    },
+
+    urls: result?.urls || null,
+  },
+});
+
+
+
+
 
         // dispatch({
         //   type: "LOAD_TEMPLATE_EDIT_SUCCESS",
@@ -1038,22 +1153,50 @@ if (parsed) {
         // });
 
 
-dispatch({
-  type: "LOAD_TEMPLATE_EDIT_SUCCESS",
-  payload: {
-    message: result.message || "Draft template loaded",
-    templateId: result.templateId,
-    status: result.status,
-    version: result.version,
+// dispatch({
+//   type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+//   payload: {
+//     message: result.message || "Draft template loaded",
+//     templateId: result.templateId,
+//     status: result.status,
+//     version: result.version,
 
-    content: {
-      widgets: result.content?.widgets || [],
-    },
+//     content: {
+//       widgets: result.content?.widgets || [],
+//     },
 
-    metadata: result.metadata || null,
-    urls: result.urls || null,
-  },
-});
+//     metadata: result.metadata || null,
+//     urls: result.urls || null,
+//   },
+// });
+
+
+
+
+
+// const widgetsFromAPI =
+//   result?.template?.draftContent?.widgets ||
+//   result?.template?.publishedContent?.widgets ||
+//   [];
+
+// dispatch({
+//   type: "LOAD_TEMPLATE_EDIT_SUCCESS",
+//   payload: {
+//     message: "Template loaded",
+//     templateId: result.template._id,
+//     content: {
+//       widgets: widgetsFromAPI,
+//     },
+//     metadata: {
+//       title: result.template.title,
+//       slug: result.template.slug,
+//       description: result.template.description,
+//     },
+//   },
+// });
+
+
+
 
 
 
@@ -1258,7 +1401,8 @@ async function publishTemplate() {
     <>
       {/* <EditorToolbar /> */}
 <EditorToolbar publishTemplate={publishTemplate}
- createTemplate={createTemplate} />
+ createTemplate={createTemplate} 
+ saveDraft={saveDraft}/>
 
       <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <div className="flex h-[calc(100vh-56px)]">
@@ -1280,7 +1424,55 @@ async function publishTemplate() {
   );
 }
 
-export default function Builder() {
+// export default function Builder() {
+export default function Builder({ templateId }: { templateId: string | null }) {
+
+ const [widgets, setWidgets] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+
+
+
+// ✅ 2. 👉 PASTE useEffect HERE
+  useEffect(() => {
+    if (!templateId) return
+    fetchTemplate()
+  }, [templateId])
+
+  // ✅ 3. FUNCTIONS BELOW
+  const fetchTemplate = async () => {
+    try {
+      setLoading(true)
+
+      const token = localStorage.getItem("cms_token")
+
+      const res = await fetch(
+        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/template/${templateId}`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      const draftWidgets =
+        data.template?.draftContent?.widgets ||
+        data.template?.publishedContent?.widgets ||
+        []
+
+      setWidgets(draftWidgets)
+
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
+
   return (
     <EditorProvider>
       <BuilderContent />

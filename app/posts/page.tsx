@@ -15,6 +15,7 @@ import {
   Trash2,
   Save,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const postsData = Array.from({ length: 6 }).map((_, i) => ({
   id: i,
@@ -33,6 +34,7 @@ const postsData = Array.from({ length: 6 }).map((_, i) => ({
 
 export default function Page() {
   // const [posts, setPosts] = useState(postsData)
+  const router = useRouter()
 
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -132,10 +134,18 @@ export default function Page() {
     setOpenMenu(null)
   }
 
-  const handleEdit = (id: number) => {
-    alert(`Edit post ID: ${id}`)
-    setOpenMenu(null)
-  }
+  // const handleEdit = (id: number) => {
+  //   alert(`Edit post ID: ${id}`)
+  //   setOpenMenu(null)
+  // }
+
+
+
+const handleEdit = (id: string) => {
+  router.push(`/builder?templateId=${id}`)
+  setOpenMenu(null)
+}
+
 
   const handleSaveAsTemplate = (id: number) => {
     alert(`Post ${id} saved as template`)
