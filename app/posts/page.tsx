@@ -142,14 +142,48 @@ export default function Page() {
     setOpenMenu(null)
   }
 
-  const handleDelete = (id: number) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this post?"
-    )
+  // const handleDelete = (id: number) => {
+  //   const confirmDelete = confirm(
+  //     "Are you sure you want to delete this post?"
+  //   )
+  //   if (!confirmDelete) return
+
+  //   setPosts(prev => prev.filter(p => p._id !== id))
+  //   setOpenMenu(null)
+  // }
+
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this post?")
     if (!confirmDelete) return
 
-    setPosts(prev => prev.filter(p => p._id !== id))
-    setOpenMenu(null)
+    try {
+      const token = localStorage.getItem("cms_token")
+
+      const res = await fetch(
+        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/delete/blog-template/${id}`,
+        {
+          method: "DELETE", // ✅ important
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      )
+
+      const data = await res.json()
+      console.log("Delete Response 👉", data)
+
+      // ✅ remove from UI instantly
+      setPosts(prev => prev.filter(p => p._id !== id))
+
+      // ✅ optional: re-fetch to stay in sync
+      // await fetchPosts()
+
+    } catch (err) {
+      console.error("Delete error:", err)
+    } finally {
+      setOpenMenu(null)
+    }
   }
 
 
@@ -293,12 +327,24 @@ export default function Page() {
 
                   </button>
 
+                  {/* <button
+                    onClick={() => handleDelete(post._id)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button> */}
+
+
+
                   <button
                     onClick={() => handleDelete(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                   >
                     <Trash2 size={14} /> Delete
                   </button>
+
+
+
                 </div>
               )}
             </div>
