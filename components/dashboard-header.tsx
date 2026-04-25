@@ -276,18 +276,42 @@ export function DashboardHeader() {
   const [isOpen, setIsOpen] = useState(false)
 
   // ── Decode token ──────────────────────────────────────────────────────
-  useEffect(() => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cms_token")
-        : null
+  // useEffect(() => {
+  //   const token =
+  //     typeof window !== "undefined"
+  //       ? localStorage.getItem("cms_token")
+  //       : null
 
-    if (token) {
-      const decoded = decodeToken(token)
-      console.log("DECODED USER:", decoded)
-      setUser(decoded)
-    }
-  }, [])
+  //   if (token) {
+  //     const decoded = decodeToken(token)
+  //     console.log("DECODED USER:", decoded)
+  //     setUser(decoded)
+  //   }
+  // }, [])
+
+
+
+
+useEffect(() => {
+  loadProfile()
+
+  // ✅ listen for profile updates
+  window.addEventListener("profileUpdated", loadProfile)
+
+  return () => {
+    window.removeEventListener("profileUpdated", loadProfile)
+  }
+}, [])
+
+const loadProfile = () => {
+  const stored = localStorage.getItem("admin_profile")
+
+  if (stored) {
+    setUser(JSON.parse(stored))
+  }
+}
+
+
 
   // ── Socket listeners ──────────────────────────────────────────────────
   useEffect(() => {

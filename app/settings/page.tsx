@@ -272,7 +272,21 @@ function General({
 }: any) {
 
 
+useEffect(() => {
+  const stored = localStorage.getItem("admin_profile");
 
+  if (stored) {
+    const data = JSON.parse(stored);
+
+    setForm({
+      username: data.username || "",
+      phone: data.phone || "",
+      email: data.email || "",
+      admin_profile: null,
+      preview: data.profile_Image || "",
+    });
+  }
+}, []);
 
 
 
@@ -302,12 +316,63 @@ function General({
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = () => {
-    console.log("FORM DATA 👉", form);
+  // const handleSubmit = () => {
+  //   console.log("FORM DATA 👉", form);
 
-    // ⚡ later you will send FormData API here
-  };
+  //   // ⚡ later you will send FormData API here
+  // };
 
+
+
+
+  const handleSubmit = async () => {
+  try {
+    const token = localStorage.getItem("cms_token");
+
+    if (!token) {
+      alert("Token missing ❌");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("username", form.username);
+    formData.append("phone", form.phone);
+    formData.append("email", form.email);
+
+    if (form.admin_profile) {
+      formData.append("admin_profile", form.admin_profile);
+    }
+
+    const res = await fetch(
+      "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/update-profile",
+      {
+        method: "PUT", // or POST (check API)
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("✅ Profile updated!");
+
+      // ✅ SAVE UPDATED DATA IN LOCAL STORAGE
+      localStorage.setItem("admin_profile", JSON.stringify(data.admin));
+
+      // ✅ Trigger global update
+      window.dispatchEvent(new Event("profileUpdated"));
+
+    } else {
+      alert(data.message || "Update failed ❌");
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 
 
