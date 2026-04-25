@@ -1,10 +1,12 @@
 "use client";
 
+import type { ElementType } from "react";
+
 export default function HeadingWidget({ widget }: any) {
   const g = widget.general || {};
   const s = widget.style || {};
 
-  const Tag = (g.htmlTag || "h2") as keyof JSX.IntrinsicElements;
+  const Tag = (g.htmlTag || "h2") as ElementType;
   const alignment = s.alignment || "left";
   const highlightedText = g.highlightText || "";
   const fullText = g.text || "Your Section Heading";

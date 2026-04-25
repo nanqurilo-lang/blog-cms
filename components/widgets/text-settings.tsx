@@ -20,7 +20,7 @@ export default function TextSettings({
   return (
     <div className="space-y-3">
       <CKEditor
-        editor={ClassicEditor}
+        editor={ClassicEditor as any}
         data={element.props.content}
         config={{
           toolbar: [
@@ -54,4 +54,3 @@ export default function TextSettings({
     </div>
   )
 }
-

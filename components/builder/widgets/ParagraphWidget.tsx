@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ElementType } from "react";
 
 const variantPresets: Record<string, { fontSize: string; lineHeight: string; fontWeight: string; color: string }> = {
   body: { fontSize: "17px", lineHeight: "1.85", fontWeight: "400", color: "#374151" },
@@ -35,7 +35,7 @@ export default function ParagraphWidget({ widget }: any) {
     </span>
   );
 
-  const Tag = (g.htmlTag || "p") as keyof JSX.IntrinsicElements;
+  const Tag = (g.htmlTag || "p") as ElementType;
 
   return (
     <Tag

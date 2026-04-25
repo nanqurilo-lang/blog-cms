@@ -2,8 +2,26 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Code, Globe, FileText, Image, Link2, Twitter, Facebook, Linkedin, AlertCircle, Check, Copy } from 'lucide-react';
 
+type SeoData = {
+  metaTitle: string;
+  metaDescription: string;
+  focusKeyword: string;
+  keywords: string[];
+  slug: string;
+  canonicalUrl: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  twitterTitle: string;
+  twitterDescription: string;
+  twitterImage: string;
+  robots: string;
+  author: string;
+  publishDate: string;
+};
+
 const BlogPostSEO = () => {
-  const [seoData, setSeoData] = useState({
+  const [seoData, setSeoData] = useState<SeoData>({
     metaTitle: '',
     metaDescription: '',
     focusKeyword: '',
@@ -44,7 +62,7 @@ const BlogPostSEO = () => {
     setSeoScore(score);
   }, [seoData]);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof SeoData, value: string) => {
     setSeoData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -58,7 +76,7 @@ const BlogPostSEO = () => {
     }
   };
 
-  const removeKeyword = (keyword) => {
+  const removeKeyword = (keyword: string) => {
     setSeoData(prev => ({
       ...prev,
       keywords: prev.keywords.filter(k => k !== keyword)

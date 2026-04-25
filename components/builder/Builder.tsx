@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import WidgetList from "./WidgetList";
 import Canvas from "./Canvas";
 import SettingsPanel from "./SettingsPanel";
@@ -892,15 +891,11 @@ function createWidget(type: string) {
   };
 }
 
-function BuilderContent() {
+function BuilderContent({ templateId }: { templateId: string | null }) {
   const { state, dispatch } = useEditor();
 
   const router = useRouter(); // ✅ HERE
-
-
-  const searchParams = useSearchParams();
   const widgets = state.present.widgets;
-  const templateId = searchParams.get("templateId");
 
 
 
@@ -1030,6 +1025,20 @@ if (parsed) {
           templateId?: string;
           status?: "draft" | "published";
           version?: number;
+          template?: {
+            _id?: string;
+            title?: string;
+            slug?: string;
+            description?: string;
+            status?: "draft" | "published";
+            version?: number;
+            draftContent?: {
+              widgets?: unknown[];
+            } | null;
+            publishedContent?: {
+              widgets?: unknown[];
+            } | null;
+          } | null;
           content?: {
             widgets?: unknown[];
           } | null;
@@ -1118,7 +1127,7 @@ dispatch({
     version: templateData.version,
 
     content: {
-      widgets: widgetsFromAPI,
+      widgets: widgetsFromAPI as WidgetData[],
     },
 
     metadata: {
@@ -1200,7 +1209,7 @@ dispatch({
 
 
 
-        loadedTemplateIdRef.current = result.templateId;
+        loadedTemplateIdRef.current = templateData._id ?? result?.templateId ?? null;
         setActiveId(null);
       } catch (error) {
         dispatch({
@@ -1475,7 +1484,7 @@ export default function Builder({ templateId }: { templateId: string | null }) {
 
   return (
     <EditorProvider>
-      <BuilderContent />
+      <BuilderContent templateId={templateId} />
     </EditorProvider>
   );
 }

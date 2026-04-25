@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ElementType } from "react";
 
 const variantPresets: Record<string, { fontSize: string; lineHeight: string; fontWeight: string }> = {
   default: { fontSize: "17px", lineHeight: "1.7", fontWeight: "400" },
@@ -35,7 +35,7 @@ export default function TextWidget({ widget }: any) {
     </span>
   );
 
-  const Tag = (g.htmlTag || "div") as keyof JSX.IntrinsicElements;
+  const Tag = (g.htmlTag || "div") as ElementType;
 
   return (
     <Tag

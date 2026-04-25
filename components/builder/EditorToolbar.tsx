@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useEditor } from "./EditorProvider";
+import { useEditor, type WidgetData } from "./EditorProvider";
 
 const BUILDER_API_BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
 const BUILDER_TEMPLATE_API = `${BUILDER_API_BASE_URL}/api/builder/template`;
@@ -19,10 +19,10 @@ type CreateTemplateResponse = {
     status?: "draft" | "published";
     lastSavedAt?: string | null;
     draftContent?: {
-      widgets?: unknown[];
+      widgets?: WidgetData[];
     } | null;
     publishedContent?: {
-      widgets?: unknown[];
+      widgets?: WidgetData[];
     } | null;
   };
   urls?: {
@@ -41,10 +41,10 @@ type UpdateDraftResponse = {
     status?: "draft" | "published";
     lastSavedAt?: string | null;
     draftContent?: {
-      widgets?: unknown[];
+      widgets?: WidgetData[];
     } | null;
     publishedContent?: {
-      widgets?: unknown[];
+      widgets?: WidgetData[];
     } | null;
   } | null;
   urls?: {
