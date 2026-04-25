@@ -140,7 +140,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      
+
 
 
       {activeTab === "General" && (
@@ -153,7 +153,7 @@ export default function SettingsPage() {
       )}
 
 
-      
+
       {activeTab === "Comments" && <Comments />}
 
       {activeTab === "Display Defaults" && (
@@ -186,8 +186,8 @@ function Card({ title, desc, children }: any) {
   return (
     <div
       className={`border rounded-xl p-6 max-w-8xl mb-6 ${title
-          ? "bg-white text-black"
-          : ""
+        ? "bg-white text-black"
+        : ""
         } ${
         // dark mode
         "dark:bg-gray-800 dark:text-white"
@@ -271,29 +271,99 @@ function General({
   updateSettings,
 }: any) {
 
+
+
+
+
+
+  const [form, setForm] = useState({
+    username: "",
+    phone: "",
+    email: "",
+    admin_profile: null as File | null,
+    preview: "",
+  });
+
+  const handleChange = (key: string, value: any) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    handleChange("admin_profile", file);
+
+    // preview image
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleChange("preview", reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = () => {
+    console.log("FORM DATA 👉", form);
+
+    // ⚡ later you will send FormData API here
+  };
+
+
+
+
+
+
+
+
+
   return (
     <>
+
+
       <Card
         title="Profile Settings"
         desc="Manage your account profile information."
       >
-        <div className="space-y-5">
-          {/* Profile Picture */}
+        <div className="space-y-6">
+
+          {/* Profile Upload */}
           <div>
             <p className="text-sm text-gray-600 mb-2">Profile Picture</p>
+
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-2xl">
-                  👤
-                </div>
-                <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                {form.preview ? (
+                  <img
+                    src={form.preview}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-xl">
+                    👤
+                  </div>
+                )}
+
+                <label className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center cursor-pointer">
                   📷
-                </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
               </div>
+
               <div>
-                <button className="border border-blue-600 text-blue-600 px-4 py-1.5 rounded-md text-sm">
+                <label className="border border-blue-600 text-blue-600 px-4 py-1.5 rounded-md text-sm cursor-pointer">
                   Upload Photo
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
                 <p className="text-xs text-gray-500 mt-1">
                   JPG, PNG, JPEG
                 </p>
@@ -301,37 +371,56 @@ function General({
             </div>
           </div>
 
-          {/* Name */}
+          {/* Username */}
           <div>
-            <label className="text-sm text-gray-600">Name</label>
-            <div className="bg-gray-100 rounded-md px-4 py-2 text-sm">
-              John Doe
-            </div>
+            <label className="text-sm text-gray-600">Username</label>
+            <input
+              type="text"
+              value={form.username}
+              onChange={(e) => handleChange("username", e.target.value)}
+              placeholder="Enter username"
+              className="w-full mt-1 bg-gray-100 rounded-md px-4 py-2 text-sm outline-none"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="text-sm text-gray-600">Phone</label>
+            <input
+              type="text"
+              value={form.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              placeholder="Enter phone number"
+              className="w-full mt-1 bg-gray-100 rounded-md px-4 py-2 text-sm outline-none"
+            />
           </div>
 
           {/* Email */}
           <div>
-            <label className="text-sm text-gray-600">Email Id</label>
-            <div className="bg-gray-100 rounded-md px-4 py-2 text-sm flex justify-between">
-              johndoe@gmail.com
-              <span>⌄</span>
-            </div>
+            <label className="text-sm text-gray-600">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              placeholder="Enter email"
+              className="w-full mt-1 bg-gray-100 rounded-md px-4 py-2 text-sm outline-none"
+            />
           </div>
 
-          {/* Password */}
-          <div>
-            <label className="text-sm text-gray-600">Password</label>
-            <div className="mt-2">
-              <button
-                onClick={onChangePassword}
-                className="border border-blue-600 text-blue-600 px-4 py-1.5 rounded-md text-sm"
-              >
-                Change Password
-              </button>
-            </div>
+          {/* Save Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleSubmit}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md text-sm"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </Card>
+
+
+
 
       <Card
         title="System Defaults"
