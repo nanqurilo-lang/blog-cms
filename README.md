@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blog CMS
 
-## Getting Started
+Custom blog CMS dashboard built with Next.js 16, React 19, Tailwind CSS, Radix UI, CKEditor, TipTap, and Recharts.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Radix UI
+- CKEditor and TipTap
+- Recharts
+
+## Requirements
+
+- Node.js 20 or newer
+- npm 10 or newer
+- Running backend API
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create your local env file from the example:
+
+```bash
+cp .env.example .env.local
+```
+
+If you are using PowerShell:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+3. Update `NEXT_PUBLIC_API_BASE_URL` in `.env.local` with your backend URL.
+
+4. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the backend API used by the dashboard |
 
-## Learn More
+Example:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` starts the development server
+- `npm run build` creates a production build
+- `npm run start` starts the production server
+- `npm run lint` runs ESLint
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Detailed deployment instructions are in [DEPLOYMENT.md](/C:/Users/vivek/OneDrive/Desktop/blog-cms/DEPLOYMENT.md).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Short Vercel flow:
+
+1. Push the finished code to the `main` branch.
+2. Import the repository into Vercel.
+3. Add `NEXT_PUBLIC_API_BASE_URL` in Vercel Project Settings.
+4. Deploy.
+
+## Branch Workflow
+
+- `development` contains the latest completed work
+- `main` should contain the production-ready code you deploy from
+
+If you need to promote development work manually:
+
+```bash
+git checkout main
+git merge development
+git push origin main
+```
+
+## Notes
+
+- This app depends on a separate backend API.
+- In this environment, `next build` could not fully complete because Google Fonts were blocked by network sandboxing. Vercel builds should still be able to fetch those fonts normally.
+- `npm run lint` currently reports existing lint errors in the codebase. Those do not stop the branch merge, but they should be cleaned up if you want a fully clean CI pipeline.
