@@ -36,7 +36,7 @@ export default function Page() {
   // const [posts, setPosts] = useState(postsData)
   const router = useRouter()
 
-  const [posts, setPosts] = useState([])
+  const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [openMenu, setOpenMenu] = useState<number | null>(null)
 
