@@ -1,4 +1,3 @@
-
 "use client"
 
 import VerifyOtpForm from "@/components/auth/VerifyOtpForm"

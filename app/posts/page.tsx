@@ -1,21 +1,7 @@
-// import React from 'react'
-
-// function page() {
-//   return (
-//     <div>post</div>
-//   )
-// }
-
-// export default page
-
-
-
-
-
 
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import {
   MoreVertical,
@@ -26,7 +12,10 @@ import {
   Repeat,
   Pencil,
   EyeIcon,
+  Trash2,
+  Save,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const postsData = Array.from({ length: 6 }).map((_, i) => ({
   id: i,
@@ -44,112 +33,332 @@ const postsData = Array.from({ length: 6 }).map((_, i) => ({
 }))
 
 export default function Page() {
-  const [posts, setPosts] = useState(postsData)
+  // const [posts, setPosts] = useState(postsData)
+  const router = useRouter()
+
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [openMenu, setOpenMenu] = useState<number | null>(null)
 
-  const toggleFavourite = (id: number) => {
-    setPosts(prev =>
-      prev.map(p =>
-        p.id === id ? { ...p, favourite: !p.favourite } : p
+  const [search, setSearch] = useState("")
+  const [filter, setFilter] = useState("all") // "all" | "favourites"
+
+
+
+  useEffect(() => {
+    fetchPosts()
+  }, [])
+
+  const fetchPosts = async () => {
+    try {
+      const token = localStorage.getItem("cms_token") // if auth needed
+
+      const res = await fetch(
+        "https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/get/blog-template/published?page=1&limit=20",
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
       )
-    )
-    setOpenMenu(null)
+
+
+      const data = await res.json()
+
+      console.log("API DATA 👉", data)
+      console.log("First Thumbnail 👉", data.blogs?.[0]?.template_thumbnail)
+
+
+      // setPosts(data.blogs || [])
+
+
+      setPosts(
+        (data.blogs || []).map((p: any) => ({
+          ...p,
+          favourite: p.isfavourite ?? false, // ✅ map backend → frontend
+        }))
+      )
+
+
+    } catch (err) {
+      console.error("Error fetching posts:", err)
+    } finally {
+      setLoading(false)
+    }
   }
+
+
+
+
+
+  const toggleFavourite = async (id: string) => {
+    try {
+      const token = localStorage.getItem("cms_token")
+
+      const res = await fetch(
+        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      )
+
+      const data = await res.json()
+
+      console.log("Favourite Response 👉", data)
+
+      // ✅ update instantly
+      setPosts(prev =>
+        prev.map(p =>
+          p._id === id
+            ? { ...p, favourite: data.isFavourite }
+            : p
+        )
+      )
+
+      // ✅ IMPORTANT: refetch from backend (fix refresh issue)
+      fetchPosts()
+
+    } catch (err) {
+      console.error("Favourite error:", err)
+    } finally {
+      setOpenMenu(null)
+    }
+  }
+
 
   const handleView = (id: number) => {
     alert(`View post ID: ${id}`)
     setOpenMenu(null)
   }
 
-  const handleEdit = (id: number) => {
-    alert(`Edit post ID: ${id}`)
+  // const handleEdit = (id: number) => {
+  //   alert(`Edit post ID: ${id}`)
+  //   setOpenMenu(null)
+  // }
+
+
+
+const handleEdit = (id: string) => {
+  router.push(`/builder?templateId=${id}`)
+  setOpenMenu(null)
+}
+
+
+  const handleSaveAsTemplate = (id: number) => {
+    alert(`Post ${id} saved as template`)
     setOpenMenu(null)
   }
+
+  // const handleDelete = (id: number) => {
+  //   const confirmDelete = confirm(
+  //     "Are you sure you want to delete this post?"
+  //   )
+  //   if (!confirmDelete) return
+
+  //   setPosts(prev => prev.filter(p => p._id !== id))
+  //   setOpenMenu(null)
+  // }
+
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this post?")
+    if (!confirmDelete) return
+
+    try {
+      const token = localStorage.getItem("cms_token")
+
+      const res = await fetch(
+        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/delete/blog-template/${id}`,
+        {
+          method: "DELETE", // ✅ important
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      )
+
+      const data = await res.json()
+      console.log("Delete Response 👉", data)
+
+      // ✅ remove from UI instantly
+      setPosts(prev => prev.filter(p => p._id !== id))
+
+      // ✅ optional: re-fetch to stay in sync
+      // await fetchPosts()
+
+    } catch (err) {
+      console.error("Delete error:", err)
+    } finally {
+      setOpenMenu(null)
+    }
+  }
+
+
+  // 👇 ✅ PASTE HERE
+  const filteredPosts = posts.filter((post: any) => {
+    const matchesSearch =
+      post.title?.toLowerCase().includes(search.toLowerCase()) ||
+      post.description?.toLowerCase().includes(search.toLowerCase())
+
+    const matchesFilter =
+      filter === "all" ? true : post.favourite === true
+
+    return matchesSearch && matchesFilter
+  })
+
+
 
   return (
     <div className="p-6 space-y-6 bg-white min-h-screen">
       {/* Top Bar */}
       <div className="flex items-center justify-between gap-4">
+
+
+
         <input
           type="text"
           placeholder="Search posts"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-sm rounded-md border px-4 py-2 text-sm focus:outline-none"
         />
 
-        <select className="rounded-md border px-4 py-2 text-sm">
-          <option>All</option>
-          <option>Favourites</option>
+
+
+
+
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="rounded-md border px-4 py-2 text-sm"
+        >
+          <option value="all">All</option>
+          <option value="favourites">Favourites</option>
         </select>
+
+
+
+
       </div>
+
+
+      {/* ✅ ADD HERE */}
+      {loading && (
+        <p className="text-center">Loading posts...</p>
+      )}
+
+
+
+      {!loading && filteredPosts.length === 0 && (
+        <p className="text-center text-gray-500">No posts found</p>
+      )}
+
+
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post, index) => (
+        {/* {posts.map((post, index) => ( */}
+
+        {filteredPosts.map((post, index) => (
           <div
-            key={post.id}
-            className={`rounded-xl border-2 overflow-hidden bg-white ${
-              index % 3 === 0 ? "border-yellow-400" : "border-blue-500"
-            }`}
+            key={post._id || index}
+
+
+            className={`rounded-xl border-2 overflow-hidden bg-white ${post.favourite ? "border-yellow-400" : "border-blue-500"
+              }`}
+
+
           >
-            {/* Image */}
             <div className="relative h-44">
+
+
+
+
+
+
               <Image
-                src={post.image}
+                src={
+                  post.template_thumbnail && post.template_thumbnail !== ""
+                    ? post.template_thumbnail
+                    : "/fallback.png"
+                }
+
                 alt="post"
                 fill
                 className="object-cover"
               />
 
-              {/* Kebab Button */}
+
+
               <button
                 onClick={() =>
-                  setOpenMenu(openMenu === post.id ? null : post.id)
+                  setOpenMenu(openMenu === post._id ? null : post._id)
                 }
-                className={`absolute top-3 right-3 p-1 rounded-md ${
-                  index % 3 === 0 ? "bg-yellow-400" : "bg-blue-600"
-                }`}
+
+
+
+                className={`absolute top-3 right-3 p-1 rounded-md ${post.favourite ? "bg-yellow-400" : "bg-blue-600"
+                  }`}
+
               >
                 <MoreVertical size={16} className="text-white" />
               </button>
 
-              {/* Dropdown Menu */}
-              {openMenu === post.id && (
-                <div className="absolute top-12 right-3 w-40 rounded-md border bg-white shadow-md z-50">
+              {openMenu === post._id && (
+                <div className="absolute top-12 right-3 w-44 rounded-md border bg-white shadow-md z-50">
                   <button
-                    onClick={() => handleView(post.id)}
+                    onClick={() => handleView(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
                     <EyeIcon size={14} /> View
                   </button>
 
                   <button
-                    onClick={() => handleEdit(post.id)}
+                    onClick={() => handleEdit(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
                     <Pencil size={14} /> Edit
                   </button>
 
+
+
                   <button
-                    onClick={() => toggleFavourite(post.id)}
+                    onClick={() => toggleFavourite(post._id)}
                     className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-gray-100"
                   >
-                    <Star
-                      size={14}
-                      className={
-                        post.favourite
-                          ? "fill-yellow-400 text-yellow-400"
-                          : ""
-                      }
-                    />
-                    {post.favourite
-                      ? "Remove Favourite"
-                      : "Make Favourite"}
+
+
+                    <Star size={14} />
+                    {post.favourite ? "Remove from Favourite" : "Mark as Favourite"}
+
+
                   </button>
+
+                  {/* <button
+                    onClick={() => handleDelete(post._id)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button> */}
+
+
+
+                  <button
+                    onClick={() => handleDelete(post._id)}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+
+
+
                 </div>
               )}
             </div>
 
-            {/* Content */}
             <div className="p-4 space-y-3">
               <div className="flex justify-between items-start">
                 <h3 className="font-semibold text-sm leading-snug">
@@ -158,41 +367,44 @@ export default function Page() {
 
                 <Star
                   size={18}
-                  className={
-                    post.favourite
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-gray-300"
-                  }
+                  className={post.favourite ? "text-yellow-400" : "text-gray-300"}
                 />
+
+
               </div>
 
               <p className="text-xs text-gray-500 line-clamp-3">
-                {post.desc}
+                {post.description}
               </p>
 
               <p className="text-[11px] text-gray-400">
-                Updated on · {post.updated}
+                Updated on ·{post.publishDateFormatted}
               </p>
 
-              {/* Stats */}
               <div className="flex items-center justify-between pt-2 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
-                  <Eye size={14} /> {post.views}
+                  <Eye size={14} /> {post.seen_count || 0}
                 </span>
                 <span className="flex items-center gap-1 text-red-500">
-                  <Heart size={14} /> {post.likes}
+                  <Heart size={14} /> {post.likes || 0}
                 </span>
                 <span className="flex items-center gap-1 text-purple-500">
-                  <MessageSquare size={14} /> {post.comments}
+                  <MessageSquare size={14} /> {post.comments?.length || 0}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Repeat size={14} /> {post.shares}
-                </span>
+                {/* <span className="flex items-center gap-1">
+                  <Repeat size={14} /> {post.shares || 0}
+                </span> */}
               </div>
             </div>
           </div>
         ))}
+
+
+
+
+
       </div>
     </div>
   )
 }
+

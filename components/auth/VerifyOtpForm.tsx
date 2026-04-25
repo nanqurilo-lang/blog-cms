@@ -1,97 +1,131 @@
-
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ShieldCheck, ArrowRight, Loader2 } from "lucide-react"
+import { ArrowRight, Loader2, ShieldCheck } from "lucide-react"
 
-const BASE_URL = "https://393rb0pp-5001.inc1.devtunnels.ms/api"
+const ADMIN_VERIFY_OTP_URL =
+  "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/verify-otp"
 
-export default function VerifyOtpPage() {
+type VerifyOtpResponse = {
+  message?: string
+  token?: string
+  admin?: {
+    adminId?: string
+    email?: string
+    role?: string
+  }
+}
+
+export default function VerifyOtpForm() {
   const router = useRouter()
-
+  const [email, setEmail] = useState("")
   const [otp, setOtp] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleVerify = async (e: React.FormEvent) => {
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("admin_login_email")
+
+    if (!savedEmail) {
+      router.replace("/")
+      return
+    }
+
+    setEmail(savedEmail)
+  }, [router])
+
+  const handleVerifyOtp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
-      const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
+      const response = await fetch(ADMIN_VERIFY_OTP_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ otp }),
+        body: JSON.stringify({
+          email,
+          otp,
+        }),
       })
 
-      const data = await res.json()
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Invalid OTP")
+      let result: VerifyOtpResponse | null = null
+      try {
+        result = await response.json()
+      } catch {
+        result = null
       }
 
-      // ✅ OTP verified → go to reset password
-      router.push("/reset-password")
-    } catch (err: any) {
-      setError(err.message || "Failed to verify OTP")
+      if (!response.ok || !result?.token) {
+        throw new Error(result?.message || "Failed to verify OTP")
+      }
+
+      localStorage.setItem("cms_token", result.token)
+      localStorage.setItem("cms_user", JSON.stringify(result.admin ?? {}))
+      localStorage.removeItem("admin_login_email")
+      router.replace("/dashboard")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen w-full flex items-center justify-center px-4">
       <form
-        onSubmit={handleVerify}
-        className="w-full max-w-sm rounded-2xl bg-white/90 backdrop-blur bg-gradient-to-br from-gray-100 to-blue-200 shadow-xl p-6"
+        onSubmit={handleVerifyOtp}
+        className="w-full max-w-sm rounded-2xl bg-white/90 bg-gradient-to-br from-gray-100 to-blue-200 p-6 shadow-xl backdrop-blur"
       >
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-3">
-          <div className="h-10 w-10 rounded-full bg-black flex items-center justify-center">
+        <div className="mb-2 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black">
             <ShieldCheck className="h-5 w-5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-bold">Verify OTP</h1>
-            <p className="text-xs text-gray-500">Blog CMS</p>
+            <p className="text-xs text-gray-500">Admin Login</p>
           </div>
         </div>
 
-        <p className="text-sm text-gray-600 mb-6">
-          Enter the 6-digit OTP sent to your registered email.
+        <p className="mb-2 text-sm text-gray-600">
+          Enter the OTP sent to your admin email.
         </p>
 
-        {/* Error */}
+        {email && (
+          <p className="mb-6 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+            {email}
+          </p>
+        )}
+
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 text-red-600 text-sm px-3 py-2 border border-red-200">
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {error}
           </div>
         )}
 
-        {/* OTP Input */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2 text-gray-700 text-center">
-            One Time Password
+        <div className="mb-5">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
+            OTP
           </label>
           <input
             type="text"
+            inputMode="numeric"
+            required
             maxLength={6}
-            placeholder="••••••"
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-            className="w-full rounded-lg border px-3 py-3 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
-            required
+            placeholder="Enter 6 digit OTP"
+            className="w-full rounded-lg border px-3 py-2 text-sm tracking-[0.35em] focus:border-black focus:outline-none focus:ring-2 focus:ring-black"
           />
         </div>
 
-        {/* Button */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-black text-white py-2.5 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-900 transition disabled:opacity-70"
+          disabled={loading || !email}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-black py-2.5 text-sm font-medium text-white transition hover:bg-gray-900 disabled:opacity-70"
         >
           {loading ? (
             <>
@@ -106,9 +140,8 @@ export default function VerifyOtpPage() {
           )}
         </button>
 
-        {/* Footer */}
-        <p className="text-xs text-gray-400 text-center mt-5">
-          Secure verification · © {new Date().getFullYear()}
+        <p className="mt-5 text-center text-xs text-gray-400">
+          Successful verification will open the dashboard
         </p>
       </form>
     </div>
