@@ -8,6 +8,11 @@ const ADMIN_LOGIN_BASE_URL =
   `${process.env.NEXT_PUBLIC_API_BASE_URL}/app/auth/admin/login`
 
 export default function LoginForm() {
+
+  // console.log("BASE URL 👉", process.env.NEXT_PUBLIC_API_BASE_URL) // 👈 HERE
+
+
+
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
