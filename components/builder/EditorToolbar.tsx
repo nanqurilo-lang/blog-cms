@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useEditor, type WidgetData } from "./EditorProvider";
 
-const BUILDER_API_BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
+const BUILDER_API_BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL";
 const BUILDER_TEMPLATE_API = `${BUILDER_API_BASE_URL}/api/builder/template`;
 const DRAFT_STORAGE_KEY = "builder_template_drafts";
 const FALLBACK_DRAFT_IMAGE =

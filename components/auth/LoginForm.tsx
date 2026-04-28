@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { ArrowRight, Loader2, Mail } from "lucide-react"
 
 const ADMIN_LOGIN_BASE_URL =
-  "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/login"
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/app/auth/admin/login`
 
 export default function LoginForm() {
   const router = useRouter()

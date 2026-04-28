@@ -6,7 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { MoreVertical, Pencil, Save, Search, Trash2 } from "lucide-react"
 
-const BUILDER_API_BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms"
+const BUILDER_API_BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL"
 const DRAFT_TEMPLATE_LIMIT = 20
 const FALLBACK_DRAFT_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Crect width='1200' height='700' fill='%23eff6ff'/%3E%3Crect x='72' y='88' width='1056' height='524' rx='36' fill='%23dbeafe'/%3E%3Ctext x='50%25' y='47%25' text-anchor='middle' fill='%231d4ed8' font-family='Arial, sans-serif' font-size='54' font-weight='700'%3EDraft Template%3C/text%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' fill='%23475569' font-family='Arial, sans-serif' font-size='28'%3EBuilder preview image not available%3C/text%3E%3C/svg%3E"

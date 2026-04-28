@@ -17,7 +17,7 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 
 const BUILDER_TEMPLATE_API =
-  "https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/template";
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/builder/template`;
 
 function createWidget(type: string) {
   const id = crypto.randomUUID();
@@ -1455,7 +1455,8 @@ export default function Builder({ templateId }: { templateId: string | null }) {
       const token = localStorage.getItem("cms_token")
 
       const res = await fetch(
-        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/template/${templateId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL
+        }/api/builder/template/${templateId}`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",

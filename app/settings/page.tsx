@@ -29,7 +29,7 @@ export default function SettingsPage() {
 
 
 
-  const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
+  const BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL";
 
   const fetchSettings = async () => {
     try {
@@ -345,7 +345,7 @@ useEffect(() => {
     }
 
     const res = await fetch(
-      "https://w7xqb95q-3000.inc1.devtunnels.ms/app/auth/admin/update-profile",
+      `${BASE_URL}/app/auth/admin/update-profile`,
       {
         method: "PUT", // or POST (check API)
         headers: {
@@ -697,7 +697,7 @@ function Comments() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "https://w7xqb95q-3000.inc1.devtunnels.ms";
+  const BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL";
 
   useEffect(() => {
     fetchComments();

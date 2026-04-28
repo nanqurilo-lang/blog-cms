@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const postsData = Array.from({ length: 6 }).map((_, i) => ({
   id: i,
   title: "Lorem ipsum dolor sit amet, consectetur",
@@ -54,7 +56,7 @@ export default function Page() {
       const token = localStorage.getItem("cms_token") // if auth needed
 
       const res = await fetch(
-        "https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/get/blog-template/published?page=1&limit=20",
+        `${BASE_URL}/api/builder/get/blog-template/published?page=1&limit=20`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : "",
@@ -96,7 +98,7 @@ export default function Page() {
       const token = localStorage.getItem("cms_token")
 
       const res = await fetch(
-        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/add/to-favourite/${id}`,
+        `${BASE_URL}/api/builder/add/to-favourite/${id}`,
         {
           method: "POST",
           headers: {
@@ -171,7 +173,7 @@ const handleEdit = (id: string) => {
       const token = localStorage.getItem("cms_token")
 
       const res = await fetch(
-        `https://w7xqb95q-3000.inc1.devtunnels.ms/api/builder/delete/blog-template/${id}`,
+        `${BASE_URL}/api/builder/delete/blog-template/${id}`,
         {
           method: "DELETE", // ✅ important
           headers: {
