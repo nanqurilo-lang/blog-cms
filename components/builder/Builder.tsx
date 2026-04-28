@@ -1448,6 +1448,8 @@ async function publishTemplate() {
       },
     });
 
+    console.log("API 👉", BUILDER_TEMPLATE_API);
+
         console.log("✅ Template Created:", data);
 
     router.push("/posts"); // ✅ redirect

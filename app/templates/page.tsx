@@ -3,7 +3,7 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 
-const BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL"
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 type Template = {
   _id: string
