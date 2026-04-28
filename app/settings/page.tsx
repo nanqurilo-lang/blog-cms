@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const TABS = ["General", "Display Defaults", "Comments", "Privacy & Legal"];
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("General");
@@ -22,20 +23,11 @@ export default function SettingsPage() {
     cookieConsentEnabled: false,
     privacyPolicyUrl: "",
   });
-
-
-
-
-
-
-
-  const BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL";
-
   const fetchSettings = async () => {
     try {
       const token = localStorage.getItem("cms_token");
 
-      const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/default-setting`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,7 +64,7 @@ export default function SettingsPage() {
         showCookieRejectButton: false,
       };
 
-      const res = await fetch(`${BASE_URL}/api/admin/default-setting`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/default-setting`, {
         method: "PUT", // ⚠️ if still fails → change to PUT
         headers: {
           "Content-Type": "application/json",
@@ -345,7 +337,7 @@ useEffect(() => {
     }
 
     const res = await fetch(
-      `${BASE_URL}/app/auth/admin/update-profile`,
+      `${API_BASE_URL}/app/auth/admin/update-profile`,
       {
         method: "PUT", // or POST (check API)
         headers: {
@@ -697,8 +689,6 @@ function Comments() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "process.env.NEXT_PUBLIC_API_BASE_URL";
-
   useEffect(() => {
     fetchComments();
   }, []);
@@ -715,7 +705,7 @@ function Comments() {
         return;
       }
 
-      const res = await fetch(`${BASE_URL}/api/comment/get-all`, {
+      const res = await fetch(`${API_BASE_URL}/api/comment/get-all`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -774,7 +764,7 @@ function Comments() {
       const confirmDelete = confirm("Are you sure you want to delete this comment?");
       if (!confirmDelete) return;
 
-      const res = await fetch(`${BASE_URL}/api/comment/delete/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/comment/delete/${id}`, {
         method: "DELETE", // ✅ adjust if your API uses POST
         headers: {
           "Content-Type": "application/json",
