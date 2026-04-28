@@ -1281,11 +1281,64 @@ dispatch({
 
 
 
+// async function createTemplate() {
+//   const token =
+//     typeof window !== "undefined"
+//       ? localStorage.getItem("cms_token")
+//       : null;
+
+//   if (!token) {
+//     dispatch({
+//       type: "SAVE_TEMPLATE_ERROR",
+//       message: "Please login again",
+//     });
+//     return;
+//   }
+
+//   try {
+//     const res = await fetch(`${BUILDER_TEMPLATE_API}`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${token}`,
+//       },
+//       body: JSON.stringify({
+//         content: state.present, // ✅ IMPORTANT
+//       }),
+//     });
+
+//     const data = await res.json();
+
+//     if (!res.ok) {
+//       throw new Error(data?.message || "Create failed");
+//     }
+
+//     dispatch({
+//       type: "SAVE_TEMPLATE_SUCCESS",
+//       payload: {
+//         message: data.message,
+//         template: data.template,
+//         urls: data.urls || null,
+//       },
+//     });
+
+//     console.log("✅ Template Created:", data);
+
+//   } catch (err) {
+//     dispatch({
+//       type: "SAVE_TEMPLATE_ERROR",
+//       message:
+//         err instanceof Error ? err.message : "Create failed",
+//     });
+//   }
+// }
+
+
+
+
+
 async function createTemplate() {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("cms_token")
-      : null;
+  const token = localStorage.getItem("cms_token");
 
   if (!token) {
     dispatch({
@@ -1303,11 +1356,18 @@ async function createTemplate() {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        content: state.present, // ✅ IMPORTANT
+        title: state.present.title,
+        slug: state.present.slug,
+        description: state.present.description,
+        content: {
+          widgets: state.present.widgets,
+        },
       }),
     });
 
     const data = await res.json();
+
+    console.log("RESPONSE 👉", data);
 
     if (!res.ok) {
       throw new Error(data?.message || "Create failed");
