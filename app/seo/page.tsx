@@ -127,6 +127,19 @@ const saveSeoToBackend = async () => {
 
 
 
+
+ // 👇 👇 👇 YAHAN PASTE KARO
+  const handleNext = () => {
+    if (activeTab === "basic") {
+      setActiveTab("social");
+    } else if (activeTab === "social") {
+      setActiveTab("preview");
+    } else if (activeTab === "preview") {
+      setActiveTab("code");
+    }
+  };
+
+
   // SEO Score Calculator
   useEffect(() => {
     let score = 0;
@@ -687,13 +700,9 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
         </div>
 
         {/* Save Button */}
-        <div className="mt-6 flex justify-end">
+        {/* <div className="mt-6 flex justify-end">
           <button
-            // onClick={() => {
-            //   console.log('SEO Data:', seoData);
-            //   alert('SEO settings saved! Check console for data.');
-            // }}
-
+           
 
 onClick={saveSeoToBackend}
 
@@ -702,7 +711,45 @@ onClick={saveSeoToBackend}
           >
             Save SEO Settings
           </button>
-        </div>
+        </div> */}
+
+
+<div className="mt-6 flex justify-end gap-4">
+
+  {/* Back button */}
+  {activeTab !== "basic" && (
+    <button
+      onClick={() => {
+        if (activeTab === "social") setActiveTab("basic");
+        else if (activeTab === "preview") setActiveTab("social");
+        else if (activeTab === "code") setActiveTab("preview");
+      }}
+      className="px-6 py-3 bg-gray-200 rounded-lg"
+    >
+      Back
+    </button>
+  )}
+
+  {/* Next OR Save */}
+  {activeTab !== "code" ? (
+    <button
+      onClick={handleNext}
+      className="px-8 py-4 bg-blue-600 text-white rounded-lg"
+    >
+      Next →
+    </button>
+  ) : (
+    <button
+      onClick={saveSeoToBackend}
+      className="px-8 py-4 bg-green-600 text-white rounded-lg"
+    >
+      Save SEO Settings
+    </button>
+  )}
+
+</div>
+
+
       </div>
     </div>
   );
