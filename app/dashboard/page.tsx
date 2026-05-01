@@ -44,6 +44,32 @@ export default function DashboardPage() {
   const [year, setYear] = useState(new Date().getFullYear())
 
 
+
+  async function markAsSeen(notificationId: string) {
+    try {
+      const token = localStorage.getItem("cms_token")
+
+      await fetch(
+        `https://blog-backend-fpr9.onrender.com/api/dashboard/seen-notification/${notificationId}`,
+        {
+          method: "PUT", // ⚠️ confirm with backend (PUT or PATCH)
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
+
+      // Optional: remove or update UI after seen
+      setActivity((prev) =>
+        prev.filter((item) => item.id !== notificationId)
+      )
+
+    } catch (err) {
+      console.error("❌ Failed to mark notification as seen", err)
+    }
+  }
+
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
@@ -197,6 +223,8 @@ export default function DashboardPage() {
 
       setActivity(
         activityJson?.notification?.map((item: any) => ({
+          id: item._id,          // ✅ ADD THIS
+
           message: item.message
         })) || []
       )
@@ -433,19 +461,45 @@ export default function DashboardPage() {
             {activity.length === 0 ? (
               <p className="text-muted-foreground">No activity</p>
             ) : (
+              // activity.map((a, i) => (
+              //   <Activity
+              //     key={i}
+              //     text={a.message}
+              //     icon={
+              //       a.message?.toLowerCase().includes("like")
+              //         ? ThumbsUp
+              //         : a.message?.toLowerCase().includes("comment")
+              //           ? MessageCircle
+              //           : HelpCircle
+              //     }
+              //   />
+              // ))
+
+
+
               activity.map((a, i) => (
-                <Activity
+                <div
                   key={i}
-                  text={a.message}
-                  icon={
-                    a.message?.toLowerCase().includes("like")
-                      ? ThumbsUp
-                      : a.message?.toLowerCase().includes("comment")
-                        ? MessageCircle
-                        : HelpCircle
-                  }
-                />
+                  onClick={() => markAsSeen(a.id)}  // ✅ CLICK HERE
+                  className="cursor-pointer hover:bg-gray-100 p-2 rounded-md"
+                >
+                  <Activity
+                    text={a.message}
+                    icon={
+                      a.message?.toLowerCase().includes("like")
+                        ? ThumbsUp
+                        : a.message?.toLowerCase().includes("comment")
+                          ? MessageCircle
+                          : HelpCircle
+                    }
+                  />
+                </div>
               ))
+
+
+
+
+
             )}
           </CardContent>
         </Card>
