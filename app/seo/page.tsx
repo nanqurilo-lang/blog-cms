@@ -101,6 +101,9 @@ const saveSeoToBackend = async () => {
       post: postId,
     };
 
+        console.log("📤 Sending Payload:", payload);
+
+
     const res = await fetch(
       "https://blog-backend-fpr9.onrender.com/api/seo/create",
       {
@@ -114,6 +117,8 @@ const saveSeoToBackend = async () => {
     );
 
     const data = await res.json();
+        console.log("📡 Response Status:", res.status);
+
 
     if (!res.ok) {
       throw new Error(data.message || "Failed to save SEO");
