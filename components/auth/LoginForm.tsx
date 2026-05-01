@@ -25,10 +25,21 @@ export default function LoginForm() {
 
     try {
       const normalizedEmail = email.trim().toLowerCase()
+      // const response = await fetch(
+      //   `${ADMIN_LOGIN_BASE_URL}/${encodeURIComponent(normalizedEmail)}`,
+      //   { method: "GET" },
+      // )
+
+
       const response = await fetch(
-        `${ADMIN_LOGIN_BASE_URL}/${encodeURIComponent(normalizedEmail)}`,
-        { method: "GET" },
-      )
+  `${ADMIN_LOGIN_BASE_URL}?email=${encodeURIComponent(normalizedEmail)}`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }
+)
 
       let result: { message?: string } | null = null
       try {
