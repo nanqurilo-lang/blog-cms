@@ -43,7 +43,6 @@ import {
 import SortableItem from "../dnd/SortableItem";
 import WidgetRenderer from "./WidgetRenderer";
 import { useEditor } from "./EditorProvider";
-import { SidebarTrigger } from "../ui/sidebar";
 
 export default function Canvas({
   widgets,
@@ -60,8 +59,6 @@ export default function Canvas({
         isPreview ? "pointer-events-none opacity-90" : ""
       }`}
     >
-            <SidebarTrigger />
-
       {widgets.length === 0 && (
         <div className="text-center text-gray-400 mt-20">
           Start Building
