@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Code, Globe, FileText, Image, Link2, Twitter, Facebook, Linkedin, AlertCircle, Check, Copy } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
 type SeoData = {
   metaTitle: string;
@@ -21,6 +22,10 @@ type SeoData = {
 };
 
 const BlogPostSEO = () => {
+
+ const params = useParams();
+  const postId = params?.id; // ya params.postId
+
   const [seoData, setSeoData] = useState<SeoData>({
     metaTitle: '',
     metaDescription: '',
@@ -44,6 +49,84 @@ const BlogPostSEO = () => {
   const [copied, setCopied] = useState(false);
   const [seoScore, setSeoScore] = useState(0);
 
+
+
+//new added 
+
+const saveSeoToBackend = async () => {
+  try {
+    const token = localStorage.getItem("cms_token");
+
+    const payload = {
+      metaTitle: seoData.metaTitle,
+      urlSlug: seoData.slug,
+      domain: window.location.origin,
+
+      metaDescription: seoData.metaDescription,
+      focusKeyword: seoData.focusKeyword,
+      additionalKeywords: seoData.keywords,
+
+      canonicalUrl:
+        seoData.canonicalUrl ||
+        `${window.location.origin}/blog/${seoData.slug}`,
+
+      author: seoData.author,
+      publishDate: seoData.publishDate,
+      robotsMetaTag: seoData.robots,
+      seoScore: seoScore,
+
+      openGraph: {
+        ogTitle: seoData.ogTitle || seoData.metaTitle,
+        ogDescription:
+          seoData.ogDescription || seoData.metaDescription,
+        ogImageUrl: seoData.ogImage,
+      },
+
+      twitterCard: {
+        twitterTitle:
+          seoData.twitterTitle ||
+          seoData.ogTitle ||
+          seoData.metaTitle,
+
+        twitterDescription:
+          seoData.twitterDescription ||
+          seoData.ogDescription ||
+          seoData.metaDescription,
+
+        twitterImageUrl:
+          seoData.twitterImage || seoData.ogImage,
+      },
+
+      // ✅ dynamic post id
+      post: postId,
+    };
+
+    const res = await fetch(
+      "https://blog-backend-fpr9.onrender.com/api/seo/create",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to save SEO");
+    }
+
+    alert("SEO saved successfully ✅");
+  } catch (error: any) {
+    alert(error.message);
+  }
+};
+
+
+
   // SEO Score Calculator
   useEffect(() => {
     let score = 0;
@@ -61,6 +144,20 @@ const BlogPostSEO = () => {
     
     setSeoScore(score);
   }, [seoData]);
+
+
+  useEffect(() => {
+    if (seoData.metaTitle && !seoData.slug) {
+      const slug = seoData.metaTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      setSeoData(prev => ({ ...prev, slug }));
+    }
+  }, [seoData.metaTitle]);
+
+
 
   const handleInputChange = (field: keyof SeoData, value: string) => {
     setSeoData(prev => ({ ...prev, [field]: value }));
@@ -592,10 +689,15 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
         {/* Save Button */}
         <div className="mt-6 flex justify-end">
           <button
-            onClick={() => {
-              console.log('SEO Data:', seoData);
-              alert('SEO settings saved! Check console for data.');
-            }}
+            // onClick={() => {
+            //   console.log('SEO Data:', seoData);
+            //   alert('SEO settings saved! Check console for data.');
+            // }}
+
+
+onClick={saveSeoToBackend}
+
+
             className="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg shadow-lg"
           >
             Save SEO Settings
