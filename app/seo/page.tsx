@@ -23,7 +23,7 @@ type SeoData = {
 
 const BlogPostSEO = () => {
 
- const params = useParams();
+  const params = useParams();
   const postId = params?.id; // ya params.postId
 
   const [seoData, setSeoData] = useState<SeoData>({
@@ -48,92 +48,140 @@ const BlogPostSEO = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [copied, setCopied] = useState(false);
   const [seoScore, setSeoScore] = useState(0);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
+  const fetchSeoPreview = async () => {
+    try {
+      const token = localStorage.getItem("cms_token");
+      setPreviewLoading(true);
 
+      const res = await fetch(
+        `https://blog-backend-fpr9.onrender.com/api/seo/preview/${postId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-//new added 
+      const data = await res.json();
 
-const saveSeoToBackend = async () => {
-  try {
-    const token = localStorage.getItem("cms_token");
-
-    const payload = {
-      metaTitle: seoData.metaTitle,
-      urlSlug: seoData.slug,
-      domain: window.location.origin,
-
-      metaDescription: seoData.metaDescription,
-      focusKeyword: seoData.focusKeyword,
-      additionalKeywords: seoData.keywords,
-
-      canonicalUrl:
-        seoData.canonicalUrl ||
-        `${window.location.origin}/blog/${seoData.slug}`,
-
-      author: seoData.author,
-      publishDate: seoData.publishDate,
-      robotsMetaTag: seoData.robots,
-      seoScore: seoScore,
-
-      openGraph: {
-        ogTitle: seoData.ogTitle || seoData.metaTitle,
-        ogDescription:
-          seoData.ogDescription || seoData.metaDescription,
-        ogImageUrl: seoData.ogImage,
-      },
-
-      twitterCard: {
-        twitterTitle:
-          seoData.twitterTitle ||
-          seoData.ogTitle ||
-          seoData.metaTitle,
-
-        twitterDescription:
-          seoData.twitterDescription ||
-          seoData.ogDescription ||
-          seoData.metaDescription,
-
-        twitterImageUrl:
-          seoData.twitterImage || seoData.ogImage,
-      },
-
-      // ✅ dynamic post id
-      post: postId,
-    };
-
-        console.log("📤 Sending Payload:", payload);
-
-
-    const res = await fetch(
-      "https://blog-backend-fpr9.onrender.com/api/seo/create",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch preview");
       }
-    );
 
-    const data = await res.json();
-        console.log("📡 Response Status:", res.status);
+      setPreviewData(data.data);
 
-
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to save SEO");
+    } catch (err: any) {
+      console.error(err.message);
+    } finally {
+      setPreviewLoading(false);
     }
-
-    alert("SEO saved successfully ✅");
-  } catch (error: any) {
-    alert(error.message);
-  }
-};
+  };
 
 
 
+  useEffect(() => {
+    if (activeTab === "preview" && postId) {
+      fetchSeoPreview();
+    }
+  }, [activeTab, postId]);
 
- // 👇 👇 👇 YAHAN PASTE KARO
+
+  //new added 
+
+  const saveSeoToBackend = async () => {
+    try {
+      const token = localStorage.getItem("cms_token");
+
+      const payload = {
+        metaTitle: seoData.metaTitle,
+        urlSlug: seoData.slug,
+        domain: window.location.origin,
+
+        metaDescription: seoData.metaDescription,
+        focusKeyword: seoData.focusKeyword,
+        additionalKeywords: seoData.keywords,
+
+        canonicalUrl:
+          seoData.canonicalUrl ||
+          `${window.location.origin}/blog/${seoData.slug}`,
+
+        author: seoData.author,
+        publishDate: seoData.publishDate,
+        robotsMetaTag: seoData.robots,
+        seoScore: seoScore,
+
+        openGraph: {
+          ogTitle: seoData.ogTitle || seoData.metaTitle,
+          ogDescription:
+            seoData.ogDescription || seoData.metaDescription,
+          ogImageUrl: seoData.ogImage,
+        },
+
+        twitterCard: {
+          twitterTitle:
+            seoData.twitterTitle ||
+            seoData.ogTitle ||
+            seoData.metaTitle,
+
+          twitterDescription:
+            seoData.twitterDescription ||
+            seoData.ogDescription ||
+            seoData.metaDescription,
+
+          twitterImageUrl:
+            seoData.twitterImage || seoData.ogImage,
+        },
+
+        // ✅ dynamic post id
+        post: postId,
+      };
+
+      console.log("📤 Sending Payload:", payload);
+
+
+      const res = await fetch(
+        "https://blog-backend-fpr9.onrender.com/api/seo/create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const data = await res.json();
+      console.log("📡 Response Status:", res.status);
+
+
+      // if (!res.ok) {
+      //   throw new Error(data.message || "Failed to save SEO");
+      // }
+
+
+      if (!res.ok) {
+        if (data.message?.toLowerCase().includes("slug")) {
+          throw new Error("Slug already exists ⚠️ Try a different one");
+        }
+        throw new Error(data.message || "Failed to save SEO");
+      }
+
+
+
+      alert("SEO saved successfully ✅");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+
+
+
+  // 👇 👇 👇 YAHAN PASTE KARO
   const handleNext = () => {
     if (activeTab === "basic") {
       setActiveTab("social");
@@ -150,16 +198,16 @@ const saveSeoToBackend = async () => {
     let score = 0;
     if (seoData.metaTitle.length >= 50 && seoData.metaTitle.length <= 60) score += 20;
     else if (seoData.metaTitle.length > 0) score += 10;
-    
+
     if (seoData.metaDescription.length >= 150 && seoData.metaDescription.length <= 160) score += 20;
     else if (seoData.metaDescription.length > 0) score += 10;
-    
+
     if (seoData.focusKeyword) score += 15;
     if (seoData.keywords.length >= 3) score += 15;
     if (seoData.slug) score += 10;
     if (seoData.ogImage) score += 10;
     if (seoData.canonicalUrl) score += 10;
-    
+
     setSeoScore(score);
   }, [seoData]);
 
@@ -198,13 +246,29 @@ const saveSeoToBackend = async () => {
     }));
   };
 
+  // const generateSlugFromTitle = () => {
+  //   const slug = seoData.metaTitle
+  //     .toLowerCase()
+  //     .replace(/[^a-z0-9]+/g, '-')
+  //     .replace(/^-|-$/g, '');
+  //   handleInputChange('slug', slug);
+  // };
+
+
+
   const generateSlugFromTitle = () => {
-    const slug = seoData.metaTitle
+    const baseSlug = seoData.metaTitle
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    handleInputChange('slug', slug);
+
+    // 🔥 random suffix add karo
+    const uniqueSlug = `${baseSlug}-${Date.now().toString().slice(-4)}`;
+
+    handleInputChange('slug', uniqueSlug);
   };
+
+
 
   const copyMetaTags = () => {
     const metaTags = generateMetaTags();
@@ -271,44 +335,40 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab('basic')}
-              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${
-                activeTab === 'basic'
+              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'basic'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <FileText className="w-4 h-4 mr-2" />
               Basic SEO
             </button>
             <button
               onClick={() => setActiveTab('social')}
-              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${
-                activeTab === 'social'
+              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'social'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <Globe className="w-4 h-4 mr-2" />
               Social Media
             </button>
             <button
               onClick={() => setActiveTab('preview')}
-              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${
-                activeTab === 'preview'
+              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'preview'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <Eye className="w-4 h-4 mr-2" />
               Preview
             </button>
             <button
               onClick={() => setActiveTab('code')}
-              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${
-                activeTab === 'code'
+              className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'code'
                   ? 'border-blue-600 text-blue-600 bg-blue-50'
                   : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <Code className="w-4 h-4 mr-2" />
               Code
@@ -606,13 +666,15 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
                 </h3>
                 <div className="border border-gray-300 rounded-lg p-6 bg-white">
                   <div className="text-sm text-gray-600 mb-1">
-                    yourdomain.com › blog › {seoData.slug || 'post-url'}
+                    {previewData?.domain || 'yourdomain.com'} › blog › {previewData?.urlSlug || seoData.slug || 'post-url'}
                   </div>
+
                   <div className="text-xl text-blue-700 hover:underline cursor-pointer mb-2">
-                    {seoData.metaTitle || 'Your Blog Post Title Will Appear Here'}
+                    {previewData?.metaTitle || seoData.metaTitle || 'Your Blog Post Title'}
                   </div>
+
                   <div className="text-sm text-gray-700 leading-relaxed">
-                    {seoData.metaDescription || 'Your meta description will appear here. Make it compelling to increase click-through rates from search results.'}
+                    {previewData?.metaDescription || seoData.metaDescription || 'Your meta description will appear here'}
                   </div>
                 </div>
               </div>
@@ -624,21 +686,25 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
                   Facebook / LinkedIn Share
                 </h3>
                 <div className="border border-gray-300 rounded-lg overflow-hidden bg-white max-w-xl">
-                  {(seoData.ogImage || seoData.twitterImage) && (
+                  {(previewData?.openGraph?.ogImageUrl || seoData.ogImage) && (
                     <div className="bg-gray-200 h-64 flex items-center justify-center">
                       <Image className="w-16 h-16 text-gray-400" />
                     </div>
                   )}
+
                   <div className="p-4">
                     <div className="text-xs text-gray-500 uppercase mb-2">
-                      yourdomain.com
+                      {previewData?.domain || 'yourdomain.com'}
                     </div>
+
                     <div className="text-lg font-semibold text-gray-900 mb-1">
-                      {seoData.ogTitle || seoData.metaTitle || 'Your Blog Post Title'}
+                      {previewData?.openGraph?.ogTitle || seoData.ogTitle || seoData.metaTitle}
                     </div>
+
                     <div className="text-sm text-gray-600">
-                      {seoData.ogDescription || seoData.metaDescription || 'Your description will appear here...'}
+                      {previewData?.openGraph?.ogDescription || seoData.ogDescription || seoData.metaDescription}
                     </div>
+
                   </div>
                 </div>
               </div>
@@ -655,7 +721,7 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
                       <Image className="w-16 h-16 text-gray-400" />
                     </div>
                   )}
-                  <div className="p-4">
+                  {/* <div className="p-4">
                     <div className="text-base font-semibold text-gray-900 mb-1">
                       {seoData.twitterTitle || seoData.ogTitle || seoData.metaTitle || 'Your Blog Post Title'}
                     </div>
@@ -665,7 +731,26 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
                     <div className="text-xs text-gray-500">
                       yourdomain.com
                     </div>
+                  </div> */}
+
+
+
+
+                  <div className="p-4">
+                    <div className="text-base font-semibold text-gray-900 mb-1">
+                      {previewData?.twitterCard?.twitterTitle || seoData.twitterTitle || seoData.metaTitle}
+                    </div>
+
+                    <div className="text-sm text-gray-600 mb-2">
+                      {previewData?.twitterCard?.twitterDescription || seoData.twitterDescription || seoData.metaDescription}
+                    </div>
+
+                    <div className="text-xs text-gray-500">
+                      {previewData?.domain || 'yourdomain.com'}
+                    </div>
                   </div>
+
+
                 </div>
               </div>
             </div>
@@ -693,7 +778,10 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
                 </button>
               </div>
               <pre className="bg-gray-900 text-gray-100 p-6 rounded-lg overflow-x-auto text-sm">
-                <code>{generateMetaTags()}</code>
+                {/* <code>{generateMetaTags()}</code> */}
+
+                <code>{previewData?.generatedCode || generateMetaTags()}</code>
+
               </pre>
               <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800">
@@ -719,40 +807,40 @@ onClick={saveSeoToBackend}
         </div> */}
 
 
-<div className="mt-6 flex justify-end gap-4">
+        <div className="mt-6 flex justify-end gap-4">
 
-  {/* Back button */}
-  {activeTab !== "basic" && (
-    <button
-      onClick={() => {
-        if (activeTab === "social") setActiveTab("basic");
-        else if (activeTab === "preview") setActiveTab("social");
-        else if (activeTab === "code") setActiveTab("preview");
-      }}
-      className="px-6 py-3 bg-gray-200 rounded-lg"
-    >
-      Back
-    </button>
-  )}
+          {/* Back button */}
+          {activeTab !== "basic" && (
+            <button
+              onClick={() => {
+                if (activeTab === "social") setActiveTab("basic");
+                else if (activeTab === "preview") setActiveTab("social");
+                else if (activeTab === "code") setActiveTab("preview");
+              }}
+              className="px-6 py-3 bg-gray-200 rounded-lg"
+            >
+              Back
+            </button>
+          )}
 
-  {/* Next OR Save */}
-  {activeTab !== "code" ? (
-    <button
-      onClick={handleNext}
-      className="px-8 py-4 bg-blue-600 text-white rounded-lg"
-    >
-      Next →
-    </button>
-  ) : (
-    <button
-      onClick={saveSeoToBackend}
-      className="px-8 py-4 bg-green-600 text-white rounded-lg"
-    >
-      Save SEO Settings
-    </button>
-  )}
+          {/* Next OR Save */}
+          {activeTab !== "code" ? (
+            <button
+              onClick={handleNext}
+              className="px-8 py-4 bg-blue-600 text-white rounded-lg"
+            >
+              Next →
+            </button>
+          ) : (
+            <button
+              onClick={saveSeoToBackend}
+              className="px-8 py-4 bg-green-600 text-white rounded-lg"
+            >
+              Save SEO Settings
+            </button>
+          )}
 
-</div>
+        </div>
 
 
       </div>
