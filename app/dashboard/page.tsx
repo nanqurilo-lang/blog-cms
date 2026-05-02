@@ -50,7 +50,7 @@ export default function DashboardPage() {
       const token = localStorage.getItem("cms_token")
 
       await fetch(
-        `https://blog-backend-fpr9.onrender.com/api/dashboard/seen-notification/${notificationId}`,
+        `${BASE_URL}/api/dashboard/seen-notification/${notificationId}`,
         {
           method: "PUT", // ⚠️ confirm with backend (PUT or PATCH)
           headers: {

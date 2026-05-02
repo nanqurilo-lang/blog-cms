@@ -3,6 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { Search, Eye, Code, Globe, FileText, Image, Link2, Twitter, Facebook, Linkedin, AlertCircle, Check, Copy } from 'lucide-react';
 import { useParams } from 'next/navigation';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+
+
 type SeoData = {
   metaTitle: string;
   metaDescription: string;
@@ -57,7 +61,7 @@ const BlogPostSEO = () => {
       setPreviewLoading(true);
 
       const res = await fetch(
-        `https://blog-backend-fpr9.onrender.com/api/seo/preview/${postId}`,
+        `${API_BASE_URL}/api/seo/preview/${postId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -143,7 +147,7 @@ const BlogPostSEO = () => {
 
 
       const res = await fetch(
-        "https://blog-backend-fpr9.onrender.com/api/seo/create",
+        `${API_BASE_URL}/api/seo/create`,
         {
           method: "POST",
           headers: {
@@ -336,8 +340,8 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
             <button
               onClick={() => setActiveTab('basic')}
               className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'basic'
-                  ? 'border-blue-600 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'border-blue-600 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
             >
               <FileText className="w-4 h-4 mr-2" />
@@ -346,8 +350,8 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
             <button
               onClick={() => setActiveTab('social')}
               className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'social'
-                  ? 'border-blue-600 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'border-blue-600 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
             >
               <Globe className="w-4 h-4 mr-2" />
@@ -356,8 +360,8 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
             <button
               onClick={() => setActiveTab('preview')}
               className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'preview'
-                  ? 'border-blue-600 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'border-blue-600 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
             >
               <Eye className="w-4 h-4 mr-2" />
@@ -366,8 +370,8 @@ ${seoData.twitterImage || seoData.ogImage ? `<meta name="twitter:image" content=
             <button
               onClick={() => setActiveTab('code')}
               className={`flex items-center px-6 py-4 font-medium text-sm transition-colors border-b-2 ${activeTab === 'code'
-                  ? 'border-blue-600 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'border-blue-600 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
             >
               <Code className="w-4 h-4 mr-2" />
