@@ -84,7 +84,7 @@ export default function DashboardPage() {
     const token = localStorage.getItem("cms_token")
 
     if (!token) {
-      window.location.href = "/login"
+      window.location.href = "/"
       return
     }
 
@@ -95,7 +95,7 @@ export default function DashboardPage() {
       if (payload.exp < currentTime) {
         // ❌ token expired
         localStorage.removeItem("cms_token")
-        window.location.href = "/login"
+        window.location.href = "/"
         return
       }
 
@@ -103,7 +103,7 @@ export default function DashboardPage() {
       fetchDashboard()
     } catch {
       localStorage.removeItem("cms_token")
-      window.location.href = "/login"
+      window.location.href = "/"
     }
   }, [year])
 

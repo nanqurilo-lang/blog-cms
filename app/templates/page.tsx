@@ -95,7 +95,7 @@ useEffect(() => {
       if (res.status === 403) {
         console.error("Invalid or expired token")
         localStorage.removeItem("cms_token")
-        window.location.href = "/login"
+        window.location.href = "/"
         return
       }
 
