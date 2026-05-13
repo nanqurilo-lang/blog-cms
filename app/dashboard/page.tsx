@@ -408,12 +408,12 @@ export default function DashboardPage() {
               <div className="max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
 
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-blue-50 ">
+                  <thead className="sticky top-0 bg-blue-50 rounded ">
                     <tr className="text-left">
                       <th className="p-2">Title</th>
                       <th className="p-2">Status</th>
                       <th className="p-2">Last Updated</th>
-                      <th></th>
+                     
                     </tr>
                   </thead>
 
@@ -435,9 +435,9 @@ export default function DashboardPage() {
                         <td className="p-2">
                           {new Date(row.lastUpdated).toLocaleDateString()}
                         </td>
-                        <td className="p-2">
+                        {/* <td className="p-2">
                           <Pencil className="h-4 w-4 cursor-pointer text-muted-foreground" />
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

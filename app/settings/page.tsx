@@ -290,6 +290,8 @@ useEffect(() => {
     preview: "",
   });
 
+  const [updating, setUpdating] = useState(false);
+
   const handleChange = (key: string, value: any) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
@@ -317,8 +319,66 @@ useEffect(() => {
 
 
 
-  const handleSubmit = async () => {
+//   const handleSubmit = async () => {
+//   try {
+//     const token = localStorage.getItem("cms_token");
+
+//     if (!token) {
+//       alert("Token missing ❌");
+//       return;
+//     }
+
+//     const formData = new FormData();
+
+//     formData.append("username", form.username);
+//     formData.append("phone", form.phone);
+//     formData.append("email", form.email);
+
+//     if (form.admin_profile) {
+//       formData.append("admin_profile", form.admin_profile);
+//     }
+
+//     const res = await fetch(
+//       `${API_BASE_URL}/app/auth/admin/update-profile`,
+//       {
+//         method: "PUT", // or POST (check API)
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//         body: formData,
+//       }
+//     );
+
+//     const data = await res.json();
+
+//     if (res.ok) {
+//       alert("✅ Profile updated!");
+
+//       // ✅ SAVE UPDATED DATA IN LOCAL STORAGE
+//       localStorage.setItem("admin_profile", JSON.stringify(data.admin));
+
+//       // ✅ Trigger global update
+//       window.dispatchEvent(new Event("profileUpdated"));
+
+//     } else {
+//       alert(data.message || "Update failed ❌");
+//     }
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+
+
+
+
+
+
+
+const handleSubmit = async () => {
   try {
+    setUpdating(true); // ✅ start loading
+
     const token = localStorage.getItem("cms_token");
 
     if (!token) {
@@ -339,7 +399,7 @@ useEffect(() => {
     const res = await fetch(
       `${API_BASE_URL}/app/auth/admin/update-profile`,
       {
-        method: "PUT", // or POST (check API)
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -352,21 +412,18 @@ useEffect(() => {
     if (res.ok) {
       alert("✅ Profile updated!");
 
-      // ✅ SAVE UPDATED DATA IN LOCAL STORAGE
       localStorage.setItem("admin_profile", JSON.stringify(data.admin));
 
-      // ✅ Trigger global update
       window.dispatchEvent(new Event("profileUpdated"));
-
     } else {
       alert(data.message || "Update failed ❌");
     }
   } catch (err) {
     console.error(err);
+  } finally {
+    setUpdating(false); // ✅ stop loading
   }
 };
-
-
 
 
 
@@ -466,12 +523,29 @@ useEffect(() => {
 
           {/* Save Button */}
           <div className="flex justify-end">
-            <button
+            {/* <button
               onClick={handleSubmit}
               className="bg-blue-600 text-white px-6 py-2 rounded-md text-sm"
             >
-              Save Changes
-            </button>
+              Update
+            </button> */}
+
+
+<button
+  onClick={handleSubmit}
+  disabled={updating}
+  className={`px-6 py-2 rounded-md text-sm text-white ${
+    updating
+      ? "bg-gray-400 cursor-not-allowed"
+      : "bg-blue-600 hover:bg-blue-700"
+  }`}
+>
+  {updating ? "Updating..." : "Update"}
+</button>
+
+
+
+
           </div>
         </div>
       </Card>
